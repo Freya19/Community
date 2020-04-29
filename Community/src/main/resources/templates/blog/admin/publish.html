@@ -1,0 +1,189 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>发布</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/bootstrap-3.3.7/bootstrap.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/bootstrap-3.3.7/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/css/publish.css">
+    <link rel="icon" href="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/cloud.png"/>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.min.css"
+          type="text/css" crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.preview.css"
+          type="text/css" crossorigin="anonymous"/>
+
+</head>
+<body>
+
+<div class="container-fluid main">
+    <div class="row">
+        <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+            <h2><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 发起</h2>
+            <hr>
+            <form th:action="@{/admin/blog/blog}" method="post">
+                <div class="row">
+                    <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                        <label for="flag">类型:</label>
+                        <select class="form-control" id="flag" name="flag" th:value="${flag}" required>
+                            <option th:value="原创">原创</option>
+                            <option th:value="转载">转载</option>
+                            <option th:value="翻译">翻译</option>
+                        </select>
+                        <br>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                        <label for="categoryId">类别</label>
+                        <select class="form-control" id="categoryId" name="categoryId" th:value="${cat}" required>
+                            <option th:each="cat:${cats}"
+                                    th:text="${cat.name}"
+                                    th:value="${cat.id}"></option>
+                        </select>
+                        <br>
+                    </div>
+                </div>
+                <input type="hidden" name="id" th:value="${id}">
+                <div class="form-group">
+                    <label for="title">问题标题（简单扼要）:</label>
+                    <input type="text" class="form-control" th:value="${title}" id="title" name="title"
+                           placeholder="问题标题……" required  autocomplete="off">
+                </div>
+                <div class="form-group" id="question-editor" style="z-index: 1">
+                    <textarea name="content" id="content" th:text="${content}" style="display:none;"
+                              class="form-control" required  cols="30"  rows="10"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="tag">添加标签:</label>
+                    <!--                    tag是publish.js中写的tag，这里就没有修改了，不想改动了-->
+                    <input type="text" class="form-control" th:value="${tag}" id="tag" name="tags"
+                           autocomplete="off" required  placeholder="输入标签，以，号分隔"  onclick="showSelectTag()">
+                    <div id="select-tag" class="publish-tag-tab">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" th:each="selectCategory,selectCategoryStat: ${tags}"
+                                th:class="${selectCategoryStat.first ? 'active':''}">
+                                <a th:href="${'#'+selectCategory.group}" aria-controls="home" role="tab"
+                                   data-toggle="tab" th:text="${selectCategory.group}"></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div role="tabpanel" th:id="${selectCategory.group}"
+                                 th:each="selectCategory: ${tags}"
+                                 th:class="${selectCategoryStat.first ? 'active tab-pane':'tab-pane'}">
+                                <span>
+                                    <span th:each="selectTag: ${selectCategory.tags}">
+                                    <span class="community-tag" onclick="selectTag(this)"
+                                          th:data-tag="${selectTag}"
+                                          th:text="${' '+selectTag}">
+                                    </span>
+                                </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid main ">
+                    <div class="row">
+                        <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+                            <div class="alert alert-danger col-lg-12 col-md-12 col-sm-12 col-xs-12"
+                                 th:text="${error}"
+                                 th:if="${error != null}">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                            <button type="submit" class="btn btn-success btn-publish ">
+                                发布
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+            <div style="margin-top:30px;vertical-align:middle">
+                <h3 style="display: inline;">博客发布指南</h3>
+                <button type="button" title="" data-container="body" data-toggle="popover" data-placement="bottom"
+                        data-content="<div class='markdown-body editormd-preview-container' id='custom-toc-container' style='z-index: 2;position: fixed;padding: 0;border: none;background-color:transparent;max-height: 500px;width:260px'></div>  "
+                        data-original-title="目录" class="btn btn-default btn-sm"
+                        style="display: inline; margin-left: 40px;z-index: 2;position:relative;width: 70px">
+                    目录
+                </button>
+            </div>
+            <div>
+                <br>
+                <span>
+                • 问题标题: 请用精简的语言描述您发布的博客题目，不超过25字
+            </span>
+                <br style="margin-bottom:8px">
+                <span>
+                • 问题补充: 详细补充您的博客内容，并确保博客内容描述清晰直观, 并提供一些相关的资料
+            </span>
+                <br style="margin-bottom:8px">
+                <span>
+                • 选择标签: 选择一个或者多个合适的标签，如果没有合适的标签，您可以自己输入，并用逗号隔开，每个标签不超过10个字<br>
+            </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/jquery.min.js-3.2.1/jquery.min.js"
+        crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/bootstrap-3.3.7/bootstrap.min.js"
+        type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/js/publish.js"
+        type="application/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/editormd.js"
+        crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/moment.js-2.10.6/moment.js"
+        type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/marked.min.js-0.3.3/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/prettify.min.js"></script>
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-89103576-8');
+</script>
+<script type="text/javascript">
+    var editor= null;
+    $(function () {
+        editor = editormd("question-editor", {
+            width: "100%",
+            height: 350,
+            path: "https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/",
+            delay: 0,
+            codeFold : true,
+            emoji : true,
+            tex : true,
+            placeholder: "请输入问题描述",
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: "/img/upload"
+        });
+        editor.config({
+            tocContainer: "#custom-toc-container",
+            tocDropdown: false
+        });
+    });
+    $(function () {
+        $("[data-toggle='popover']").popover({html: true});
+    });
+</script>
+
+</body>
+</html>

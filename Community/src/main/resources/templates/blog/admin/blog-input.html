@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="community-fragments :: css">
+    </th:block>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.min.css" type="text/css" crossorigin="anonymous"/>
+    <title>博客发布</title>
+</head>
+
+<body>
+<div class="nk-container">
+    <header class="bg-dark sticky-top "  th:replace="community-fragments::header(3)">
+
+    </header>
+
+    <div class="ui attached pointing menu">
+        <div class="ui container">
+            <div class="right menu">
+                <a href="#" th:href="@{/admin/blog/blog}" class="teal active item">发布</a>
+                <a href="#" th:href="@{/admin/blog/blogs}" class="item">列表</a>
+            </div>
+        </div>
+    </div>
+
+    <!--中间内容-->
+    <div class="m-container m-padded-tb-big big-height">
+        <div class="ui container">
+            <form id="blog-form" action="#"  th:action="@{/admin/blog/blog}" method="post"
+                  class="ui form">
+
+                <input type="hidden" name="published" th:value="${blog!=null}?*{blog.published}">
+                <input type="hidden" name="id" th:value="${blog!=null}?*{blog.id}">
+                <!--required不输就提交会有红色演示-->
+                <div class="required field">
+                    <!--组合按钮，既有label,又有input,形成一个整体-->
+                    <!--selection dropdown 下拉选择-->
+                    <div class="ui left labeled input">
+                        <!--compact:label的大小适应文本-->
+                        <div class="ui selection compact teal basic dropdown label">
+                            <input type="hidden" value="原创" name="flag" th:value="${blog!=null}?*{blog.flag}">
+                            <i class="dropdown icon"></i>
+                            <div class="text">原创</div>
+                            <div class="menu">
+                                <div class="item" data-value="原创">原创</div>
+                                <div class="item" data-value="转载">转载</div>
+                                <div class="item" data-value="翻译">翻译</div>
+                            </div>
+                        </div>
+                        <input type="text" name="title" placeholder="标题" th:value="${blog!=null}?*{blog.title}">
+                    </div>
+                </div>
+
+                <div class="required field">
+                <!--这里插入富文本编辑，直接使用即可，这里全屏后markdown会被semantic UI的组件遮挡，所以将markdown的
+                    叠加层次z-index置为1即放到最上层-->
+                <div id="md-content" style="z-index: 6 !important;">
+                        <textarea placeholder="博客内容" name="content" style="display: none;height: 400px;"
+                                  th:text="${blog!=null}?*{blog.content}"></textarea>
+                </div>
+            </div>
+
+                <!--two fields两个值占满一行-->
+                <div class="two fields">
+                    <!--required表示这里如果不输，提交的时候就会标红-->
+                    <div class="required field">
+                        <!--action表示这个label右边去除圆角-->
+                        <div class="ui left labeled action input">
+                            <label class="ui compact teal basic label">分类</label>
+                            <div class="ui fluid selection dropdown">
+                                <input type="hidden" name="categoryId" th:value="${cat}!=null ? ${cat.id}">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">分类</div>
+                                <div class="menu">
+                                    <div th:each="onecat : ${cats}" class="item" data-value="1"
+                                         th:data-value="${onecat.id}"
+                                         th:text="${onecat.name}">类别名
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" field">
+                        <div class="ui left labeled action input">
+                            <label class="ui compact teal basic label">标签</label>
+                            <!--multiple为semantic组件，可以选择多个
+                                search表示可以搜索，不过这里是根据value进行搜索
+                                dropdown表示一个下拉菜单-->
+                            <div class="ui fluid selection multiple search  dropdown">
+                                <!--这里当hidden指定value时，那些标签自动的被选中-->
+                                <input type="hidden" name="tagIds" th:value="${tagIds}">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">标签</div>
+                                <div class="menu">
+                                    <div th:each="onetag : ${tags}" class="item" data-value="1"
+                                         th:data-value="${onetag.id}"
+                                         th:text="${onetag.name}">java
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--多个field放在多一行-->
+                <div class="inline fields">
+                    <div class="field">
+                        <div class="ui checkbox">
+                            <!--class="hidden表示这个checkbox默认不显示-->
+                            <input type="checkbox" id="recommend" name="recommend" checked th:checked="${blog!=null}?*{blog.recommend}"
+                                   class="hidden">
+                            <label for="recommend">推荐</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui checkbox">
+                            <input type="checkbox" id="shareStatement" name="shareStatement"
+                                   th:checked="${blog!=null}?*{blog.shareStatement}"
+                                   class="hidden">
+                            <label for="shareStatement">转载声明</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui checkbox">
+                            <input type="checkbox" id="appreciation" name="appreciation" th:checked="${blog!=null}?*{blog.appreciation}"
+                                   class="hidden">
+                            <label for="appreciation">赞赏</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui checkbox">
+                            <input type="checkbox" id="commentabled" name="commentabled" th:checked="${blog!=null}?*{blog.commentabled}"
+                                   class="hidden">
+                            <label for="commentabled">评论</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!--用来显示错误信息的-->
+                <div class="ui error message"></div>
+
+                <div class="ui right aligned container">
+                    <!--button默认type是submit,所以如果是普通的按钮需要制定-->
+                    <!-- window.history.go(-1)表示返回 来的界面-->
+                    <button type="button" class="ui button" onclick="window.history.go(-1)">返回</button>
+                    <!--secondary表示按钮为灰色-->
+                    <button type="button" id="save-btn" class="ui secondary button">保存</button>
+                    <button type="button" id="publish-btn" class="ui teal button">发布</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="community-fragments::footer">
+
+    </footer>
+</div>
+
+<th:block th:replace="community-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/editormd.min.js" crossorigin="anonymous" type="text/javascript"></script>
+
+<script>
+
+    //初始化Markdown编辑器，将textarea的父构件md-content进行初始化即可
+    var contentEditor;
+    $(function () {
+        contentEditor = editormd("md-content", {
+            width: "100%",
+            codeFold : true,
+            height: 640,
+            syncScrolling: "single",
+            path: "https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/",
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: "/img/upload"
+        });
+    });
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+
+    //.submit  使用js的提交方式
+    //提交方式有两种，一种是html中一个表单，点击type为submit的button自动提交，
+    //一种是按钮触发一个函数，通过js的ajax提交
+    $('#save-btn').click(function () {
+        $('[name="published"]').val(false);
+        $('#blog-form').submit();
+    });
+
+
+    $('#publish-btn').click(function () {
+        $('[name="published"]').val(true);
+        $('#blog-form').submit();
+    });
+
+
+    $('.ui.form').form({
+        fields: {
+            title: {
+                //=表单验证，identifier表示要验证id为title的值，
+                //empty表示非空验证
+                //prompt表示验证失败输出的值，默认输出到ui error message 这个div
+                identifier: 'title',
+                rules: [{
+                    type: 'empty',
+                    prompt: '标题：请输入博客标题'
+                }]
+            },
+            content: {
+                identifier: 'content',
+                rules: [{
+                    type: 'empty',
+                    prompt: '标题：请输入博客内容'
+                }]
+            },
+            typeId: {
+                identifier: 'type.id',
+                rules: [{
+                    type: 'empty',
+                    prompt: '标题：请输入博客分类'
+                }]
+            },
+
+        }
+    });
+
+</script>
+</body>
+</html>

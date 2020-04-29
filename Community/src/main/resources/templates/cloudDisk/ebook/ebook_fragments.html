@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/bootstrap-3.3.7/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+<ul th:fragment="headFragment(headers,n)" th:id="${headers.getContentId()}" class="nav nav-list collapse secondmenu"
+    style="height: 0px;">
+    <li th:each="header:${headers.getSubNodes()}" th:style="|margin-left:${n}px|">
+        <!--                    这一项的key-->
+        <a th:href="@{|#${header.getContentId()}|}" th:onclick="getContent([[${header.getContentId()}]])"
+           class="nav-header collapsed" data-toggle="collapse">
+            <i th:id="${header.getContentId()}+'parent'" class="fa fa-angle-right" th:if="${header.hasSub}"></i>
+            <p style="display: inline;" th:if="!${header.hasSub}">&nbsp;</p>
+            <span th:text="${header.getHeader()}" style="word-wrap:break-word;"></span>
+        </a>
+        <!--                    这一项的value,也就是下一个dir-->
+        <th:block th:replace="cloudDisk/ebook/ebook_fragments::headFragment(${header},${n}+10)">
+        </th:block>
+
+    </li>
+
+</ul>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/jquery.min.js-3.2.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/bootstrap-3.3.7/bootstrap.min.js"></script>
+
+
+</body>
+</html>

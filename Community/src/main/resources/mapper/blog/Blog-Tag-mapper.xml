@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="site.pyyf.blog.dao.IBlog_TagMapper">
+
+    <insert id="insertBlogAndTagPair">
+        insert into blog_tag(blog_id, tag_id) values (#{blogId},#{tagId})
+    </insert>
+
+    <delete id="deleteByBlogId">
+        delete from blog_tag
+        where blog_id = #{blogId}
+    </delete>
+
+
+    <select id="queryBlogCountByTagId" resultType="java.lang.Integer">
+        select count(*)
+        from blog_tag
+        where tag_id = #{tagId}
+    </select>
+
+    <select id="queryBlogIdByTagIdByLimit" resultType="java.lang.Integer">
+        select blog_id
+        from blog_tag
+        where tag_id = #{tagId}
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="queryTagIdByBlogId" resultType="java.lang.Integer">
+        select tag_id
+        from blog_tag
+        where blog_id = #{blogId}
+    </select>
+
+    <select id="queryAll" resultType="java.lang.Integer">
+        select count(*)
+        from blog_tag
+        where blog_id = #{blogId} and tag_id = #{tagId}
+    </select>
+
+
+</mapper>

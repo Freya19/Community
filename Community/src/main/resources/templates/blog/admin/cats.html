@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="community-fragments :: css">
+    </th:block>
+    <title>分类管理</title>
+</head>
+<body>
+
+<header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="community-fragments::header(4)"></th:block>
+
+</header>
+
+
+<div class="ui attached pointing menu">
+    <div class="ui container">
+        <div class="right menu">
+            <a href="#" th:href="@{/admin/blog/cat}" class="item">新增</a>
+            <a href="#" th:href="@{/admin/blog/cats}" class="teal active item">列表</a>
+        </div>
+    </div>
+</div>
+<div class="ui container">
+    <div class="ui stackable grid">
+        <div class="fifteen wide column">
+            <!--中间内容-->
+            <div class="m-container-small m-padded-tb-big">
+                <div class="ui container">
+                    <div class="ui success message" th:unless="${#strings.isEmpty(message)}">
+                        <i class="close icon"></i>
+                        <div class="header">提示：</div>
+                        <p th:text="${message}">恭喜，操作成功！</p>
+                    </div>
+                    <table class="ui compact teal table">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>名称</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!--type是page.content中的每个元素，
+                            iterStat是状态变量，有 index,count,size,current,even,odd,first,last等属性-->
+                        <tr th:each="cat,iterStat : ${cats}">
+                            <td th:text="${iterStat.count}">1</td>
+                            <td th:text="${cat.name}">刻意练习清单</td>
+                            <td th:text="${cat.entityType}==1? '论坛':'博客'">博客</td>
+                            <td style="width:300px">
+                                <div style="float: right">
+                                    <a href="#" th:href="@{/admin/blog/cat/delete/{id}(id=${cat.id})}"
+                                       class="ui mini red basic button">删除</a>
+                                </div>
+                                <div style="float: right">
+                                    <a href="#" th:href="@{/admin/blog/cat/{id}(id=${cat.id})}"
+                                       class="ui mini teal basic button">编辑</a>
+
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th colspan="6">
+                                <div class="ui mini pagination menu" th:if="${page.getTotal()}>1">
+                                    <a th:href="@{/admin/blog/cat(current=${page.current}-1)}" class="  item"
+                                       th:if="${page.current}==1">上一页</a>
+                                    <a th:href="@{/admin/blog/cat(current=${page.current}+1)}" class=" item"
+                                       th:if="${page.current==page.getTotal()}">下一页</a>
+                                </div>
+                                <a href="#" th:href="@{/admin/blog/cat}"
+                                   class="ui mini right floated teal basic button">新增</a>
+                            </th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="one wide column">
+            <th:block th:replace="blog/blog-fragments :: daohang(4)">
+            </th:block>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+<!-- 尾部 -->
+<footer class="bg-dark" th:replace="community-fragments::footer">
+
+</footer>
+<th:block th:replace="community-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+
+<script>
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+
+    //消息提示关闭初始化
+    $('.message .close')
+        .on('click', function () {
+            $(this)
+                .closest('.message')
+                .transition('fade');
+        });
+</script>
+</body>
+</html>

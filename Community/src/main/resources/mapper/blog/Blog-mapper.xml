@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="site.pyyf.blog.dao.IBlogMapper">
+
+    <!--blog的映射结果集-->
+    <resultMap type="site.pyyf.blog.entity.Blog" id="BlogMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="appreciation" column="appreciation" jdbcType="BOOLEAN"/>
+        <result property="commentabled" column="commentabled" jdbcType="BOOLEAN"/>
+        <result property="recommend" column="recommend" jdbcType="BOOLEAN"/>
+        <result property="published" column="published" jdbcType="BOOLEAN"/>
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <result property="flag" column="flag" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="shareStatement" column="share_statement" jdbcType="BOOLEAN"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="views" column="views" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <!--全部字段-->
+    <sql id="allColumn"> id, appreciation, commentabled, recommend, published, category_id, flag, description, content, create_time, share_statement, title, update_time, views, user_id ,tags</sql>
+    
+    <!--添加语句的字段列表-->
+    <sql id="insertColumn">
+        <if test="appreciation != null">
+                appreciation,
+        </if>
+        <if test="commentabled != null">
+                commentabled,
+        </if>
+        <if test="recommend != null">
+                recommend,
+        </if>
+        <if test="published != null">
+                published,
+        </if>
+        <if test="categoryId != null">
+                category_id,
+        </if>
+        <if test="flag != null and flag != ''">
+                flag,
+        </if>
+        <if test="description != null and description != ''">
+                description,
+        </if>
+        <if test="content != null and content != ''">
+                content,
+        </if>
+        <if test="createTime != null">
+                create_time,
+        </if>
+        <if test="shareStatement != null">
+                share_statement,
+        </if>
+        <if test="title != null and title != ''">
+                title,
+        </if>
+        <if test="updateTime != null">
+                update_time,
+        </if>
+        <if test="views != null">
+                views,
+        </if>
+        <if test="userId != null">
+                user_id,
+        </if>
+        <if test="tags != null and tags != ''">
+            tags,
+        </if>
+
+    </sql>
+    
+    <!--添加语句的值列表-->
+        <sql id="insertValue">
+        <if test="appreciation != null">
+                #{appreciation},
+        </if>
+        <if test="commentabled != null">
+                #{commentabled},
+        </if>
+        <if test="recommend != null">
+                #{recommend},
+        </if>
+        <if test="published != null">
+                #{published},
+        </if>
+        <if test="categoryId != null">
+                #{categoryId},
+        </if>
+        <if test="flag != null and flag != ''">
+                #{flag},
+        </if>
+        <if test="description != null and description != ''">
+                #{description},
+        </if>
+        <if test="content != null and content != ''">
+                #{content},
+        </if>
+        <if test="createTime != null">
+                #{createTime},
+        </if>
+        <if test="shareStatement != null">
+                #{shareStatement},
+        </if>
+        <if test="title != null and title != ''">
+                #{title},
+        </if>
+        <if test="updateTime != null">
+                #{updateTime},
+        </if>
+        <if test="views != null">
+                #{views},
+        </if>
+        <if test="userId != null">
+                #{userId},
+        </if>
+        <if test="tags != null and tags != ''">
+            #{tags},
+        </if>
+    </sql>
+    
+    <!--通用对Blog各个属性的值的非空判断-->
+    <sql id="commonsValue">
+        <if test="appreciation != null">
+                and appreciation = #{appreciation}
+        </if>
+        <if test="commentabled != null">
+                and commentabled = #{commentabled}
+        </if>
+        <if test="recommend != null">
+                and recommend = #{recommend}
+        </if>
+        <if test="published != null">
+                and published = #{published}
+        </if>
+        <if test="categoryId != null">
+                and category_id = #{categoryId}
+        </if>
+        <if test="flag != null and flag != ''">
+                and flag = #{flag}
+        </if>
+        <if test="description != null and description != ''">
+                and description = #{description}
+        </if>
+        <if test="content != null and content != ''">
+                and content = #{content}
+        </if>
+        <if test="createTime != null">
+                and create_time = #{createTime}
+        </if>
+        <if test="shareStatement != null">
+                and share_statement = #{shareStatement}
+        </if>
+        <if test="title != null and title != ''">
+                and title = #{title}
+        </if>
+        <if test="updateTime != null">
+                and update_time = #{updateTime}
+        </if>
+        <if test="views != null">
+                and views = #{views}
+        </if>
+        <if test="userId != null">
+                and user_id = #{userId}
+        </if>
+        <if test="tags != null and tags != '-1'">
+            and tags regexp #{tags}
+        </if>
+    </sql>
+    
+        <!--更新时通用对Blog各个属性的值的非空判断-->
+    <sql id="updateValue">
+        <if test="appreciation != null">
+                appreciation = #{appreciation},
+        </if>
+        <if test="commentabled != null">
+                commentabled = #{commentabled},
+        </if>
+        <if test="recommend != null">
+                recommend = #{recommend},
+        </if>
+        <if test="published != null">
+                published = #{published},
+        </if>
+        <if test="categoryId != null">
+                category_id = #{categoryId},
+        </if>
+        <if test="flag != null and flag != ''">
+                flag = #{flag},
+        </if>
+        <if test="description != null and description != ''">
+                description = #{description},
+        </if>
+        <if test="content != null and content != ''">
+                content = #{content},
+        </if>
+        <if test="createTime != null">
+                create_time = #{createTime},
+        </if>
+        <if test="shareStatement != null">
+                share_statement = #{shareStatement},
+        </if>
+        <if test="title != null and title != ''">
+                title = #{title},
+        </if>
+        <if test="updateTime != null">
+                update_time = #{updateTime},
+        </if>
+        <if test="views != null">
+                views = #{views},
+        </if>
+        <if test="userId != null">
+                user_id = #{userId},
+        </if>
+        <if test="tags != null and tags != ''">
+            tags = #{tags},
+        </if>
+    </sql>
+    
+    <!--传入blog时对Blog各个属性的值的非空判断-->
+    <sql id="BlogValue">
+        <if test="blog.appreciation != null">
+                and appreciation = #{blog.appreciation}
+        </if>
+        <if test="blog.commentabled != null">
+                and commentabled = #{blog.commentabled}
+        </if>
+        <if test="blog.recommend != null">
+                and recommend = #{blog.recommend}
+        </if>
+        <if test="blog.published != null">
+                and published = #{blog.published}
+        </if>
+        <if test="blog.categoryId != null">
+                and category_id = #{blog.categoryId}
+        </if>
+        <if test="blog.flag != null and blog.flag != ''">
+                and flag = #{blog.flag}
+        </if>
+        <if test="blog.description != null and blog.description != ''">
+                and description = #{blog.description}
+        </if>
+        <if test="blog.content != null and blog.content != ''">
+                and content = #{blog.content}
+        </if>
+        <if test="blog.createTime != null">
+                and create_time = #{blog.createTime}
+        </if>
+        <if test="blog.shareStatement != null">
+                and share_statement = #{blog.shareStatement}
+        </if>
+        <if test="blog.title != null and blog.title != ''">
+                and title = #{blog.title}
+        </if>
+        <if test="blog.updateTime != null">
+                and update_time = #{blog.updateTime}
+        </if>
+        <if test="blog.views != null">
+                and views = #{blog.views}
+        </if>
+        <if test="blog.userId != null">
+                and user_id = #{blog.userId}
+        </if>
+        <if test="blog.tags != null and blog.tags != '-1'">
+            <trim prefix="and (" suffix=")" suffixOverrides="or">
+                <foreach collection="blog.tags.split(',')" item="item" index="index">
+                    tags regexp #{item}  or
+                </foreach>
+            </trim>
+        </if>
+    </sql>
+    
+    <!--新增blog:哪个字段不为空就添加哪列数据,返回自增主键-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into blog
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <include refid="insertColumn"/>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <include refid="insertValue"/>
+        </trim>
+    </insert>
+   
+    <!--删除blog:通过主键-->
+    <delete id="deleteById">
+        delete from blog
+        <where>
+            id = #{id}
+        </where>
+    </delete>
+    
+    <!--查询单个blog-->
+    <select id="queryById" resultMap="BlogMap">
+        select
+        <include refid="allColumn"></include>
+        from blog
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!--通过实体作为筛选条件查询数据-->
+    <select id="queryAll" resultMap="BlogMap">
+        select
+          <include refid="allColumn"></include>
+        from blog
+        <trim prefix="where" prefixOverrides="and" suffixOverrides=",">
+            <include refid="commonsValue"></include>
+        </trim>
+    </select>
+    
+    <!--通过实体作为筛选条件查询数量-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select
+          count(*)
+        from blog
+        <trim prefix="where" prefixOverrides="and" suffixOverrides=",">
+            <include refid="commonsValue"></include>
+        </trim>
+    </select>
+    
+    <!--通过实体作为筛选条件分页查询-->
+    <select id="queryAllByLimit" resultMap="BlogMap">
+        select
+          <include refid="allColumn"></include>
+        from blog
+        <trim prefix="where" prefixOverrides="and" suffixOverrides=",">
+            <include refid="BlogValue"></include>
+        </trim>
+        order by recommend desc, create_time desc,id asc
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update blog
+        <trim prefix="set" prefixOverrides="and" suffixOverrides=",">
+            <include refid="updateValue"></include>
+        </trim>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="queryGroupByMonth" resultType="java.lang.String">
+        SELECT DATE_FORMAT(create_time,'%Y%m') months
+        FROM blog GROUP BY months
+    </select>
+    <select id="queryByMonth" resultType="site.pyyf.blog.entity.Blog">
+        SELECT
+        <include refid="allColumn"></include>
+        from community.blog
+        where DATE_FORMAT(create_time,'%Y%m') = #{month}
+    </select>
+</mapper>

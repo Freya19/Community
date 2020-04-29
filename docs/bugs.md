@@ -1,0 +1,10 @@
+2020.1.21
+- 问题: 当部署到服务器上时，出现所有的路径，模板都无法渲染 
+- 解决方案：将所有的controller中的模板路径改为相对路径，
+  即return "/site/login"; 修改为return "site/login"; 同时在配置文件中增加`spring.thymeleaf.prefix=classpath:/templates/`
+- 问题：用户下拉菜单和"我要发布"按钮等与jquery有关的都无法正常显示
+- 解决方案：将jquery下载到本地进行使用
+
+2020.1.30
+- 问题: JDBC连接数据库时出现Public Key Retrieval is not allowed错误
+- 解决：在java连接mysql的url中加入allowPublicKeyRetrieval=true

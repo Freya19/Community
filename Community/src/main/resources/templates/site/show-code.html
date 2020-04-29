@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.min.css"
+          type="text/css" crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.preview.css"
+          type="text/css" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/community/css/style.css"
+          type="text/css" crossorigin="anonymous"/>
+
+    <th:block th:replace="community-fragments :: css">
+    </th:block>
+
+    <title>鹏方论坛-代码显示</title>
+</head>
+<body>
+
+
+<div class="nk-container">
+    <!-- 头部 -->
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="community-fragments::header(2)"></th:block>
+
+    </header>
+
+    <div class="main">
+
+        <div class="container">
+            <div id="layout">
+
+
+                <div id="test-editormd-view2">
+                <textarea id="append-test" style="display:none;" th:text="${code}"></textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="community-fragments::footer">
+
+    </footer>
+
+</div>
+
+<th:block th:replace="community-fragments::registerAndLoginMenu">
+</th:block>
+
+<th:block th:replace="community-fragments :: script">
+</th:block>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/editormd.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/marked.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/prettify.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/marked.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/prettify.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/raphael.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/underscore.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/sequence-diagram.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/flowchart.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/jquery.flowchart.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(function () {
+        var testEditormdView, testEditormdView2;
+
+        $.get("test.md", function (markdown) {
+
+            testEditormdView = editormd.markdownToHTML("test-editormd-view", {
+                markdown: markdown,//+ "\r\n" + $("#append-test").text(),
+                //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
+                htmlDecode: "style,script,iframe",  // you can filter tags decode
+                //toc             : false,
+                tocm: true,    // Using [TOCM]
+                //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                //gfm             : false,
+                //tocDropdown     : true,
+                // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                emoji: true,
+                tocm:true,
+                taskList: true,
+                tex: true,  // 默认不解析
+                flowChart: true,  // 默认不解析
+                sequenceDiagram: true,  // 默认不解析
+            });
+
+            //console.log("返回一个 jQuery 实例 =>", testEditormdView);
+
+            // 获取Markdown源码
+            //console.log(testEditormdView.getMarkdown());
+
+            //alert(testEditormdView.getMarkdown());
+        });
+
+        testEditormdView2 = editormd.markdownToHTML("test-editormd-view2", {
+            htmlDecode: "style,script,iframe",  // you can filter tags decode
+            emoji: true,
+            tocm:true,
+            taskList: true,
+            tex: true,  // 默认不解析
+            flowChart: true,  // 默认不解析
+            sequenceDiagram: true,  // 默认不解析
+        });
+    });
+</script>
+</body>
+</html>

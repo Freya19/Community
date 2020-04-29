@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <th:block th:replace="community-fragments :: css">
+    </th:block>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.min.css"
+          type="text/css" crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.preview.css"
+          type="text/css" crossorigin="anonymous"/>
+
+    <title>鹏方论坛-博客</title>
+</head>
+
+<body>
+<div class="nk-container">
+
+    <header class="bg-dark" style="z-index: 4!important;">
+        <th:block th:replace="community-fragments::header(3)"></th:block>
+    </header>
+
+    <!--中间内容-->
+    <!--整个div使用animated的fadeIn动画进行展示-->
+    <div id="waypoint" class="m-container-small m-padded-tb-big animated fadeIn">
+        <div class="ui container">
+            <div class="ui top attached segment">
+                <div class="ui horizontal link list">
+                    <div class="item">
+                        <img src="https://unsplash.it/100/100?image=1005" th:src="@{${user.headerUrl}}" alt=""
+                             class="ui avatar image">
+                        <div class="content"><a href="#" class="header" th:text="${user.username}">葛鹏</a></div>
+                    </div>
+                    <div class="item">
+                        <i class="calendar icon"></i> <span th:text="${#dates.format(blog.updateTime,'yyyy-MM-dd')}">2017-10-01</span>
+                    </div>
+                    <div class="item">
+                        <i class="eye icon"></i> <span th:text="${blog.views}">2342</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui  attached padded segment">
+                <!--内容-->
+                <!--原创是一个div,本来可以满足要求，但是因为segment可以满足页面的拉升而自适应，所以选择使用segment包装一下div,并且使用basic将segment的边框隐藏掉
+                    right aligned 右对齐-->
+                <div class="ui right aligned basic segment">
+                    <!--basic表示一个空心的label-->
+                    <div class="ui orange basic label" th:text="${blog.flag}">原创</div>
+                </div>
+                <!--header标题格式-->
+                <h2 class="ui center aligned header" th:text="${blog.title}">关于刻意练习的清单</h2>
+                <br>
+                <!--中间主要内容部分-->
+                <div class="container">
+                    <div id="test-editormd-view2">
+                        <textarea id="append-test" style="display:none;" th:utext="${newContent}"></textarea>
+                    </div>
+                </div>
+
+
+                <!--标签-->
+                <div class="m-padded-lr-responsive" th:if="${blog.tags!=null&&blog.tags!=''&&blog.tags!='-1'}">
+                    <!--basic表示空心的
+                        label表示标签
+                        left pointing表示这个label有个向右的小角-->
+                    <span class="ui basic teal left pointing label"  th:each="tag : ${blog.tags.split(',')}" >
+                        <a th:href="@{/blog/tag/(tagName=${tag})}" class="community-tag" style="font-size:medium">
+                            <span class="fa fa-tag"></span>
+                            <span> &thinsp;</span>
+                            <span th:text="${tag}"></span>
+                        </a>
+                    </span>
+                </div>
+
+                <!--赞赏-->
+                <div th:if="${blog.appreciation}">
+                    <div class="ui center aligned basic segment">
+                        <!--circular表示botton是个大圆角-->
+                        <!--payButton用来标注此标签-->
+                        <button id="payButton" class="ui orange basic circular button">赞赏</button>
+                    </div>
+                    <!--payQR用来标注此弹出框，和上面的payButton组成本页的js-->
+                    <div class="ui payQR flowing popup transition hidden">
+                        <div class="ui orange basic label">
+                            <!--由于class="ui images"导致不能插入带字的div，所以要使用内敛样式指定文字大小，并且继承上一级，即<div class="ui orange basic label">的字体-->
+                            <div class="ui images" style="font-size: inherit !important;">
+                                <div class="image">
+                                    <!--rounded bordered表示图片外有个圆角边线-->
+                                    <img src="http://pyyf.oss-cn-hangzhou.aliyuncs.com/community/img/wechat.jpg" alt=""
+                                         class="ui rounded bordered image" style="width: 120px">
+                                    <div>支付宝</div>
+                                </div>
+                                <div class="image">
+                                    <img src="http://pyyf.oss-cn-hangzhou.aliyuncs.com/community/img/wechat.jpg" alt=""
+                                         class="ui rounded bordered image" style="width: 120px">
+                                    <div>微信</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!--message本来默认灰色，使用positive改变颜色-->
+            <div class="ui attached positive message" th:if="${blog.shareStatement}">
+                <!--博客信息-->
+                <div class="ui middle aligned grid">
+                    <div class="eleven wide column">
+                        <ui class="list">
+                            <li>作者：<span th:text="${user.username}">葛鹏</span><a href="#" th:href="@{/blog/about}"
+                                                                                target="_blank">（联系作者）</a></li>
+                            <li>发表时间：<span th:text="${#dates.format(blog.updateTime,'yyyy-MM-dd HH:mm')}">2017-10-02 09:08</span>
+                            </li>
+                            <li>版权声明：自由转载-非商用-非衍生-保持署名（创意共享3.0许可证）</li>
+                            <li>公众号转载：请在文末添加作者公众号二维码</li>
+                        </ui>
+                    </div>
+                    <div class="five wide column">
+                        <!--right floated靠右浮动，就是靠右显示-->
+                        <img src="http://pyyf.oss-cn-hangzhou.aliyuncs.com/community/img/wechat.jpg" alt=""
+                             class="ui right floated rounded bordered image" style="width: 110px">
+                    </div>
+                </div>
+            </div>
+            <div class="ui bottom attached segment" th:if="${blog.commentabled}">
+                <!--留言区域列表-->
+                <div id="comment-container" class="ui teal segment">
+                    <div th:fragment="commentList">
+                        <div class="ui threaded comments" style="max-width: 100%;">
+                            <h3 class="ui dividing header">评论</h3>
+                            <div class="comment" th:each="commentVO : ${commentVOS}">
+                                <a class="avatar">
+                                    <img src="https://unsplash.it/100/100?image=1005"
+                                         th:src="@{${commentVO.user.headerUrl}}">
+                                </a>
+                                <div class="content">
+                                    <a class="author">
+                                        <span th:text="${commentVO.user.username}">Matt</span>
+                                        <div class="ui basic teal left pointing label m-padded-mini"
+                                             th:if="${commentVO.user.id==blog.userId}" style="width: 35px">
+                                            <div style="margin-left: 4px">博主</div>
+                                        </div>
+                                    </a>
+                                    <div class="metadata">
+                                        <span class="date"
+                                              th:text="${#dates.format(commentVO.comment.createTime,'yyyy-MM-dd HH:mm')}">Today at 5:42PM</span>
+                                    </div>
+                                    <div class="text" th:text="${commentVO.comment.content}">
+                                        How artistic!
+                                    </div>
+                                    <div class="actions">
+                                        <!--attr自定义属性，和reply函数相互配合，利用jquery的ajax清酒向服务器发送消息，服务器回复一个片段形成局部刷新的目的
+                                            首先当点击这个链接时，启动reply函数，将这个对象传入，而这个对象获取到commentid属性和commentnickname属性，并
+                                            分别赋值到content和parentComment.id处Line616和Line617，然后传入后端-->
+
+                                        <a class="reply"
+                                           th:attr="data-commentid=${commentVO.comment.id},data-commentnickname=${commentVO.user.username}"
+                                           onclick="reply(this)">回复</a>
+                                    </div>
+                                </div>
+                                <div class="comments" th:if="${#arrays.length(commentVO.replyVOS)}>0">
+                                    <div class="comment" th:each="replyVO : ${commentVO.replyVOS}">
+                                        <a class="avatar">
+                                            <img src="https://unsplash.it/100/100?image=1005"
+                                                 th:src="@{${replyVO.user.headerUrl}}">
+                                        </a>
+                                        <div class="content">
+                                            <a class="author">
+                                                <span th:text="${replyVO.user.username}">小红</span>
+                                                <div class="ui basic teal left pointing label m-padded-mini"
+                                                     th:if="${replyVO.user.id==blog.userId}" style="width: 35px">
+                                                    <div style="margin-left: 4px">博主</div>
+                                                </div>
+                                                &nbsp;<span th:text="|@ ${replyVO.target.username}|"
+                                                            class="m-teal">@ 小白</span>
+                                            </a>
+                                            <div class="metadata">
+                                                <span class="date"
+                                                      th:text="${#dates.format(replyVO.reply.createTime,'yyyy-MM-dd HH:mm')}">Today at 5:42PM</span>
+                                            </div>
+                                            <div class="text" th:text="${replyVO.reply.content}">
+                                                How artistic!
+                                            </div>
+                                            <div class="actions">
+                                                <a class="reply" data-commentid="1" data-commentnickname="Matt"
+                                                   th:attr="data-commentid=${replyVO.reply.id},data-commentnickname=${replyVO.user.username}"
+                                                   onclick="reply(this)">回复</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="comment-form" class="ui form">
+                    <input type="hidden" name="blog.id" th:value="${blog.id}">
+                    <input type="hidden" name="parentComment.id" value="-1">
+                    <div class="field">
+                        <!--textarea的首尾标签必须写在一行不然就凉凉-->
+                        <textarea  name="content" placeholder="填写上邮箱可以接收到我的回复邮件哦！&#10;请先将 community@pyyf.site 设置为白名单。&#10;否则您的邮箱系统可能会将通知邮件识别为垃圾邮件而不提醒您。&#10;(PS. 论坛不会给您发送垃圾邮件以及广告，请放心设置)"></textarea>
+                    </div>
+                    <div class="fields">
+                        <div class="field m-mobile-wide m-margin-bottom-small">
+                            <!--首先ui left icon input表示这是一个icon和input的组合div,其中icon在左边
+                                里面包含两个元素，一个是i:icon,
+                                另外一个是input
+                                这两个元素是自动进行左右排版-->
+                            <div class="ui left icon input">
+                                <i class="user icon"></i>
+                                <input type="text" name="username" placeholder="姓名"
+                                       th:value="${loginUser}!=null ? ${loginUser.username}">
+                            </div>
+                        </div>
+                        <!--                        m-mobile-wide 表示当为移动端时，这个field域将占满一行，而电脑端则不起作用-->
+                        <!--                        删除email,因为感觉没什么用-->
+                        <div class="field m-mobile-wide m-margin-bottom-small">
+                            <div class="ui left icon input">
+                                <i class="mail icon"></i>
+                                <input type="text" name="email" placeholder="邮箱"
+                                       th:value="${loginUser}!=null ? ${loginUser.email}">
+                            </div>
+                        </div>
+                        <!--email中只需要加一个m-mobile-wide，而这里需要在div和button中都加上m-mobile-wide，原因不知道-->
+                        <div class="field  m-margin-bottom-small m-mobile-wide">
+                            <button id="commentpost-btn" type="button" class="ui teal button m-mobile-wide"><i
+                                    class="edit icon"></i>发布
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ui mid error message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toolbar" class="m-padded m-fixed m-right-bottom" style="display: none">
+        <div class="ui vertical icon buttons ">
+            <button type="button" class="ui toc teal button">目录</button>
+            <a href="#comment-container" class="ui teal button">留言</a>
+            <div id="toTop-button" class="ui icon button"><i class="chevron up icon"></i></div>
+        </div>
+    </div>
+
+    <div class="ui toc-container flowing popup transition hidden" style="max-height: 480px;padding: 0px;">
+        <div class="markdown-body editormd-preview-container" id="custom-toc-container"
+             style="padding: 0;border: none;background-color:transparent;width:320px;max-height: 478px;">
+        </div>
+    </div>
+
+
+
+    <br>
+    <br>
+    <div style="height: 200px;">
+        <!-- 尾部 -->
+        <footer class="bg-dark" th:replace="community-fragments::footer">
+
+        </footer>
+    </div>
+</div>
+
+<th:block th:replace="community-fragments::registerAndLoginMenu">
+</th:block>
+
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/editormd.js" crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/marked.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/prettify.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/marked.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/prettify.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/raphael.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/underscore.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/sequence-diagram.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/flowchart.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/jquery.flowchart.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.scrollto@2.1.2/jquery.scrollTo.min.js" crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/waypoints/jquery.waypoints.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(function () {
+        var testEditormdView2;
+        testEditormdView2 = editormd.markdownToHTML("test-editormd-view2", {
+            htmlDecode: "style,script,iframe",  // you can filter tags decode
+            tocContainer: "#custom-toc-container", // 自定义 ToC 容器层
+            emoji: true,
+            codeFold : true,
+            taskList: true,
+            tex: true,  // 默认不解析
+            flowChart: true,  // 默认不解析
+            sequenceDiagram: true,  // 默认不解析
+        });
+    });
+</script>
+<script>
+    $(function () {
+        $("#comment-container").load("[[@{/blog/comments/{id}(id=${blog.id})}]]");
+    });
+
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+    $('#payButton').popup({
+        popup: $('.payQR.popup'),
+        on: 'click',
+        position: 'bottom center'
+    });
+
+    $('.toc.button').popup({
+        popup: $('.toc-container.popup'),
+        on: 'click',
+        position: 'left center'
+    });
+
+    $('#toTop-button').click(function () {
+        $(window).scrollTo(0, 500);
+    });
+
+    var waypoint = new Waypoint({
+        element: document.getElementById('waypoint'),
+        handler: function (direction) {
+            if (direction == 'down') {
+                $('#toolbar').show(100);
+            } else {
+                $('#toolbar').hide(500);
+            }
+            console.log('Scrolled to waypoint!  ' + direction);
+        }
+    });
+
+
+    function compile(id) {
+        $("#button" + id).html('<i class="fa fa-spinner fa-pulse"></i>&nbsp;  运行中\n');
+        var code = $('#code' + id).text();
+        console.log("code=" + code);
+        var formData = new FormData();
+        formData.append('code', code);
+        $.ajax({
+            url: '/onlineExecutor',
+            type: 'POST',
+            data: formData,
+            dataType: "json",
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (result) {
+                alert(result.msg);
+                $("#button" + id).html('<i class="fa fa-play"></i>&nbsp;  运行\n');
+            },
+            error: function (result) {
+                console.log("错误");
+                var res = $.parseJSON(result);  //用jQuery处理传过来的json值
+                console.log("处理结果" + res);
+                alert(returndata);
+            }
+        });
+    }
+
+    $('#commentpost-btn').click(function () {
+        var boo = $('.ui.form').form('validate form');
+        if (boo) {
+            console.log('校验成功');
+            postData();
+        } else {
+            console.log('校验失败');
+        }
+
+    });
+
+    //comment-container中的各项值传入后台，如parentComment.id取name为parentComment.id的块中的数据
+    //将这些数据传到/comments中，然后controller会返回一个片段从而进行局部刷新
+    function postData() {
+        $("#comment-container").load("[[@{/blog/comments/{id}(id=${blog.id})}]]", {
+            "targetId": $("[name='parentComment.id']").val(),
+            "username": $("[name='username']").val(),
+            "email": $("[name='email']").val(),
+            "content": $("[name='content']").val()
+        }, function (responseTxt, statusTxt, xhr) {
+            //成功后返回的函数，页面上滚，已取消
+            //$(window).scrollTo($('#comment-container'),500);
+            //当后端传回数据后，页面显示的数据可以清除了
+            clearContent();
+        });
+    }
+
+    function clearContent() {
+        $("[name='content']").val('');
+        $("[name='parentComment.id']").val(-1);
+        $("[name='content']").attr("placeholder", "请输入评论信息...");
+    }
+
+
+    function reply(obj) {
+        var commentId = $(obj).data('commentid');
+        var commentNickname = $(obj).data('commentnickname');
+        $("[name='content']").attr("placeholder", "@" + commentNickname).focus();
+        $("[name='parentComment.id']").val(commentId);
+        $(window).scrollTo($('#comment-form'), 500);
+    }
+
+
+    //评论表单验证
+    $('.ui.form').form({
+        fields: {
+            content: {
+                identifier: 'content',
+                rules: [{
+                    type: 'empty',
+                    prompt: '请输入评论内容'
+                }
+                ]
+            },
+            username: {
+                identifier: 'username',
+                rules: [{
+                    type: 'empty',
+                    prompt: '请输入你的大名'
+                }]
+            },
+            email: {
+                identifier: 'email',
+                rules: [{
+                    type: 'empty',
+                    prompt: '请输入你的邮箱'
+                }]
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>

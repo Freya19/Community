@@ -1,0 +1,207 @@
+
+body {
+    /*背景图片*/
+    background-image: url("https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/img/bg.png");
+}
+
+
+html,body{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+footer{
+    margin-bottom: -125px;
+}
+
+
+
+.m-padded-mini {
+    padding: 0.2em !important;
+}
+
+.m-padded-tiny {
+    padding: 0.3em !important;
+}
+.m-padded {
+    padding: 1em !important;
+}
+.m-padded-tb-mini {
+    padding-top: 0.2em !important;
+    padding-bottom: 0.2em !important;
+}
+.m-padded-tb-tiny {
+    padding-top: 0.3em !important;
+    padding-bottom: 0.3em !important;
+}
+.m-padded-tb-small {
+    padding-top: 0.5em !important;
+    padding-bottom: 0.5em !important;
+}
+.m-padded-tb {
+    padding-top: 1em !important;
+    padding-bottom: 1em !important;
+}
+.m-padded-tb-large {
+    padding-top: 2em !important;
+    padding-bottom: 2em !important;
+}
+.m-padded-tb-big {
+    padding-top: 3em !important;
+    padding-bottom: 3em !important;
+}
+.m-padded-tb-huge {
+    padding-top: 4em !important;
+    padding-bottom: 4em !important;
+}
+.m-padded-tb-massive {
+    padding-top: 5em !important;
+    padding-bottom: 5em !important;
+}
+
+/*响应式布局，根据界面进行显示，当正常情况下左右有空隙，而当移动端查看时，就进入了media中的m-padded-lr-responsive
+将左右的间隙给消除掉，以此达到自适应的目的*/
+.m-padded-lr-responsive {
+    padding-left: 1em !important;
+    padding-right: 4em !important;
+}
+
+/*-------text -----*/
+
+.m-text {
+    font-weight: 300 !important;
+    letter-spacing: 1px !important;
+    line-height: 1.8;
+}
+.m-text-thin {
+    font-weight: 300 !important;
+}
+.m-text-spaced {
+    letter-spacing: 1px !important;
+}
+.m-text-lined {
+    line-height: 1.8;
+}
+
+/*-----margin------*/
+
+.m-margin-top-small {
+    margin-top:0.5em !important;
+}
+.m-margin-top {
+    margin-top: 1em !important;
+}
+.m-margin-top-large {
+    margin-top: 2em !important;
+}
+
+.m-margin-tb-tiny {
+    margin-top: 0.3em !important;
+    margin-bottom: 0.3em !important;
+}
+
+.m-margin-bottom-small {
+    margin-bottom: 0.5em !important;
+
+}
+
+/*-----opacity------*/
+.m-opacity-mini {
+    opacity: 0.8 !important;
+}
+.m-opacity-tiny {
+    opacity: 0.6 !important;
+}
+/*------position---*/
+/*菜单的位置，绝对位置为右上角，这表示在界面上
+  当为fixed，表示无论屏幕怎么滑动都是在屏幕的一个位置上*/
+.m-right-top {
+    position: absolute;
+    top:0;
+    right: 0;
+}
+
+/*------display------*/
+/*放在一行显示*/
+.m-inline-block {
+    display: inline-block !important;
+}
+
+
+/*-----container*/
+
+
+.m-container-big {
+    max-width: 110em !important;
+    margin: auto !important;
+}
+
+.m-container {
+    max-width: 90em !important;
+    margin: auto !important;
+}
+.m-container-small {
+    max-width: 70em !important;
+    margin: auto !important;
+}
+
+/*------shadow------*/
+.m-shadow-small {
+    /*标题和正文之间的阴影，这里写两行主要是不同浏览器的关键字不一样 吧。所以写了两个情况适配不同的关键字*/
+    -webkit-box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+
+/*------positon-----*/
+/*工具栏位置固定，并且叠加层次为10，表示工具栏放在尽量靠上层*/
+/*m-fixed m-right-bottom m-padded 共同起作用，m-fixed表示固定位置，m-right-bottom表示放在右下角，m-padded表示距离右下角
+  有一定的位置 */
+.m-fixed {
+    position: fixed !important;
+    z-index: 10 !important;
+}
+
+.m-right-bottom {
+    bottom: 0 !important;
+    right: 0 !important;
+}
+
+/*----- height --------*/
+.big-height{
+    height: 1240px;
+}
+
+/*-----color-----*/
+.m-black {
+    color: #333 !important;
+}
+.m-teal {
+    color: #00B5AD !important;
+}
+
+
+/*移动端不显示，与下面配合使用*/
+.m-mobile-show {
+   display: none !important;
+}
+/*当屏幕小于768时，自动的进行如下操作*/
+@media screen and (max-width: 768px){
+    .m-mobile-hide {
+        display: none !important;
+    }
+    .m-mobile-show {
+        display: block !important;
+    }
+    .m-padded-lr-responsive {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .m-mobile-lr-clear {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .m-mobile-wide {
+        width: 100% !important;
+    }
+}

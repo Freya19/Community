@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="community-fragments :: css">
+    </th:block>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/css/letter.css"
+          crossorigin="anonymous" type="text/css"/>
+    <title>鹏方论坛-通知详情</title>
+</head>
+<body>
+<div class="nk-container">
+    <!-- 头部 -->
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="community-fragments::header(4)"></th:block>
+    </header>
+
+    <!-- 内容 -->
+    <div class="main">
+        <div class="container">
+            <div class="row">
+                <div class="col-8">
+                    <h6><b class="square"></b> 系统通知</h6>
+                </div>
+                <div class="col-4 text-right">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="back();">返回</button>
+                </div>
+            </div>
+
+            <!-- 通知列表 -->
+            <ul class="list-unstyled mt-4">
+                <li class="media pb-3 pt-3 mb-2" th:each="map:${notices}">
+                    <div class="mr-4">
+                    <img th:src="${map.fromUser.headerUrl}" class=" rounded-circle user-header" alt="系统图标">
+                    </div>
+                    <div class="toast show d-lg-block" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="mr-auto" th:utext="${map.fromUser.username}">落基山脉下的闲人</strong>
+                            <small th:text="${#dates.format(map.notice.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-25
+                                15:49:32</small>
+                            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="toast-body">
+								<span th:if="${topic.equals('comment')}">
+									用户
+									<i th:utext="${map.user.username}">鹏圆云方</i>
+									评论了你的<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
+									<a class="text-primary" th:href="@{|/discuss/${map.postId}|}">点击查看</a> !
+								</span>
+                            <span th:if="${topic.equals('like')}">
+									用户
+									<i th:utext="${map.user.username}">鹏圆云方</i>
+									点赞了你的<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
+									<a class="text-primary" th:href="@{|/discuss/${map.postId}|}">点击查看</a> !
+								</span>
+                            <span th:if="${topic.equals('follow')}">
+									用户
+									<i th:utext="${map.user.username}">鹏圆云方</i>
+									关注了你,
+									<a class="text-primary" th:href="@{|/user/${map.user.id}|}">点击查看</a> !
+								</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <!-- 分页 -->
+            <nav class="mt-5" th:replace="community-fragments::pagination">
+
+            </nav>
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="community-fragments::footer">
+
+    </footer>
+</div>
+<th:block th:replace="community-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="community-fragments :: script">
+</th:block>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/js/letter.js" crossorigin="anonymous"
+        type="text/javascript"></script>
+<script>
+    function back() {
+        location.href = CONTEXT_PATH + "/notices";
+    }
+</script>
+</body>
+</html>

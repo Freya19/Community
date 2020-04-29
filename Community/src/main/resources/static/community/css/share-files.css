@@ -1,0 +1,16 @@
+.outer {
+    width: 120px;
+    height: 80px;
+    /*border: 1px solid #f00;*/
+    display: table;
+}
+.inner {
+    display: table-cell;
+    vertical-align: middle;
+    /*border: 1px solid #777;*/
+    text-align: center;
+}
+
+.files{
+    height: 260px;
+}

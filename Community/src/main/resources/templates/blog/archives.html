@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="community-fragments :: css">
+    </th:block>
+    <title>归档</title>
+</head>
+<body>
+<div class="nk-container">
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="community-fragments::header(3)"></th:block>
+
+    </header>
+
+    <!--中间内容-->
+    <div class="m-container-small m-padded-tb-big">
+        <div class="ui container">
+
+            <div class="ui stackable grid">
+                <div class="fifteen wide column">
+
+                    <!--header-->
+                    <div class="ui top attached padded segment">
+                        <div class="ui middle aligned two column grid">
+                            <div class="column">
+                                <h3 class="ui teal header">归档</h3>
+                            </div>
+                            <div class="right aligned column">
+                                共 <h2 class="ui orange header m-inline-block m-text-thin" th:text="${blogCount}">
+                                114 </h2> 篇博客
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:each="blogsVO : ${blogsVOS}">
+                        <br>
+                        <h3 class="ui center aligned header" th:text="${blogsVO.month}">2017</h3>
+                        <div class="ui fluid vertical menu">
+                            <a href="#" th:href="@{/blog/{id}(id=${blog.id})}" target="_blank" class="item tagAli animated"
+                               th:each="blog : ${blogsVO.blogs}">
+
+                                <span>
+                                <i class="mini teal circle icon"></i>
+                                <span th:text="${blog.title}">关于刻意练习的清单</span>
+                                <div class="ui teal basic left pointing label m-padded-mini "
+                                     th:text="${#dates.format(blog.updateTime,'MMMdd')}">9月03
+                                </div>
+                                </span>
+
+                                <div class="ui orange basic left pointing label m-padded-mini " th:text="${blog.flag}">
+                                    原创
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="one wide column">
+                    <th:block th:replace="blog/blog-fragments :: daohang(4)">
+                    </th:block>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="community-fragments::footer">
+
+    </footer>
+
+
+</div>
+
+<th:block th:replace="community-fragments::registerAndLoginMenu">
+</th:block>
+
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+
+<script>
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+</script>
+</body>
+</html>

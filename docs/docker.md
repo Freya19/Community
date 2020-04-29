@@ -1,0 +1,295 @@
+## docker系列
+
+### 命令：
+
+- docker关闭容器：docker stop -t=10 ${CONTAINER ID}
+- docker退出容器： exit
+- docker启动容器：docker start ${CONTAINER ID}
+- docker重启容器：docker restart ${CONTAINER ID}
+- 查看哪些容器正在启动：docker ps
+  - 查看哪些容器被关闭了：docker ps -a
+- 查看安装了哪些镜像:  docker images
+- docker删除镜像：
+  - 先停下容器：docker stop ${CONTAINER ID}
+  - 再删除容器：docker rm ${CONTAINER ID}
+  - 再删除镜像：docker rmi ${IMAGE ID}
+
+### 安装docker
+
+```shell
+#更新源
+apt-get update
+#安装docker
+apt-get install docker.io
+```
+
+
+
+#### 安装docker和redis
+
+```shell
+#在docker中安装redis
+docker pull redis
+#查看是否安装成功
+docker images
+#run表示运行，-d表示后台运行，6379：6379表示docker的6379映射到linux的6379，名字为myredis，运行redis
+docker run -d -p 6379:6379 --name myredis redis
+#查看是否启动
+docker ps
+```
+
+```
+阿里云开放6379端口
+```
+
+
+
+---
+
+
+
+#### 安装kafka
+
+1、下载镜像
+
+这里使用了wurstmeister/kafka和wurstmeister/zookeeper这两个版本的镜像
+
+```shell
+docker pull wurstmeister/zookeeper  
+docker pull wurstmeister/kafka  
+```
+
+在命令中运行docker images验证两个镜像已经安装完毕
+
+
+2、启动
+
+1、启动zookeeper
+
+`docker run -d --name zookeeper -p 2181:2181 -t wurstmeister/zookeeper `
+
+2、启动kafka
+
+
+```
+docker run -d --name kafka --publish 9092:9092 --link zookeeper --env KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 --env KAFKA_ADVERTISED_HOST_NAME=${host} --env KAFKA_ADVERTISED_PORT=9092 --volume /etc/localtime:/etc/localtime wurstmeister/kafka:latest
+```
+
+然后修改配置文件consumer.pro...
+
+```
+docker exec -it ${CONTAINER ID} /bin/bash   
+cd /opt/kafka_2.12-2.4.0/config/
+vi consumer.properties
+```
+
+修改为
+`group.id=community-consumer-group`
+
+然后重启容器
+
+`docker restart ${CONTAINER ID}`
+
+3、测试发送消息
+
+执行Docker ps，找到kafka的Container ID，进入容器内部：
+
+`docker exec -it ${CONTAINER ID} /bin/bash   `
+
+> docker exec -it e2143364b40c /bin/bash
+
+进入kafka默认目录
+
+`cd /opt/kafka_2.12-2.1.0/bin`
+
+下面就是跟一般的kafka没什么区别了
+
+**创建一个主题：**
+
+```
+kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic mykafka
+```
+
+
+
+**运行一个消息生产者，指定topic为刚刚创建的主题**
+
+```
+./kafka-console-producer.sh --broker-list localhost:9092 --topic mykafka
+```
+
+>  ./kafka-console-producer.sh --broker-list localhost:9092 --topic mykafka 
+>
+>  larry testing information here!!!
+>  hahaha kafka MQ testing here!!!
+>  produce message here 
+
+
+
+**运行一个消费者，指定同样的主题**
+
+```
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic mykafka --from-beginning
+```
+
+这时在生产者输入测试消息，在消费者就可以接收消息了
+
+> bash-4.3# bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic mykafka --from-beginning
+> Using the ConsoleConsumer with old consumer is deprecated and will be removed in a future major release. Consider using the new consumer by passing [bootstrap-server] instead of [zookeeper].
+>
+> larry testing information here!!!
+> hahaha kafka MQ testing here!!!
+> produce message here
+
+
+
+---
+
+
+
+#### 安装elasticsearch
+
+```php
+docker pull docker.elastic.co/elasticsearch/elasticsearch:6.4.3
+docker ps
+docker run -itd  -e "discovery.type=single-node" --name="elasticsearch" -p 9200:9200 -p 9300:9300 -t ${IMAGE ID}
+  
+docker ps
+docker exec -it ${CONTAINER ID} /bin/bash   
+```
+
+配置文件
+```
+vi elasticsearch.yml
+cluster.name:pyyf
+​	path.data: /tmp/elastic/data
+​	path.logs:/tmp/elastic/logs
+
+vi jvm.options
+​	-Xms256m
+​	-Xmx512m
+
+```
+
+安装ik分词器
+
+```
+docker exec -it ${CONTAINER ID} /bin/bash
+在 plugins文件夹中创建ik文件夹
+wget https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.4.3/elasticsearch-analysis-ik-6.4.3.zip
+unzip v...
+使得ik文件夹下有多个jar包即可
+```
+
+重启es容器
+
+
+
+**使用docker安装则不需要以下几步**
+
+```
+groupadd pyyf
+useradd pyyf1 -p 123456 -p pyyf
+cd /opt
+chown -R pyyf1:pyyf *（对、opt目录有访问权限）
+cd /tmp
+chown -R pyyf1:pyyf *（对、opt目录有访问权限）
+su pyyf1
+cd /.../elastic...
+./bin/elasticsearch -d
+```
+
+
+
+测试
+
+```
+在宿主机中，
+curl -X GET localhost:9200/_cat/health?v"
+health即可
+```
+
+
+
+---
+
+
+
+#### 安装tomcat（需要修改）
+
+```
+docker pull tomcat
+docker run --name tomcat -p 8080:8080 -v $PWD/test:/usr/local/tomcat/webapps/ -d tomcat
+```
+
+
+
+---
+
+
+
+#### 安装nginx
+
+```
+docker pull nginx:latest
+docker run --name nginx -p 8080:80 -d nginx
+```
+
+
+
+---
+
+
+
+#### 安装mysql
+
+```shell
+docker pull mysql:latest
+docker run -itd --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 mysql
+docker exec -it mysql /bin/bash
+mysql -u root -p
+```
+
+
+
+---
+
+#### 安装fastDFS
+docker run -d --restart=always --privileged=true --net=host --name=fastdfs -e IP=localhost -e WEB_PORT=80 -v ${HOME}/fastdfs:/var/local/fdfs registry.cn-beijing.aliyuncs.com/tianzuo/fastdfs
+其中-v ${HOME}/fastdfs:/var/local/fdfs是指：将${HOME}/fastdfs这个目录挂载到容器里的/var/local/fdfs这个目录里。所以上传的文件将被持久化到${HOME}/fastdfs/storage/data里，IP 后面是自己的服务器公网ip或者虚拟机ip，-e WEB_PORT=80 指定nginx端口
+//进入容器
+docker exec -it fastdfs /bin/bash
+//创建文件
+echo "Hello FastDFS!">index.html
+//测试文件上传
+fdfs_test /etc/fdfs/client.conf upload index.html
+开放 23000(fastdfs的storage端口),22122(fastdfs的tracker端口),80端口(nginx访问端口)
+使用浏览器查看 http://localhost/group1/M00/00/00/wKgAoF49JR-AdI98AAAADwL5vO420_big.html
+
+
+#### 问题
+
+1.当创建容器时出现
+“docker: Error response from daemon: Conflict. The container name “/myredis” is already in use by container “a9c648227f1d69694da612ae96223f7e11bf3c7b01123f44ac181f167c935fd5”. You have to remove (or rename) that container to be able to reuse that name.
+”
+可以先删除容器
+
+```shell
+#删除容器
+sudo docker container rm myredis
+#重新创建
+sudo docker run -d -p 6379:6379 --name myredis redis
+```
+
+2.当启动容器时出现
+
+Failed to restart docker.service: The name org.freedesktop.PolicyKit1 was not provided by any .service files
+See system logs and 'systemctl status docker.service' for details.
+
+解决方案：
+
+重启docker
+
+```shell
+sudo service docker restart
+```

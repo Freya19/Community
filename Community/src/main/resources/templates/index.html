@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!--访问该页面时,在此处生成CSRF令牌.-->
+    <!--	<meta name="_csrf" th:content="${_csrf.token}">-->
+    <!--	<meta name="_csrf_header" th:content="${_csrf.headerName}">-->
+    <th:block th:replace="community-fragments :: css">
+    </th:block>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/css/publish.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/css/index.css"
+          crossorigin="anonymous" type="text/css"/>
+    <title>鹏圆云方-首页</title>
+
+</head>
+<body>
+<div class="nk-container">
+
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="community-fragments::header(0)"></th:block>
+
+    </header>
+
+    <div id="waypoint" class="main" style="margin-left: 80px;margin-right: 80px">
+        <div class="container" style="width:96%;padding: 0">
+            <div class="row">
+                <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" style="border-right:1px solid #dee2e6;">
+                    <a th:href="@{/index(orderMode=0)}" th:if="${tag==null}">
+                        <h3><span class="fa fa-list"></span> 发现</h3>
+                    </a>
+                    <a th:href="@{/index(tag=${tag})}" th:if="${tag!=null}" >
+                        <h3 th:text="${tag}"></h3>
+                    </a>
+                    <div class="position-relative" style="height:40px;float: right">
+                        <!-- 筛选条件 -->
+                        <ul class="nav nav-tabs mb-3">
+                            <li class="nav-item" style="float: right">
+                                <a th:class="|nav-link ${orderMode==2?'active':''}|"
+                                   href="#" onclick="personalizedIndex()">个性化</a>
+                            </li>
+                            <li class="nav-item" style="float: right">
+                                <a th:class="|nav-link ${orderMode==0?'active':''}|"
+                                   th:href="@{/index(orderMode=0)}">最新</a>
+                            </li>
+                            <li class="nav-item" style="float: right">
+                                <a th:class="|nav-link ${orderMode==1?'active':''}|"
+                                   th:href="@{/index(orderMode=1)}">最热</a>
+                            </li>
+                        </ul>
+
+                    </div>
+
+                    <!-- 帖子列表 -->
+                    <ul class="list-unstyled" style="margin-top:-10px">
+                        <li class="media pb-3 pt-1 mb-1 border-bottom" th:each="map:${discussPosts}" style="width:100%">
+                            <div class="mr-4">
+                                <a th:href="@{|/user/${map.user.id}|}">
+                                    <img th:src="${map.user.headerUrl}" class=" rounded-circle" alt="用户头像"
+                                         style="width:50px;height:50px;">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <h6 class="mt-0 mb-3">
+                                    <a th:href="@{|/discuss/${map.post.id}|}" th:utext="${map.post.title}">备战春招，面试刷题跟他复习，一个月全搞定！</a>
+                                    <span class="badge badge-secondary bg-primary" th:if="${map.post.type==1}">置顶</span>
+                                    <span class="badge badge-secondary bg-danger"
+                                          th:if="${map.post.status==1}">精华</span>
+                                </h6>
+                                <div class="text-muted font-size-12">
+                                    <div th:if="${map.post.tags!=null&&map.post.tags!=''&&map.post.tags!='-1'}" style="display: inline">
+                                        <span th:each="tag : ${map.post.tags.split(',')}">
+                                            <a th:href="@{/(tag=${tag})}" >
+                                                <button class="btn btn-light  btn-sm indexTag"
+                                                        style="padding-top:1px;font-size:small;height:22px;" th:text="${tag}">
+                                                </button>
+                                            </a>
+
+                                        </span>
+                                    </div>
+
+                                    <u class="mr-3" style="margin-left:5px" th:utext="${map.user.username}">寒江雪</u> 发布于 <b
+                                        th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15
+                                    15:32:18</b>
+                                    <b style="color:teal;margin-left:10px;font-size:small"
+                                       th:text="${map.feedContent}" th:if="${#maps.containsKey(map, 'feedContent')}">
+                                    </b>
+                                    <ul class="d-inline float-right">
+                                        <li class="d-inline ml-2">赞 <span th:text="${map.likeCount}">11</span></li>
+                                        <li class="d-inline ml-2">|</li>
+                                        <li class="d-inline ml-2">回帖 <span th:text="${map.post.commentCount}">7</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <!-- 分页 -->
+                    <nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item">
+                                <a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>
+                            </li>
+                            <li th:class="|page-item ${page.current==1?'disabled':''}|">
+                                <a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a></li>
+                            <li th:class="|page-item ${i==page.current?'active':''}|"
+                                th:each="i:${#numbers.sequence(page.from,page.to)}">
+                                <a class="page-link" th:href="@{${page.path}(current=${i})}" th:text="${i}">1</a>
+                            </li>
+                            <li th:class="|page-item ${page.current==page.total?'disabled':''}|">
+                                <a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" th:href="@{${page.path}(current=${page.total})}">末页</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                </div>
+
+                <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+
+                    <!--相关问题-->
+                    <hr class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="width:auto">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <h4>热门问题</h4>
+
+                        <div class="ui fluid vertical menu" style="box-shadow: none;border:none">
+
+                            <a href="#" th:href="@{|/discuss/${hotPost.id}|}" class="item"
+                               th:each="hotPost : ${hotPosts}" style="color: #5b5b5b;padding:10px">
+                                <span class="fa fa-question"></span>
+                                <span > &ensp; </span>
+                                <span th:utext="${hotPost.title}" ></span>
+                            </a>
+                        </div>
+
+                    </div>
+
+
+                    <hr class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top: 50px;width: auto">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <h4>热门标签</h4>
+                            <a th:href="@{/(tag=${hotTag.name})}"  class="btn btn-light topic" th:each="hotTag : ${hotTags}">
+                                <span  class="topic_name" th:text="${hotTag.name}">
+                                    JVM
+                                </span>
+                                <span  class="badge topic_count" th:text="${hotTag.count}">132</span>
+                            </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="community-fragments::footer">
+    </footer>
+
+
+<!--    废弃不用-->
+    <!-- 弹出框 -->
+<!--    <div class="modal fade" id="publishModal" tabindex="-1" role="dialog"-->
+<!--         aria-labelledby="publishModalLabel" aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-lg" role="document">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="publishModalLabel">新帖发布</h5>-->
+<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                        <span aria-hidden="true">&times;</span>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <form>-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="category">类别:</label>-->
+<!--                            <select class="form-control" id="category" name="category">-->
+<!--                                <option th:each="selectedCategory:${selectedCategorys}"-->
+<!--                                        th:text="${selectedCategory.getName()}"-->
+<!--                                        th:value="${selectedCategory.getId()}"></option>-->
+<!--                            </select>-->
+<!--                            <br>-->
+<!--                        </div>-->
+
+<!--                        <div class="form-group">-->
+<!--                            <label for="recipient-name" class="col-form-label">标题：</label>-->
+<!--                            <input type="text" class="form-control" id="recipient-name" placeholder="请输入标题...">-->
+<!--                        </div>-->
+
+
+<!--                        <div class="form-group">-->
+<!--                            <label for="message-text" class="col-form-label">正文：</label>-->
+<!--                            <textarea class="form-control" id="message-text" rows="15"-->
+<!--                                      placeholder="本论坛支持markdown格式哦!"></textarea>-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                </div>-->
+<!--                <div class="modal-footer">-->
+<!--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>-->
+<!--                    <button type="button" class="btn btn-success" id="publishBtn">发布</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+
+
+
+    <!-- 提示框 -->
+    <div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="hintModalLabel">提示</h5>
+                </div>
+                <div class="modal-body" id="hintBody">
+                    发布完毕!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="community-fragments::registerAndLoginMenu">
+    </th:block>
+
+</div>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/jquery.min.js-3.2.1/jquery.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/popper.js" crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/bootstrap-4.4.1-dist/js/bootstrap.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+<script th:src="@{/community/js/global.js}"></script>
+<script th:src="@{/community/js/index.js}"></script>
+<script>
+    $('#recBlogs-container').load("/footer/recBlogs");
+
+    function clickLogin() {
+        $('#registerResultModal').modal("hide");
+        document.getElementById('loginButton').click()
+    }
+
+    function doLogin() {
+        var data = {
+            username: $('#loginUsername').val(),
+            password: $('#loginPassword').val(),
+            verifycode: $('#loginVerifycode').val(),
+            rememberme: $("input[name='loginRemember-me']").prop("checked")
+        };
+
+        $.post(
+            "/login",
+            data,
+            function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $('#loginModal').modal("hide");
+                    // 在提示框中显示返回消息
+                    $("#hintBody").text(data.msg);
+                    // 显示提示框
+                    $("#hintModal").modal("show");
+                    // 2秒后,自动隐藏提示框
+                    setTimeout(function () {
+                        $("#hintModal").modal("hide");
+                        // 刷新页面
+                        if (data.code == 0) {
+                            window.location.reload();
+                        }
+                    }, 1500);
+
+                } else {
+                    if (data.usernameMsg != null) {
+                        $('#loginUsername').addClass("is-invalid");
+                        $('#loginUsernameMsg').html(data.usernameMsg);
+                    }
+                    if (data.passwordMsg != null) {
+                        $('#loginPassword').addClass("is-invalid");
+                        $('#loginPasswordMsg').html(data.passwordMsg);
+                    }
+                    if (data.verifyCodeMsg != null) {
+                        $('#loginVerifycode').addClass("is-invalid");
+                        $('#loginVerifycodeMsg').html(data.verifyCodeMsg);
+                    }
+
+
+                }
+            }
+        );
+    }
+
+    $("#loginUsername").bind('input propertychange', function () {
+        if ($('#loginUsername').hasClass("is-invalid")) {
+            $('#loginUsername').removeClass("is-invalid");
+            $('#loginUsernameMsg').html("");
+        }
+
+    });
+
+    $("#loginPassword").bind('input propertychange', function () {
+        if ($('#loginPassword').hasClass("is-invalid")) {
+            $('#loginPassword').removeClass("is-invalid");
+            $('#loginPasswordMsg').html("");
+        }
+
+    });
+
+    $("#loginVerifycode").bind('input propertychange', function () {
+        if ($('#loginVerifycode').hasClass("is-invalid")) {
+            $('#loginVerifycode').removeClass("is-invalid");
+            $('#loginVerifycodeMsg').html("");
+        }
+    });
+
+
+    function clickRegister() {
+        $('#loginModal').modal("hide");
+        document.getElementById('registerButton').click()
+    }
+
+    function doRegister() {
+        let success = check_data();
+        if (!success)
+            return;
+        var data = {
+            username: $('#registerUsername').val(),
+            password: $('#registerPassword').val(),
+            confirmPassword: $('#registerConfirm-Password').val(),
+            email: $('#registerEmail').val()
+        };
+
+        $.post(
+            "/register",
+            data,
+            function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $('#registerModal').modal("hide");
+                    $("#registerResultModal").modal("show");
+                    let interval = setInterval(function () {
+                        var seconds = $("#seconds").text();
+                        $("#seconds").text(--seconds);
+                        if (seconds == 0) {
+                            $('#registerResultModal').modal("hide");
+                            if ($('#loginModal').css('display') == "none")
+                                document.getElementById('loginButton').click();
+                            clearInterval(interval);
+                            $("#seconds").text(8);
+                        }
+
+                    }, 1000);
+
+                } else {
+                    if (data.usernameMsg != null) {
+                        $('#registerUsername').addClass("is-invalid");
+                        $('#registerUsernameMsg').html(data.usernameMsg);
+                    }
+                    if (data.passwordMsg != null) {
+                        $('#registerPassword').addClass("is-invalid");
+                        $('#registerPasswordMsg').html(data.passwordMsg);
+                    }
+                    if (data.emailMsg != null) {
+                        $('#registerEmail').addClass("is-invalid");
+                        $('#registerEmailMsg').html(data.emailMsg);
+                    }
+
+
+                }
+            }
+        );
+    }
+
+    $("#registerUsername").bind('input propertychange', function () {
+        if ($('#registerUsername').hasClass("is-invalid")) {
+            $('#registerUsername').removeClass("is-invalid");
+            $('#registerUsernameMsg').html("");
+        }
+
+    });
+
+    $("#registerPassword").bind('input propertychange', function () {
+        if ($('#registerPassword').hasClass("is-invalid")) {
+            $('#registerPassword').removeClass("is-invalid");
+            $('#registerPasswordMsg').html("");
+        }
+
+    });
+
+    $("#registerEmail").bind('input propertychange', function () {
+        if ($('#registerEmail').hasClass("is-invalid")) {
+            $('#registerEmail').removeClass("is-invalid");
+            $('#registerEmailMsg').html("");
+        }
+
+    });
+
+    $("#registerConfirm-Password").bind('input propertychange', function () {
+        if ($('#registerConfirm-Password').hasClass("is-invalid")) {
+            $('#registerConfirm-Password').removeClass("is-invalid");
+            $('#registerConfirm-PasswordMsg').html("");
+        }
+    });
+
+    function check_data() {
+        var pwd1 = $("#registerPassword").val();
+        var pwd2 = $("#registerConfirm-Password").val();
+        if (pwd1 != pwd2) {
+            $("#registerConfirm-Password").addClass("is-invalid");
+            $("#registerConfirm-PasswordMsg").html("两次输入的密码不一致!");
+            return false;
+        }
+        return true;
+    }
+
+    function refresh_kaptcha() {
+        var path = CONTEXT_PATH + "/kaptcha?p=" + Math.random();
+        $("#kaptcha").attr("src", path);
+    }
+
+    function logout() {
+        $.get(
+            "/logout",
+            function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 0) {
+                    $("#hintBody").text(data.msg);
+                    // 显示提示框
+                    $("#hintModal").modal("show");
+                    // 2秒后,自动隐藏提示框
+                    setTimeout(function () {
+                        $("#hintModal").modal("hide");
+                        // 刷新页面
+                        if (data.code == 0) {
+                            window.location.reload();
+                        }
+                    }, 1500);
+                }
+            }
+        );
+
+    }
+</script>
+<script>
+    function personalizedIndex() {
+        if($('#hasLogin').text()=="0")
+            document.getElementById('loginButton').click();
+        else
+            window.location.href="/personalized";
+    }
+
+    $(function () {
+        $(window).on('resize', function () {
+            //console.log("宽度改变了!");
+            //console.log($(window).width());
+            adapter_size_show();
+        }).resize();
+        // window.onresize=function(){
+        //     //console.log("宽度改变了!");
+        //     adapter_size_show();
+        // }
+    });
+
+    function adapter_size_show() {
+        if ($(window).width() >= 870) {
+            console.log(">870");
+            $('.nav_computer').css("display", "");
+            $('.nav_pad').css("display", "none");
+            $('.phonerightmenu').css("display", "none");
+            $('#search').css("display", "");
+            $('#sitebar').css("display", "");
+            $('#rightmenu').css("display", "");
+            $('#waypoint').css("margin-top", "30px");
+            $('#waypoint').css("margin-bottom", "30px");
+            $('#waypoint').css("margin-left", "80px");
+            $('#waypoint').css("margin-right", "80px");
+
+        } else if ($(window).width() >= 680) {
+            console.log("680 - 870");
+            $('.nav_computer').css("display", "none");
+            $('.nav_pad').css("display", "");
+            $('.phonerightmenu').css("display", "none");
+            $('#search').css("display", "");
+            $('#sitebar').css("display", "");
+            $('#rightmenu').css("display", "");
+            $('#waypoint').css("margin-top", "30px");
+            $('#waypoint').css("margin-bottom", "30px");
+            $('#waypoint').css("margin-left", "45px");
+            $('#waypoint').css("margin-right", "45px");
+        } else if ($(window).width() >= 560) {
+            console.log("560 - 680");
+            $('.phonerightmenu').css("display", "none");
+            $('#rightmenu').css("display", "");
+            $('#search').css("display", "none");
+            $('#sitebar').css("display", "none");
+            $('.nav_computer').css("display", "none");
+            $('.nav_pad').css("display", "");
+            $('#waypoint').css("margin-top", "30px");
+            $('#waypoint').css("margin-bottom", "30px");
+            $('#waypoint').css("margin-left", "30px");
+            $('#waypoint').css("margin-right", "30px");
+        } else {
+            console.log("小于");
+            $('.phonerightmenu').css("display", "");
+            $('#rightmenu').css("display", "none");
+            $('#search').css("display", "");
+            $('#sitebar').css("display", "none");
+            $('.nav_computer').css("display", "");
+            $('.nav_pad').css("display", "none");
+            $('#waypoint').css("margin-left", "0px");
+            $('#waypoint').css("margin-right", "0px");
+            $('#waypoint').css("margin-top", "0px");
+            $('#waypoint').css("margin-bottom", "0px");
+        }
+    }
+</script>
+</body>
+</html>
+

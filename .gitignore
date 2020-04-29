@@ -1,0 +1,52 @@
+HELP.md
+community.vpp.*
+
+!.mvn/wrapper/maven-wrapper.jar
+
+**/.DS_Store
+
+### Data ###
+**/data/
+
+
+### 应用相关 ###
+**/logs/
+**/log/
+**/cache/
+**/temp/
+**/tmp/
+**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+**/.idea
+**/*.iws
+**/*.iml
+**/*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+/build/
+
+### VS Code ###
+.vscode/
+
+
+**/*.log
+**/*.log.*
+
+
+**/*.properties
+**/README-secret.md

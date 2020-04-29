@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" href="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/cloud.png"/>
+    <title>鹏方论坛-通知信息</title>
+</head>
+<body>
+<div>
+	<h3>鹏圆云方博客平台</h3>
+	<hr>
+    <p>
+        <b th:text="${username}">用户名</b>,
+    </p>
+    <p>
+		您的博文【<b th:text="${title}">博客标题</b>】，有用户评论了您
+    <br>
+    <b th:text="${content}">评论内容</b>
+	<br>
+	<br>
+    请点击
+    <a th:href="${url}">此链接</a>  查看具体内容
+	<br>
+    如有打扰，深感抱歉。
+    </p>
+</div>
+</body>
+</html>
