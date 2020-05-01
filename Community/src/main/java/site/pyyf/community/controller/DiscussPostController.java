@@ -49,7 +49,11 @@ public class DiscussPostController extends BaseController implements CommunityCo
                     .title(discussPost.getTitle())
                     .content(discussPost.getContent())
                     .build();
+
+            //修改数据库以及elasticsearch
             iDiscussPostService.update(update);
+            elasticsearchService.saveDiscussPost(update);
+
         }else{
             discussPost.setUserId(user.getId()).setCreateTime(new Date());
             iDiscussPostService.insert(discussPost);

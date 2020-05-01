@@ -13,8 +13,6 @@ public interface IDiscussPostMapper {
 
     List<DiscussPost> selectDiscussPosts(int userId, int orderMode, int categoryId, String tag, int offset, int limit);
 
-//    int selectDiscussPostRows(@Param("userId") int userId,int categoryId);
-
     /**
      * @Description 通过ID查询单条数据
      * @author "Gepeng18"

@@ -52,17 +52,17 @@ CREATE TABLE `login_ticket` (
 DROP TABLE IF EXISTS `message`;
 SET character_set_client = utf8mb4 ;
 CREATE TABLE `message` (
-                           `id` int(11) NOT NULL AUTO_INCREMENT,
-                           `from_id` int(11) DEFAULT NULL,
-                           `to_id` int(11) DEFAULT NULL,
-                           `conversation_id` varchar(45) NOT NULL,
-                           `content` text,
-                           `status` int(11) DEFAULT NULL COMMENT '0-未读;1-已读;2-删除;',
-                           `create_time` timestamp NULL DEFAULT NULL,
-                           PRIMARY KEY (`id`),
-                           KEY `index_from_id` (`from_id`),
-                           KEY `index_to_id` (`to_id`),
-                           KEY `index_conversation_id` (`conversation_id`)
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `from_id` int(11) DEFAULT NULL,
+    `to_id` int(11) DEFAULT NULL,
+    `conversation_id` varchar(45) NOT NULL,
+    `content` text,
+    `status` int(11) DEFAULT NULL COMMENT '0-未读;1-已读;2-删除;',
+    `create_time` timestamp NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `index_from_id` (`from_id`),
+    KEY `index_to_id` (`to_id`),
+    KEY `index_conversation_id` (`conversation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -83,7 +83,7 @@ create table if not exists comment
     status int default 0 null comment '0表示无效，1表示有效',
     create_time timestamp default now() null comment '创建时间'
 )
-    charset=utf8;
+charset=utf8;
 
 create index index_entity_id
     on comment (entity_id);
@@ -111,6 +111,7 @@ CREATE TABLE `discuss_post` (
     PRIMARY KEY (`id`),
     KEY `index_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 create table if not exists blog
 (
@@ -179,6 +180,7 @@ create table if not exists ebook_content
     file_id int null comment '对应的文件的ID'
 );
 
+
 create table if not exists ebook
 (
     id int auto_increment comment '书ID'
@@ -187,10 +189,6 @@ create table if not exists ebook
     file_id int comment '对应的文件ID',
     header longtext null comment '书的目录内容'
 );
-
-
-
-
 
 
 create table if not exists category
@@ -223,6 +221,7 @@ create table blog_tag
         primary key (id)
 );
 
+
 create table feed
 (
 	id int auto_increment,
@@ -245,9 +244,7 @@ create table if not exists file_folder
     parent_folder_id int default 0 null comment '父文件夹ID',
     user_id int null comment '所属用户ID',
     create_time timestamp not null comment '创建时间'
-)
-    charset=utf8;
-
+) charset=utf8;
 
 
 create table if not exists my_file
@@ -264,5 +261,4 @@ create table if not exists my_file
     size int null comment '文件大小',
     type int null comment '文件类型',
     postfix varchar(255) null comment '文件后缀'
-)
-    charset=utf8;
+) charset=utf8;
