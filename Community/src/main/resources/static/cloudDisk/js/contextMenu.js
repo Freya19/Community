@@ -217,7 +217,7 @@ if(loginUserId==8||loginUserId==14)
                     let html = $('.flag td').eq(1).html($('' +
                         "<form id='updateFileNameForm' action='updateFileName' method='post'>" +
                         "<input id='updateFileName' name='myFileName' autocomplete='off' type='text' onblur='checkUpdateFile()' value='" + name + "'>" +
-                        "<input type='hidden' name='myFileId' value='" + id + "'>" +
+                        "<input type='hidden' name='id' value='" + id + "'>" +
                         "</form>" +
                         ''));
                 }
@@ -238,6 +238,7 @@ if(loginUserId==8||loginUserId==14)
             }
         ]
     });
+
     $(".folders").contextMenu({
         width: 100, // width
         itemHeight: 30, // 菜单项height

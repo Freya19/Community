@@ -211,7 +211,6 @@
         <include refid="allColumn"/>
         FROM
         feed
-
         <if test="userIds.size() != 0">
             AND user_id in
             <foreach item="item" index="index" collection="userIds"
@@ -219,7 +218,7 @@
                 #{item}
             </foreach>
         </if>
-        where  entityType = ${entityType}
+        where  entity_type = ${entityType}
         ORDER BY feed_type DESC
         LIMIT #{count}
     </select>

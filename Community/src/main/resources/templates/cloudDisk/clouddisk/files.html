@@ -153,8 +153,8 @@
                                                     th:text="${#dates.format(folder.createTime,'yyyy-MM-dd HH:mm')}"></td>
                                             </tr>
 
-<!--                                            遍历文件-->
 
+                                            <!--遍历文件-->
                                             <tr th:each="f:${files}" class="files-items files">
                                                 <td>
                                                     <span id="fileId" style="display: none" th:text="${f.getId()}"></span>

@@ -350,7 +350,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
      * @Description 重命名文件夹
      * @Author xw
      * @Date 23:18 2020/2/10
-     * @Param [folder：需要重命名的文件夹]
+     * @Param folder：需要重命名的文件夹
      **/
     @PostMapping("/updateFolder")
     public String updateFolder(FileFolder folder) {
@@ -380,7 +380,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
      * @Description 重命名文件
      * @Author xw
      * @Date 12:47 2020/2/12
-     * @Param [file, map]
+     * @Param file:待重命名的文件
      **/
     @PostMapping("/updateFileName")
     public String updateFileName(MyFile file) {
