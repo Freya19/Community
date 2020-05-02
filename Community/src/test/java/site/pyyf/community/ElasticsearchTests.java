@@ -53,18 +53,10 @@ public class ElasticsearchTests {
         discussRepository.save(discussMapper.queryById(243));
     }
 
-//    @Test
-//    public void testInsertList() {
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(101, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(102, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(103, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(111, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(112, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(131, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(132, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(133, 0,0, 0, 100));
-//        discussRepository.saveAll(discussMapper.selectDiscussPosts(134, 0,0, 0, 100));
-//    }
+    @Test
+    public void testInsertList() {
+        discussRepository.saveAll(discussMapper.queryAll());
+    }
 
     @Test
     public void testUpdate() {

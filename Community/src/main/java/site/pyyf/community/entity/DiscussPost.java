@@ -46,10 +46,7 @@ public class DiscussPost {
     @Field(type = FieldType.Double)
     private Double score;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     private String tags;
-
-    @Field(type = FieldType.Text)
-    private String feedContent;
 
 }
