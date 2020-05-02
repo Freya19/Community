@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.tools.ToolProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -97,6 +98,7 @@ public class SystemController extends CloudDiskBaseController implements CloudDi
         map.put("location", location);
 
         map.put("loginUserId", hostHolder.getUser() == null ? 0 : hostHolder.getUser().getId());
+        
         logger.info("云盘页面域中的数据显示成功");
         return "cloudDisk/clouddisk/files";
     }

@@ -285,12 +285,14 @@ if(loginUserId==8||loginUserId==14)
             {
                 text: " 重命名",
                 callback: function () {
-                    let id = $('.flag td #fileId').html();
+                    //这两个语句都可以
+                    // let id = $('#tarFolder').html();
+                    let id = $('.flag td #renamedFileFolderId').html();
                     let name = $('.flag td a').html();
                     let html = $('.flag td').eq(1).html($('' +
                         "<form id='updateFolderForm' action='updateFolder' method='post'>" +
                         "<input id='updateFolderName' name='fileFolderName' autocomplete='off' type='text' onblur='checkUpdateFolder()' value='" + name + "'>" +
-                        "<input type='hidden' name='fileFolderId' value='" + id + "'>" +
+                        "<input type='hidden' name='id' value='" + id + "'>" +
                         "</form>" +
                         ''));
                 }

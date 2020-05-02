@@ -350,18 +350,18 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
      * @Description 重命名文件夹
      * @Author xw
      * @Date 23:18 2020/2/10
-     * @Param [folder, map]
+     * @Param [folder：需要重命名的文件夹]
      **/
     @PostMapping("/updateFolder")
-    public String updateFolder(FileFolder folder, Map<String, Object> map) {
+    public String updateFolder(FileFolder folder) {
         //获得文件夹的数据库信息
         FileFolder fileFolder = iFileFolderService.queryById(folder.getId());
         fileFolder.setFileFolderName(folder.getFileFolderName());
         //获得当前目录下的所有文件夹,用于检查文件夹是否已经存在
-        List<FileFolder> fileFolders = iFileFolderService.queryAll(FileFolder.builder().userId(ROOTUSERID).parentFolderId(fileFolder.getParentFolderId()).build() );
-        for (int i = 0; i < fileFolders.size(); i++) {
-            FileFolder folder1 = fileFolders.get(i);
-            if (folder1.getFileFolderName().equals(folder.getFileFolderName()) && folder1.getId() != folder.getId()) {
+        List<FileFolder> existFileFolders = iFileFolderService.queryAll(FileFolder.builder().userId(ROOTUSERID).parentFolderId(fileFolder.getParentFolderId()).build() );
+        for (int i = 0; i < existFileFolders.size(); i++) {
+            FileFolder existFileFolder = existFileFolders.get(i);
+            if (existFileFolder.getFileFolderName().equals(folder.getFileFolderName()) && !existFileFolder.getId().equals(folder.getId())) {
                 logger.info("重命名文件夹失败!文件夹已存在...");
                 return "redirect:/files?error=2&fId=" + fileFolder.getParentFolderId();
             }
@@ -396,8 +396,6 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
                     iEbookService.update(Ebook.builder().fileId(myFile.getId()).ebookName(newName).build());
                 }
                 logger.info("修改文件名成功!原文件名:" + oldName + "  新文件名:" + newName);
-
-
             }
         }
 
@@ -425,7 +423,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
     /**
      * Created by "gepeng" on 2020-03-81 10:25:20.
      *
-     * @param [userId, folderId]
+     * @param folderId
      * @return void
      * @Description 删除文件夹的所有文件夹的Redis缓存
      */
@@ -437,7 +435,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
     /**
      * Created by "gepeng" on 2020-03-81 10:55:29.
      *
-     * @param [userId, folderId]
+     * @param folderId
      * @return void
      * @Description 删除文件夹的所有文件的Redis缓存
      */

@@ -137,7 +137,7 @@
                                             <!--私人文件夹则只有固定人员显示，其它文件夹随意显示-->
                                             <tr th:each="folder:${folders}" class="files-items folders" th:if="${((folder.fileFolderName=='私人文件夹')&&(loginUserId==8|| loginUserId==14))||(folder.fileFolderName!='私人文件夹')}">
 
-                                                <td><span style="display: none" th:text="${folder.id}"></span><img
+                                                <td><span id="renamedFileFolderId" style="display: none" th:text="${folder.id}"></span><img
                                                         src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/directory.png"
                                                         height="30px" alt="Cinque Terre"></td>
                                                 <td>
