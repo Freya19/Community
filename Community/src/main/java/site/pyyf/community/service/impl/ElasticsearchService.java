@@ -208,6 +208,9 @@ public class ElasticsearchService extends BaseService implements IElasticsearchS
                         String commentCount = hit.getSourceAsMap().get("commentCount").toString();
                         post.setCommentCount(Integer.valueOf(commentCount));
 
+                        String tags = hit.getSourceAsMap().get("tags").toString();
+                        post.setTags(tags);
+
                         // 处理高亮显示的结果
                         HighlightField titleField = hit.getHighlightFields().get("title");
                         if (titleField != null) {

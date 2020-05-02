@@ -31,8 +31,9 @@
                     <a th:href="@{/index(orderMode=0)}" th:if="${tag==null}">
                         <h3><span class="fa fa-list"></span> 发现</h3>
                     </a>
+
                     <a th:href="@{/index(tag=${tag})}" th:if="${tag!=null}" >
-                        <h3 th:text="${tag}"></h3>
+                        <h3 ><span class="fa fa-list"></span> <span th:text="${tag}"></span> </h3>
                     </a>
                     <div class="position-relative" style="height:40px;float: right">
                         <!-- 筛选条件 -->
