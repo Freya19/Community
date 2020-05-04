@@ -17,7 +17,7 @@ import org.springframework.web.util.HtmlUtils;
 import java.util.*;
 
 @Controller
-public class MessageController extends BaseController implements CommunityConstant {
+public class MessageController extends CommunityBaseController implements CommunityConstant {
 
     // 私信列表
     @RequestMapping(path = "/letters", method = RequestMethod.GET)

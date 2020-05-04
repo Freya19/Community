@@ -2,7 +2,7 @@ package site.pyyf.community.service.impl;
 
 import site.pyyf.commons.utils.CommunityConstant;
 import site.pyyf.commons.utils.RedisKeyUtil;
-import site.pyyf.community.controller.BaseController;
+import site.pyyf.community.controller.CommunityBaseController;
 import site.pyyf.community.dao.IFeedMapper;
 import site.pyyf.community.entity.Feed;
 import site.pyyf.community.entity.User;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Created by Gepeng18 on 2020/2/1.
  */
 @Service
-public class FeedServiceImpl extends BaseController implements IFeedService, CommunityConstant {
+public class FeedServiceImpl extends CommunityBaseController implements IFeedService, CommunityConstant {
     @Autowired
     IFeedMapper iFeedMapper;
 

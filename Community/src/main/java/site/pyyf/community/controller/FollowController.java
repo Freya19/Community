@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class FollowController extends BaseController implements CommunityConstant {
+public class FollowController extends CommunityBaseController implements CommunityConstant {
 
 
     @RequestMapping(path = "/follow", method = RequestMethod.POST)

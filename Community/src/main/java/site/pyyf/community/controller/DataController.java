@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.Date;
 
 @Controller
-public class DataController extends BaseController{
+public class DataController extends CommunityBaseController {
 
     @RequestMapping(path = "/data", method = {RequestMethod.GET, RequestMethod.POST})
     public String getDataPage() {

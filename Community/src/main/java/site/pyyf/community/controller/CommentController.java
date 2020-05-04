@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Controller
 @RequestMapping("/comment")
-public class CommentController extends BaseController implements CommunityConstant {
+public class CommentController extends CommunityBaseController implements CommunityConstant {
 
     @RequestMapping(path = "/{discussPostId}", method = RequestMethod.POST)
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment) {

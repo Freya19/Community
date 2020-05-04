@@ -1,6 +1,6 @@
 
-var loginUserId = $('#loginUserId').text();
-if(loginUserId==8||loginUserId==14)
+var isAdmin = $('#isAdmin').text();
+if(isAdmin == 1)
 {
     $(".files").contextMenu({
         width: 100, // width

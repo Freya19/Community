@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @CrossOrigin
 @Controller
-public class OSSController extends BaseController {
+public class OSSController extends CommunityBaseController {
 
     @LoginRequired
     @ResponseBody

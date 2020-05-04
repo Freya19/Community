@@ -38,11 +38,13 @@ public class SystemController extends CloudDiskBaseController implements CloudDi
     @GetMapping("/files")
     public String toUserPage(@RequestParam(value = "fId", defaultValue = "0") Integer fId,
                              Integer error, Map<String, Object> map) {
-        if (fId == 0)
+        if (fId == 0) {
             fId = iUserService.queryById(ROOTUSERID).getRootFolder();
+        }
 
-        if (!verifySecret(fId))
+        if (!verifySecret(fId)) {
             return "redirect:/files?fId=0";
+        }
 
         //分页不好分，就不分了
 //        //连带着加密文件也搜出来了
@@ -87,8 +89,9 @@ public class SystemController extends CloudDiskBaseController implements CloudDi
         }
 
         Collections.reverse(location);
-        if (location.size() > 0)
+        if (location.size() > 0) {
             location.remove(0);
+        }
         //获得统计信息
         UserStatistics statistics = iMyFileService.getCountStatistics(ROOTUSERID);
         map.put("statistics", statistics);
@@ -96,8 +99,6 @@ public class SystemController extends CloudDiskBaseController implements CloudDi
         map.put("files", files);
         map.put("nowFolder", nowFolder);
         map.put("location", location);
-
-        map.put("loginUserId", hostHolder.getUser() == null ? 0 : hostHolder.getUser().getId());
         
         logger.info("云盘页面域中的数据显示成功");
         return "cloudDisk/clouddisk/files";
@@ -111,11 +112,14 @@ public class SystemController extends CloudDiskBaseController implements CloudDi
         while (current.getParentFolderId()!= 0) {
 
             //访问加密文件夹但未登录
-            if (current.getId() == 3 && (hostHolder.getUser() == null))
+            //3 - 私人文件夹（数据库file_folder）
+            if (current.getId() == 3 && (hostHolder.getUser() == null)) {
                 return false;
-            //访问加密文件夹但是不是8也不是14
-            if (current.getId() == 3 && (hostHolder.getUser().getId() != 8 && hostHolder.getUser().getId() != 14))
+            }
+            //访问加密文件夹但不是管理员
+            if (current.getId() == 3 && (hostHolder.getUser().getUserType()!=1)) {
                 return false;
+            }
 
             current = iFileFolderService.queryById(current.getParentFolderId());
         }

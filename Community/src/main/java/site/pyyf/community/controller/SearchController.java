@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class SearchController extends BaseController implements CommunityConstant {
+public class SearchController extends CommunityBaseController implements CommunityConstant {
 
     // search?keyword=xxx
     @RequestMapping(path = "/search", method = RequestMethod.GET)

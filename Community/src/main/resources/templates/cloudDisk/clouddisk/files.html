@@ -7,7 +7,8 @@
     <title>鹏圆云盘-我的文件</title>
     <link rel="icon" href="https://pyyf.oss-cn-hangzhou.aremembermeliyuncs.com/community/icons/cloud.png"/>
     <th:block th:replace="cloudDisk/commons/cloudDisk-fragments::fileSystemCss"></th:block>
-    <link href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/cloudDisk/css/videoPlayer.css" media="all" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/cloudDisk/css/videoPlayer.css" media="all"
+          rel="stylesheet">
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/Semantic-UI-2.2.4/dist/semantic.min.css"
           crossorigin="anonymous" type="text/css"/>
@@ -18,10 +19,12 @@
             /*背景图片*/
             background-image: url("https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/img/email-pattern.png");
         }
-        .card{
+
+        .card {
             background-color: #ffffff9c
         }
-        .section-header{
+
+        .section-header {
             background-color: #ffffff9c
         }
     </style>
@@ -34,7 +37,8 @@
 </th:block>
 <div id="app">
     <div class="main-wrapper">
-        <div  style="background-color: transparent;height: 60px">
+
+        <div style="background-color: transparent;height: 60px">
             <div class="row" style="background-color: #343a40;height:60px">
                 <div class="col-4 col-sm-4 col-lg-4">
 
@@ -43,11 +47,11 @@
                     <a th:href="@{/index}" style="color: rgb(154, 157, 160);font-size:medium;">
                         <i class="fa fa-home"></i>&thinsp;首页
                     </a>
-                    <a  th:href="@{/onlineExecutor}" style="color: rgb(154, 157, 160);font-size:medium;margin-left:5%; ">
+                    <a th:href="@{/onlineExecutor}" style="color: rgb(154, 157, 160);font-size:medium;margin-left:5%; ">
                         <img src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/java-while.png"
                              width="20">在线编译
                     </a>
-                    <a  th:href="@{/files}" style="color:white;font-size:medium;margin-left:5%;">
+                    <a th:href="@{/files}" style="color:white;font-size:medium;margin-left:5%;">
                         <i class="fa fa-database"></i>&thinsp;云盘
                     </a>
                     <a th:href="@{/blogs}" style="font-size:medium;margin-left:5%;color: rgb(154, 157, 160)">
@@ -59,6 +63,7 @@
                 </div>
             </div>
         </div>
+
         <div class="main-content" style="padding-left: 80px;padding-right: 80px;padding-bottom: 30px;padding-top: 37px">
             <section class="section">
                 <h1 class="section-header" style="height:80px;background-color: #fbfbfb">
@@ -72,7 +77,8 @@
                     <div class="col-12 col-sm-12 col-lg-12">
                         <div class="card">
                             <div class="card-body">
-                                <div class="dropdown" th:if="${loginUserId==8|| loginUserId==14}">
+                                <!--特殊用户（管理员）登录后，页面显示文件操作按钮-->
+                                <div class="dropdown" th:if="${isAdmin==1}">
                                     <button type="button" class="btn btn-light dropdown-toggle" id="dropdownMenu1"
                                             data-toggle="dropdown"
                                             style="height:36px;width:80px;padding-left:20px;padding-top:6px;margin-bottom:5px">
@@ -87,12 +93,9 @@
                                         <a class="dropdown-item" href="#" data-toggle="modal"
                                            data-target="#saveShareElasticframe">&nbsp;<i class="fa fa-save"></i>&nbsp;
                                             保存分享的资源</a>
-
-
                                     </div>
-
-
                                 </div>
+
                                 <nav aria-label="breadcrumb" class="empty-space">
                                     <ol class="breadcrumb">
                                         <li class="breadcrumb-item"><a
@@ -120,6 +123,7 @@
                                         </li>
                                     </ol>
                                 </nav>
+
                                 <div class="row" style="margin-top: -10px;">
                                     <div class="col-12 col-sm-12 col-lg-12 table-responsive">
                                         <table class="table tab-bordered text-nowrap" id="files-table">
@@ -135,9 +139,10 @@
 
                                             <!--遍历文件夹-->
                                             <!--私人文件夹则只有固定人员显示，其它文件夹随意显示-->
-                                            <tr th:each="folder:${folders}" class="files-items folders" th:if="${((folder.fileFolderName=='私人文件夹')&&(loginUserId==8|| loginUserId==14))||(folder.fileFolderName!='私人文件夹')}">
-
-                                                <td><span id="renamedFileFolderId" style="display: none" th:text="${folder.id}"></span><img
+                                            <tr th:each="folder:${folders}" class="files-items folders"
+                                                th:if="${((folder.fileFolderName=='私人文件夹')&&(isAdmin==1))||(folder.fileFolderName!='私人文件夹')}">
+                                                <td><span id="renamedFileFolderId" style="display: none"
+                                                          th:text="${folder.id}"></span><img
                                                         src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/directory.png"
                                                         height="30px" alt="Cinque Terre"></td>
                                                 <td>
@@ -157,23 +162,26 @@
                                             <!--遍历文件-->
                                             <tr th:each="f:${files}" class="files-items files">
                                                 <td>
-                                                    <span id="fileId" style="display: none" th:text="${f.getId()}"></span>
-                                                    <span id="showPath" style="display: none" th:text="${f.getShowPath()}"></span>
+                                                    <span id="fileId" style="display: none"
+                                                          th:text="${f.getId()}"></span>
+                                                    <span id="showPath" style="display: none"
+                                                          th:text="${f.getShowPath()}"></span>
 
                                                     <img th:src="@{https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/{language}.png(language=${f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1)})}"
                                                          height="30px" alt="图标暂未录入" th:if="${f.getType()==1}">
 
-<!--                                                    <img th:src="|${(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('cpp')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/cpp.png':-->
-<!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('java')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/java.png':-->
-<!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('html')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/html.png':-->
-<!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('md')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/markdown.png':-->
-<!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('py')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/python.png':-->
-<!--                        										'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/file.png')))))}|"-->
-<!--                                                         height="30px" alt="Cinque Terre" th:if="${f.getType()==1}">-->
+                                                    <!--                                                    <img th:src="|${(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('cpp')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/cpp.png':-->
+                                                    <!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('java')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/java.png':-->
+                                                    <!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('html')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/html.png':-->
+                                                    <!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('md')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/markdown.png':-->
+                                                    <!--                        										(f.getMyFileName().substring(f.getMyFileName().indexOf('.') + 1).equals('py')? 'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/python.png':-->
+                                                    <!--                        										'https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/file.png')))))}|"-->
+                                                    <!--                                                         height="30px" alt="Cinque Terre" th:if="${f.getType()==1}">-->
 
 
                                                     <span class="thumbnail_img" title="我的图片1" th:if="${f.getType()==2}">
-                                                        <img th:src="@{${f.getShowPath()}}" alt="我的图片1" class="smallImg">
+                                                        <img th:src="@{${f.getShowPath()}}" alt="我的图片1"
+                                                             class="smallImg">
                                                     </span>
 
                                                     <img src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/video.png"
@@ -218,7 +226,8 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div class="row" th:if="${loginUserId==8|| loginUserId==14}">
+
+                                <div class="row" th:if="${isAdmin==1}">
                                     <div class="col-12">
                                         <div class="float-right">
                                             <a href="javaScript:addFolderElement()"
@@ -235,7 +244,7 @@
                 <span id="preF" style="display: none" th:text="${nowFolder.parentFolderId}"></span>
                 <span id="tarFolder" style="display: none"></span>
                 <span id="tarFile" style="display: none"></span>
-                <span id="loginUserId" style="display: none" th:text="${loginUserId}"></span>
+                <span id="isAdmin" style="display: none" th:text="${isAdmin}"></span>
 
                 <div class="row" th:if="${(files.size() == 0)&&(folders.size()==0)}">
                     <div class="col-12 col-sm-12 col-lg-12">
@@ -250,26 +259,26 @@
                         </div>
                     </div>
                 </div>
-<!--                &lt;!&ndash; 分页 &ndash;&gt;-->
-<!--                <nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">-->
-<!--                    <ul class="pagination justify-content-center">-->
-<!--                        <li class="page-item">-->
-<!--                            <a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>-->
-<!--                        </li>-->
-<!--                        <li th:class="|page-item ${page.current==1?'disabled':''}|">-->
-<!--                            <a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a></li>-->
-<!--                        <li th:class="|page-item ${i==page.current?'active':''}|"-->
-<!--                            th:each="i:${#numbers.sequence(page.from,page.to)}">-->
-<!--                            <a class="page-link" th:href="@{${page.path}(current=${i})}" th:text="${i}">1</a>-->
-<!--                        </li>-->
-<!--                        <li th:class="|page-item ${page.current==page.total?'disabled':''}|">-->
-<!--                            <a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a>-->
-<!--                        </li>-->
-<!--                        <li class="page-item">-->
-<!--                            <a class="page-link" th:href="@{${page.path}(current=${page.total})}">末页</a>-->
-<!--                        </li>-->
-<!--                    </ul>-->
-<!--                </nav>-->
+                <!--                &lt;!&ndash; 分页 &ndash;&gt;-->
+                <!--                <nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">-->
+                <!--                    <ul class="pagination justify-content-center">-->
+                <!--                        <li class="page-item">-->
+                <!--                            <a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>-->
+                <!--                        </li>-->
+                <!--                        <li th:class="|page-item ${page.current==1?'disabled':''}|">-->
+                <!--                            <a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a></li>-->
+                <!--                        <li th:class="|page-item ${i==page.current?'active':''}|"-->
+                <!--                            th:each="i:${#numbers.sequence(page.from,page.to)}">-->
+                <!--                            <a class="page-link" th:href="@{${page.path}(current=${i})}" th:text="${i}">1</a>-->
+                <!--                        </li>-->
+                <!--                        <li th:class="|page-item ${page.current==page.total?'disabled':''}|">-->
+                <!--                            <a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a>-->
+                <!--                        </li>-->
+                <!--                        <li class="page-item">-->
+                <!--                            <a class="page-link" th:href="@{${page.path}(current=${page.total})}">末页</a>-->
+                <!--                        </li>-->
+                <!--                    </ul>-->
+                <!--                </nav>-->
             </section>
         </div>
         <!-- 尾部 -->
@@ -386,7 +395,8 @@
         <div class="players" id="videoPlayer-container">
             <div class="media-wrapper">
                 <video id="videoPlayer" width="640" height="360" style="max-width:100%;"
-                       poster="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/cloud.png" preload="none" controls
+                       poster="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/cloud.png" preload="none"
+                       controls
                        playsinline webkit-playsinline>
                     <source id="video" src="" type="video/mp4">
                 </video>
@@ -399,7 +409,8 @@
 <!--音乐播放器-->
 <!--如果是这个层次的话sun是跟随father走的啊，因为是嵌套关系啊，就好比杯子里面有水，总不能杯子走了，水还在原地不动吧，道理是一样的。sun一般情况下总是相对于father来动，father在左侧sun也会到左侧，因为sun在father内部，这个我就不多解释了。特殊的情况是sun绝对定位了，例如sun的样式是width:10px;height:10px;position:absolute;top:0px;left:0px;这样就是相对于页面左上角定位了，如果给父亲添加一个position:relative;那么sun不在页面左上角了，而是在father的左上角了。也就是说sun往上层找有没有relative定位的元素，如果没有就直接相对于window窗口定位。因此，absolute一般是和父层的relative来一起使用的。-->
 <!--position:fixed;定位的时候 只要不写top、left、top、right值，他就会默认居于父级进行定位，又不会失去fixed的不动特性，只是位置只能在左上角，要定位在其他地方就在加上margin值处理即可：-->
-<div id="audioPlayerTool" style="width: 275px; height: 40px; background-color: rgb(35, 35, 35); position: fixed; inset: 100px 0px 100px -240px; float: right; z-index: 10;margin-top: -25px">
+<div id="audioPlayerTool"
+     style="width: 275px; height: 40px; background-color: rgb(35, 35, 35); position: fixed; inset: 100px 0px 100px -240px; float: right; z-index: 10;margin-top: -25px">
 
     <div class="players" id="audioPlayer-container" style="float:right;position:fixed;height:40px;">
         <div class="media-wrapper">
@@ -410,7 +421,8 @@
         <br>
     </div>
     <div style="position:fixed; margin-left:240px;height:40px;width:30px">
-        <button type="button" onclick="suoxiao()" style="background-color: transparent;outline: none;border: 0;  padding-left:0px;width:30px;height:40px;">
+        <button type="button" onclick="suoxiao()"
+                style="background-color: transparent;outline: none;border: 0;  padding-left:0px;width:30px;height:40px;">
             <img id="audioPlayerSrc" src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/右.png" alt="缩小">
         </button>
 

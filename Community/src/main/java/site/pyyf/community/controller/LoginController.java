@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Controller
-public class LoginController extends BaseController implements CommunityConstant {
+public class LoginController extends CommunityBaseController implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 

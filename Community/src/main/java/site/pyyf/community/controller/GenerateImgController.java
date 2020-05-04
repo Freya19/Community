@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class GenerateImgController extends BaseController implements CommunityConstant {
+public class GenerateImgController extends CommunityBaseController implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(GenerateImgController.class);
 

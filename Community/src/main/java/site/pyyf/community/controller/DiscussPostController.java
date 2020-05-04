@@ -8,13 +8,12 @@ import site.pyyf.commons.utils.RedisKeyUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import site.pyyf.community.entity.*;
 
 import java.util.*;
 
 @Controller
 @RequestMapping("/discuss")
-public class DiscussPostController extends BaseController implements CommunityConstant {
+public class DiscussPostController extends CommunityBaseController implements CommunityConstant {
 
     @RequestMapping(method = RequestMethod.GET)
     public String getInputPage(Model model){
@@ -159,11 +158,6 @@ public class DiscussPostController extends BaseController implements CommunityCo
             }
         }
         model.addAttribute("comments", commentVoList);
-        //* ------------------- 判断帖子是谁发的，前端有编辑按钮 ----------------- */
-        if(hostHolder.getUser()==null)
-            model.addAttribute("loginUserId","-1");
-        else
-            model.addAttribute("loginUserId",hostHolder.getUser().getId());
         /* ------------------- 热门问题 ----------------- */
         List<DiscussPost> hotPosts = iDiscussPostService
                 .queryAllByLimit(DiscussPost.builder().userId(-1).tags("-1").build(),3, 0, 5);

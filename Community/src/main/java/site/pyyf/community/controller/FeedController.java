@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import site.pyyf.community.entity.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  */
 
 @Controller
-public class FeedController extends BaseController implements CommunityConstant {
+public class FeedController extends CommunityBaseController implements CommunityConstant {
     private static final Logger logger = LoggerFactory.getLogger(FeedController.class);
 
 

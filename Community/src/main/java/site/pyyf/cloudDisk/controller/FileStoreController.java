@@ -136,10 +136,11 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
                 .build());
 
         //如果是markdown，则再传一份到library表中
-        if (fileItem.getPostfix().equals("md"))
+        if (fileItem.getPostfix().equals("md")) {
             iResolveHeaderService.readFile(originalFile.getInputStream(), originalFile.getOriginalFilename(), fileItem.getId());
+        }
 
-        String userFilesKey = RedisKeyUtil.getFilesKey( String.valueOf(folderId));
+        String userFilesKey = RedisKeyUtil.getFilesKey(String.valueOf(folderId));
         logger.info("文件上传成功，向缓存中增加一个文件");
         redisTemplate.opsForList().rightPush(userFilesKey, fileItem);
 
@@ -163,7 +164,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
             os = new BufferedOutputStream(response.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("获取reponse的输出流失败");
+            logger.error("获取response的输出流失败");
             return;
         }
         //获取文件信息
@@ -198,9 +199,9 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
             //去FTP上拉取
             logger.info("开始下载");
             boolean FTPdownLoadRes = FtpUtil.downloadFile("/" + remotePath, os);
-            if (FTPdownLoadRes)
+            if (FTPdownLoadRes) {
                 logger.info("文件从FTP下载成功");
-            else {
+            } else {
                 logger.info("文件从FTP下载失败!" + myFile);
                 return;
             }
@@ -213,7 +214,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
             os.close();
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("reponse输出流关闭错误");
+            logger.error("response输出流关闭错误");
         }
     }
 
@@ -276,13 +277,13 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
     public void deleteFolderF(FileFolder folder) {
 
         clearFoldersCache(folder.getParentFolderId());
-        logger.info("文件夹删除成功，文件夹缓存删除。。。。");
+        logger.info("文件夹缓存删除。。。。");
 
         //删除当前文件夹的所有的文件
-        List<MyFile> files = iMyFileService.queryAll(MyFile.builder().userId(ROOTUSERID).parentFolderId(folder.getId()).build() );
+        List<MyFile> files = iMyFileService.queryAll(MyFile.builder().userId(ROOTUSERID).parentFolderId(folder.getId()).build());
         if (files.size() != 0) {
             clearFoldersCache(files.get(0).getParentFolderId());
-            logger.info("文件夹删除成功，文件夹缓存删除。。。。");
+            logger.info("文件夹中文件缓存删除。。。。");
             for (int i = 0; i < files.size(); i++) {
                 MyFile thisFile = files.get(i);
 
@@ -338,7 +339,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
         Integer integer = iFileFolderService.insert(folder);
         logger.info("添加文件夹成功!" + folder);
 
-        String userFoldersKey = RedisKeyUtil.getFoldersKey( String.valueOf(folder.getParentFolderId()));
+        String userFoldersKey = RedisKeyUtil.getFoldersKey(String.valueOf(folder.getParentFolderId()));
         logger.info("向缓存中增加一个文件夹");
         redisTemplate.opsForList().rightPush(userFoldersKey, folder);
 
@@ -358,7 +359,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
         FileFolder fileFolder = iFileFolderService.queryById(folder.getId());
         fileFolder.setFileFolderName(folder.getFileFolderName());
         //获得当前目录下的所有文件夹,用于检查文件夹是否已经存在
-        List<FileFolder> existFileFolders = iFileFolderService.queryAll(FileFolder.builder().userId(ROOTUSERID).parentFolderId(fileFolder.getParentFolderId()).build() );
+        List<FileFolder> existFileFolders = iFileFolderService.queryAll(FileFolder.builder().userId(ROOTUSERID).parentFolderId(fileFolder.getParentFolderId()).build());
         for (int i = 0; i < existFileFolders.size(); i++) {
             FileFolder existFileFolder = existFileFolders.get(i);
             if (existFileFolder.getFileFolderName().equals(folder.getFileFolderName()) && !existFileFolder.getId().equals(folder.getId())) {

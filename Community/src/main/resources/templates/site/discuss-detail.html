@@ -56,7 +56,7 @@
                                 <input type="hidden" id="postId" th:value="${post.id}">
                                 <form method="get" th:action="@{|/discuss/edit/${post.id}|}" style="display:inline">
                                     <button type="submit" class="btn btn-success btn-sm" id="edit"
-                                            th:if="${loginUserId==user.id ||loginUserId==8|| loginUserId==14}">编辑
+                                            th:if="${loginUserId==user.id ||isAdmin == 1}">编辑
                                     </button>
                                 </form>
                                 <button type="button" class="btn btn-danger btn-sm" id="topBtn"

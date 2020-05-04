@@ -18,7 +18,7 @@ import java.util.*;
 
 @Controller
 @RequestMapping("/alpha")
-public class AlphaController extends BaseController {
+public class AlphaController extends CommunityBaseController {
 
     @Autowired
     private AlphaService alphaService;

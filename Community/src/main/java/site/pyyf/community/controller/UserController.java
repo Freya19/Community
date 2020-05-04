@@ -32,7 +32,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
-public class UserController extends BaseController implements CommunityConstant {
+public class UserController extends CommunityBaseController implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 

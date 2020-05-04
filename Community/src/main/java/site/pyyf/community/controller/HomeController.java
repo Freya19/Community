@@ -7,13 +7,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import site.pyyf.community.entity.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
-public class HomeController extends BaseController implements CommunityConstant {
+public class HomeController extends CommunityBaseController implements CommunityConstant {
 
 
     @RequestMapping(path = "/", method = RequestMethod.GET)

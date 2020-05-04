@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class LikeController extends BaseController implements CommunityConstant {
+public class LikeController extends CommunityBaseController implements CommunityConstant {
 
 
     @RequestMapping(path = "/like", method = RequestMethod.POST)

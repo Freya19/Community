@@ -17,7 +17,7 @@ import java.io.IOException;
 
 
 @Controller
-public class OnlineExecutorController extends BaseController {
+public class OnlineExecutorController extends CommunityBaseController {
     private Logger logger = LoggerFactory.getLogger(OnlineExecutorController.class);
 
     @Reference(loadbalance = "random", timeout = 5000, check = false) //dubbo直连
