@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 /**
  * Created by "freya" on 2020-04-111 12:06:57.
- * @Description
+ * @Description 活跃用户将其关注的人的动态“推”给用户
  * @param
  * @return
  */
@@ -25,15 +25,15 @@ import java.util.stream.Collectors;
 public class FeedController extends CommunityBaseController implements CommunityConstant {
     private static final Logger logger = LoggerFactory.getLogger(FeedController.class);
 
-
     @RequestMapping(path = {"/personalized"}, method = {RequestMethod.GET, RequestMethod.POST})
     private String getPushFeeds(Model model, Page page) {
 
         //判断用户多久没登录了，按照5天计算，5天内则是推的，5天前登录则让它拉
-
         if (hostHolder.getUser() == null)
             //这里让前端控制，未登录则禁止访问
+        {
             return "redirect:/index";
+        }
 
         //每访问第一页，就将redis缓存中的数据进行替换
         if (page.getCurrent() == 1) {
@@ -54,12 +54,10 @@ public class FeedController extends CommunityBaseController implements Community
 
         }
 
-
         page.setRows(iDiscussPostService.queryCount());
         page.setPath("/personalized");
 
         List<DiscussPost> discussPosts = null;
-
 
         String tagKey = RedisKeyUtil.getPersistenceViewTagsKey(hostHolder.getUser().getId());
         List<String> tags = redisTemplate.opsForList().range(tagKey, 0, -1);
@@ -95,11 +93,13 @@ public class FeedController extends CommunityBaseController implements Community
 
                 Map<String, Object> discussPostVO = new HashMap<>();
                 String feedContent = iFeedService.getFeedContentByPostId(post.getId(), published, liked, commented);
-                if (feedContent.length() > 0)
+                if (feedContent.length() > 0) {
                     discussPostVO.put("feedContent", feedContent);
-                else
+                } else
                     //简单粗暴，这样前端就好写了
+                {
                     discussPostVO.put("feedContent", "");
+                }
                 discussPostVO.put("post", post);
                 User user = iUserService.queryById(post.getUserId());
                 discussPostVO.put("user", user);
@@ -112,7 +112,7 @@ public class FeedController extends CommunityBaseController implements Community
         }
         model.addAttribute("discussPosts", discussPostVOS);
         model.addAttribute("orderMode", 2);
-        List<HotTag> hotTags = hotTagCache.getHots();
+        List<Tag> hotTags = tagCache.getShowTags();
         model.addAttribute("hotTags", hotTags);
 
         /* ------------------- 热门问题 ----------------- */
@@ -125,7 +125,7 @@ public class FeedController extends CommunityBaseController implements Community
     }
 
     /**
-     * 个性化定制之 我的动态？？？
+     * 个性化定制之 我的动态
      * @param userId 我关注的某个用户的id
      * @param model  前端需要的model
      * @param page  分页的page

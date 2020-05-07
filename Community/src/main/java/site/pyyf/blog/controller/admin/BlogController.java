@@ -2,7 +2,7 @@ package site.pyyf.blog.controller.admin;
 
 import site.pyyf.blog.controller.BaseController;
 import site.pyyf.blog.entity.Blog;
-import site.pyyf.commons.utils.TagCache;
+import site.pyyf.commons.utils.TagsVO;
 import site.pyyf.community.entity.Category;
 import site.pyyf.community.entity.User;
 import site.pyyf.commons.utils.CommunityConstant;
@@ -82,7 +82,7 @@ public class BlogController extends BaseController implements CommunityConstant 
 
     @GetMapping("/blog")
     public String getInputPage(Model model) {
-        model.addAttribute("tags", TagCache.get());
+        model.addAttribute("tags", TagsVO.get());
         model.addAttribute("cats", iCategoryService.queryAll(Category.builder().entityType(ENTITY_TYPE_BLOG).build()));
         return INPUT;
     }
@@ -94,7 +94,7 @@ public class BlogController extends BaseController implements CommunityConstant 
         model.addAttribute("title",blog.getTitle());
         model.addAttribute("content",blog.getContent());
         model.addAttribute("tag",blog.getTags());
-        model.addAttribute("tags", TagCache.get());
+        model.addAttribute("tags", TagsVO.get());
         model.addAttribute("cat",iCategoryService.queryById(blog.getCategoryId()));
         model.addAttribute("cats", iCategoryService.queryAll(Category.builder().entityType(ENTITY_TYPE_BLOG).build()));
         model.addAttribute("flag",blog.getFlag());

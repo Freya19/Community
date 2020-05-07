@@ -1,6 +1,6 @@
 package site.pyyf.community.controller;
 
-import site.pyyf.commons.utils.TagCache;
+import site.pyyf.commons.utils.TagsVO;
 import site.pyyf.community.entity.*;
 import site.pyyf.commons.utils.CommunityConstant;
 import site.pyyf.commons.utils.CommunityUtil;
@@ -17,7 +17,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
     @RequestMapping(method = RequestMethod.GET)
     public String getInputPage(Model model){
-        model.addAttribute("tags", TagCache.get());
+        model.addAttribute("tags", TagsVO.get());
         return "site/publish";
     }
 
@@ -28,7 +28,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
         model.addAttribute("content", discussPost.getContent());
         model.addAttribute("tag", discussPost.getTags());
         model.addAttribute("id", discussPost.getId());
-        model.addAttribute("tags", TagCache.get());
+        model.addAttribute("tags", TagsVO.get());
         return "site/publish";
     }
 

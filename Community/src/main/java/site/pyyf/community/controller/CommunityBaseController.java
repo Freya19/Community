@@ -3,7 +3,7 @@ package site.pyyf.community.controller;
 import com.google.code.kaptcha.Producer;
 import site.pyyf.commons.event.EventProducer;
 import site.pyyf.commons.utils.HostHolder;
-import site.pyyf.commons.utils.HotTagCache;
+import site.pyyf.commons.utils.TagCache;
 import site.pyyf.community.entity.User;
 import site.pyyf.community.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class CommunityBaseController {
     protected ICodePreviewService iCodePreviewService;
 
     @Autowired
-    protected HotTagCache hotTagCache;
+    protected TagCache tagCache;
 
     @Autowired
     IFeedService iFeedService;

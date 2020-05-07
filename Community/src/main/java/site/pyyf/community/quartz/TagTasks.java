@@ -1,9 +1,9 @@
 package site.pyyf.community.quartz;
 
-import site.pyyf.commons.utils.HotTagCache;
+import site.pyyf.commons.utils.TagCache;
 import site.pyyf.community.dao.IDiscussPostMapper;
 import site.pyyf.community.entity.DiscussPost;
-import site.pyyf.community.entity.HotTag;
+import site.pyyf.community.entity.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,51 +14,53 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
- * Created by codedrinker on 2019/8/1.
+ * @author Gepeng18
+ * @date 2019/8/1
  */
 @Component
 @Slf4j
-public class HotTagTasks {
+public class TagTasks {
 
     @Autowired
     private IDiscussPostMapper iDiscussPostMapper;
 
     @Autowired
-    private HotTagCache hotTagCache;
+    private TagCache tagCache;
 
     @PostConstruct
-    @Scheduled(fixedRate = 1000 * 60*60*3)
+    @Scheduled(fixedRate = 1000 * 60 * 60 * 3)
     public void hotTagSchedule() {
+        //分批次取数据进行统计
         int offset = 0;
         int limit = 20;
         log.info("hotTagSchedule start {}", new Date());
         List<DiscussPost> discussPosts = new ArrayList<>();
 
-        Map<String, HotTag> hotTags = new HashMap<>();
+        Map<String, Tag> hotTags = new HashMap<>();
         /* ------------------- 统计所有帖子中的标签的分数和数量，存在hotTag中 ----------------- */
         /* ------------------- name为key， count和score为value ----------------- */
-        while (offset == 0 || discussPosts.size() == limit) {
-            discussPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(),0,offset, limit);
+        while (discussPosts.size() >= offset) {
+            discussPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
             for (DiscussPost discussPost : discussPosts) {
+                //tags字段一定有值
                 String[] tags = StringUtils.split(discussPost.getTags(), ",|，");
-                if(tags==null)
+                if ("-1".equals(tags[0])) {
                     continue;
+                }
                 for (String tag : tags) {
-                    if(tag.equals("-1"))
-                        continue;
-                    HotTag hotTag = hotTags.get(tag);
+                    Tag hotTag = hotTags.get(tag);
                     if (hotTag != null) {
-                        hotTag.setScore(hotTag.getScore() + discussPost.getScore());
+                        hotTag.getData().put("score",((Double)(hotTag.getData().get("score"))).doubleValue() + discussPost.getScore());
                         hotTag.setCount(hotTag.getCount() + 1);
                     } else {
-                        hotTags.put(tag, new HotTag(tag,discussPost.getScore(),1));
+                        hotTags.put(tag, new Tag(tag,1). putData("score",discussPost.getScore()));
                     }
                 }
             }
             offset += limit;
         }
         /* ------------------- 将hotTags通过updateTags进行处理 ----------------- */
-        hotTagCache.setTags(hotTags);
+        tagCache.setTags(hotTags);
         log.info("hotTagSchedule stop {}", new Date());
     }
 }

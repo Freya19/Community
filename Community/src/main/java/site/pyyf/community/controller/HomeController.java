@@ -20,18 +20,28 @@ public class HomeController extends CommunityBaseController implements Community
         return "forward:index";
     }
 
+    /**
+     * @param model
+     * @param page
+     * @param orderMode 查询顺序： 0-常规时间顺序；1-热度
+     * @param tag
+     * @return
+     */
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page,
                                @RequestParam(name = "orderMode", defaultValue = "0") int orderMode,
                                @RequestParam(name = "tag", defaultValue = "-1") String tag) {
-        // 方法调用钱,SpringMVC会自动实例化Model和Page,并将Page注入Model.
+        // 方法调用前,SpringMVC会自动实例化Model和Page,并将Page注入Model.
         // 所以,在thymeleaf中可以直接访问Page对象中的数据.
         DiscussPost query = DiscussPost.builder().userId(-1).build();
         if (!tag.equals("-1")) {
+            //传入了tag，将其作为参数构成query
             tag = tag.replace("+", "").replace("*", "").replace("?", "");
             query.setTags(tag);
-        }else
+        }else {
+            //没有tag，将-1作为参数构成query
             query.setTags(tag);
+        }
 
         page.setRows(iDiscussPostService.queryCount(query));
         page.setPath("/index?orderMode=" + orderMode+"&tag="+tag);
@@ -53,7 +63,6 @@ public class HomeController extends CommunityBaseController implements Community
             }).collect(Collectors.toSet());
         }
 
-
         List<DiscussPost> discussPosts = iDiscussPostService
                 .queryAllByLimit(query,orderMode, page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
@@ -62,11 +71,12 @@ public class HomeController extends CommunityBaseController implements Community
                 Map<String, Object> discussPostVO = new HashMap<>();
                 if(hostHolder.getUser()!=null) {
                     String feedContent = iFeedService.getFeedContentByPostId(post.getId(), published, liked, commented);
-                    if (feedContent.length() > 0)
+                    if (feedContent.length() > 0) {
                         discussPostVO.put("feedContent", feedContent);
-                    else
+                    } else {
                         //简单粗暴，这样前端就好写了
                         discussPostVO.put("feedContent", "");
+                    }
                 }
                 discussPostVO.put("post", post);
                 User user = iUserService.queryById(post.getUserId());
@@ -81,7 +91,7 @@ public class HomeController extends CommunityBaseController implements Community
         model.addAttribute("discussPosts", discussPostVOS);
         model.addAttribute("orderMode", orderMode);
 
-        List<HotTag> hotTags = hotTagCache.getHots();
+        List<Tag> hotTags = tagCache.getShowTags();
         model.addAttribute("hotTags", hotTags);
 
         /* ------------------- 热门问题 ----------------- */
@@ -90,8 +100,9 @@ public class HomeController extends CommunityBaseController implements Community
         model.addAttribute("hotPosts", hotPosts);
 
         /* ------------------- 如果是标签查询则需要进行回显 ----------------- */
-        if(!tag.equals("-1"))
+        if(!tag.equals("-1")) {
             model.addAttribute("tag", tag);
+        }
         return "index";
     }
 

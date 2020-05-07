@@ -32,8 +32,8 @@
                         <h3><span class="fa fa-list"></span> 发现</h3>
                     </a>
 
-                    <a th:href="@{/index(tag=${tag})}" th:if="${tag!=null}" >
-                        <h3 ><span class="fa fa-list"></span> <span th:text="${tag}"></span> </h3>
+                    <a th:href="@{/index(tag=${tag})}" th:if="${tag!=null}">
+                        <h3><span class="fa fa-list"></span> <span th:text="${tag}"></span></h3>
                     </a>
                     <div class="position-relative" style="height:40px;float: right">
                         <!-- 筛选条件 -->
@@ -71,20 +71,23 @@
                                           th:if="${map.post.status==1}">精华</span>
                                 </h6>
                                 <div class="text-muted font-size-12">
-                                    <div th:if="${map.post.tags!=null&&map.post.tags!=''&&map.post.tags!='-1'}" style="display: inline">
+                                    <div th:if="${map.post.tags!=null&&map.post.tags!=''&&map.post.tags!='-1'}"
+                                         style="display: inline">
                                         <span th:each="tag : ${map.post.tags.split(',')}">
-                                            <a th:href="@{/(tag=${tag})}" >
+                                            <a th:href="@{/(tag=${tag})}">
                                                 <button class="btn btn-light  btn-sm indexTag"
-                                                        style="padding-top:1px;font-size:small;height:22px;" th:text="${tag}">
+                                                        style="padding-top:1px;font-size:small;height:22px;"
+                                                        th:text="${tag}">
                                                 </button>
                                             </a>
 
                                         </span>
                                     </div>
 
-                                    <u class="mr-3" style="margin-left:5px" th:utext="${map.user.username}">寒江雪</u> 发布于 <b
-                                        th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15
-                                    15:32:18</b>
+                                    <u class="mr-3" style="margin-left:5px" th:utext="${map.user.username}">寒江雪</u> 发布于
+                                    <b
+                                            th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15
+                                        15:32:18</b>
                                     <b style="color:teal;margin-left:10px;font-size:small"
                                        th:text="${map.feedContent}" th:if="${#maps.containsKey(map, 'feedContent')}">
                                     </b>
@@ -133,8 +136,8 @@
                             <a href="#" th:href="@{|/discuss/${hotPost.id}|}" class="item"
                                th:each="hotPost : ${hotPosts}" style="color: #5b5b5b;padding:10px">
                                 <span class="fa fa-question"></span>
-                                <span > &ensp; </span>
-                                <span th:utext="${hotPost.title}" ></span>
+                                <span> &ensp; </span>
+                                <span th:utext="${hotPost.title}"></span>
                             </a>
                         </div>
 
@@ -144,12 +147,12 @@
                     <hr class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top: 50px;width: auto">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <h4>热门标签</h4>
-                            <a th:href="@{/(tag=${hotTag.name})}"  class="btn btn-light topic" th:each="hotTag : ${hotTags}">
-                                <span  class="topic_name" th:text="${hotTag.name}">
+                        <a th:href="@{/(tag=${hotTag.name})}" class="btn btn-light topic" th:each="hotTag : ${hotTags}">
+                                <span class="topic_name" th:text="${hotTag.name}">
                                     JVM
                                 </span>
-                                <span  class="badge topic_count" th:text="${hotTag.count}">132</span>
-                            </a>
+                            <span class="badge topic_count" th:text="${hotTag.count}">132</span>
+                        </a>
                     </div>
                 </div>
 
@@ -162,52 +165,50 @@
     </footer>
 
 
-<!--    废弃不用-->
+    <!--    废弃不用-->
     <!-- 弹出框 -->
-<!--    <div class="modal fade" id="publishModal" tabindex="-1" role="dialog"-->
-<!--         aria-labelledby="publishModalLabel" aria-hidden="true">-->
-<!--        <div class="modal-dialog modal-lg" role="document">-->
-<!--            <div class="modal-content">-->
-<!--                <div class="modal-header">-->
-<!--                    <h5 class="modal-title" id="publishModalLabel">新帖发布</h5>-->
-<!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
-<!--                        <span aria-hidden="true">&times;</span>-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--                <div class="modal-body">-->
-<!--                    <form>-->
-<!--                        <div class="form-group">-->
-<!--                            <label for="category">类别:</label>-->
-<!--                            <select class="form-control" id="category" name="category">-->
-<!--                                <option th:each="selectedCategory:${selectedCategorys}"-->
-<!--                                        th:text="${selectedCategory.getName()}"-->
-<!--                                        th:value="${selectedCategory.getId()}"></option>-->
-<!--                            </select>-->
-<!--                            <br>-->
-<!--                        </div>-->
+    <!--    <div class="modal fade" id="publishModal" tabindex="-1" role="dialog"-->
+    <!--         aria-labelledby="publishModalLabel" aria-hidden="true">-->
+    <!--        <div class="modal-dialog modal-lg" role="document">-->
+    <!--            <div class="modal-content">-->
+    <!--                <div class="modal-header">-->
+    <!--                    <h5 class="modal-title" id="publishModalLabel">新帖发布</h5>-->
+    <!--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+    <!--                        <span aria-hidden="true">&times;</span>-->
+    <!--                    </button>-->
+    <!--                </div>-->
+    <!--                <div class="modal-body">-->
+    <!--                    <form>-->
+    <!--                        <div class="form-group">-->
+    <!--                            <label for="category">类别:</label>-->
+    <!--                            <select class="form-control" id="category" name="category">-->
+    <!--                                <option th:each="selectedCategory:${selectedCategorys}"-->
+    <!--                                        th:text="${selectedCategory.getName()}"-->
+    <!--                                        th:value="${selectedCategory.getId()}"></option>-->
+    <!--                            </select>-->
+    <!--                            <br>-->
+    <!--                        </div>-->
 
-<!--                        <div class="form-group">-->
-<!--                            <label for="recipient-name" class="col-form-label">标题：</label>-->
-<!--                            <input type="text" class="form-control" id="recipient-name" placeholder="请输入标题...">-->
-<!--                        </div>-->
-
-
-<!--                        <div class="form-group">-->
-<!--                            <label for="message-text" class="col-form-label">正文：</label>-->
-<!--                            <textarea class="form-control" id="message-text" rows="15"-->
-<!--                                      placeholder="本论坛支持markdown格式哦!"></textarea>-->
-<!--                        </div>-->
-<!--                    </form>-->
-<!--                </div>-->
-<!--                <div class="modal-footer">-->
-<!--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>-->
-<!--                    <button type="button" class="btn btn-success" id="publishBtn">发布</button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
+    <!--                        <div class="form-group">-->
+    <!--                            <label for="recipient-name" class="col-form-label">标题：</label>-->
+    <!--                            <input type="text" class="form-control" id="recipient-name" placeholder="请输入标题...">-->
+    <!--                        </div>-->
 
 
+    <!--                        <div class="form-group">-->
+    <!--                            <label for="message-text" class="col-form-label">正文：</label>-->
+    <!--                            <textarea class="form-control" id="message-text" rows="15"-->
+    <!--                                      placeholder="本论坛支持markdown格式哦!"></textarea>-->
+    <!--                        </div>-->
+    <!--                    </form>-->
+    <!--                </div>-->
+    <!--                <div class="modal-footer">-->
+    <!--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>-->
+    <!--                    <button type="button" class="btn btn-success" id="publishBtn">发布</button>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </div>-->
 
 
     <!-- 提示框 -->
@@ -447,10 +448,10 @@
 </script>
 <script>
     function personalizedIndex() {
-        if($('#hasLogin').text()=="0")
+        if ($('#hasLogin').text() == "0")
             document.getElementById('loginButton').click();
         else
-            window.location.href="/personalized";
+            window.location.href = "/personalized";
     }
 
     $(function () {

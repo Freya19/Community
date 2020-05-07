@@ -1,58 +1,60 @@
 package site.pyyf.commons.utils;
 
-import site.pyyf.community.entity.TagDTO;
-import org.apache.commons.lang3.StringUtils;
+import site.pyyf.community.entity.Tag;
+import lombok.Data;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
- * Created by codedrinker on 2019/6/5.
+ * Created by codedrinker on 2019/8/2.
  */
+
+@Component
+@Data
 public class TagCache {
-    public static List<TagDTO> get() {
-        List<TagDTO> tagDTOS = new ArrayList<>();
-        TagDTO program = new TagDTO();
-        program.setGroup("开发语言");
-        program.setTags(Arrays.asList("javascript", "php", "css", "html", "html5", "java", "node.js", "python", "c++", "c", "golang", "objective-c", "typescript", "shell", "swift", "c#", "sass", "ruby", "bash", "less", "asp.net", "lua", "scala", "coffeescript", "actionscript", "rust", "erlang", "perl"));
-        tagDTOS.add(program);
+    private List<Tag> showTags;
 
-        TagDTO framework = new TagDTO();
-        framework.setGroup("平台框架");
-        framework.setTags(Arrays.asList("laravel", "spring", "express", "django", "flask", "yii", "ruby-on-rails", "tornado", "koa", "struts"));
-        tagDTOS.add(framework);
+    public void setTags(Map<String, Tag> tags) {
+        int max = 100;
+        /**
+         * 这是使用优先队列，找30个最大的，这30个不分前后
 
+        PriorityQueue<Tag> priorityQueue = new PriorityQueue<>(max);
 
-        TagDTO server = new TagDTO();
-        server.setGroup("服务器");
-        server.setTags(Arrays.asList("linux", "nginx", "docker", "apache", "ubuntu", "centos", "缓存 tomcat", "负载均衡", "unix", "hadoop", "windows-server"));
-        tagDTOS.add(server);
+        tags.forEach((name, Tag) -> {
+            if (priorityQueue.size() < max) {
+                priorityQueue.add(Tag);
+            } else {
+                Tag minHot = priorityQueue.peek();
+                if (Tag.compareTo(minHot) > 0) {
+                    priorityQueue.poll();
+                    priorityQueue.add(Tag);
+                }
+            }
+        });
 
-        TagDTO db = new TagDTO();
-        db.setGroup("数据库");
-        db.setTags(Arrays.asList("mysql", "redis", "mongodb", "sql", "oracle", "nosql memcached", "sqlserver", "postgresql", "sqlite"));
-        tagDTOS.add(db);
+        List<Tag> sortedTags = new ArrayList<>();
 
-        TagDTO tool = new TagDTO();
-        tool.setGroup("开发工具");
-        tool.setTags(Arrays.asList("git", "github", "visual-studio-code", "vim", "sublime-text", "xcode intellij-idea", "eclipse", "maven", "ide", "svn", "visual-studio", "atom emacs", "textmate", "hg"));
-        tagDTOS.add(tool);
-        return tagDTOS;
-    }
+        Tag poll = priorityQueue.poll();
+        while (poll != null) {
+            sortedTags.add(poll);
+            poll = priorityQueue.poll();
+        }
+        Collections.reverse(sortedTags);
+        hots = sortedTags;
+         */
 
-    public static String filterInvalid(String tags) {
-        String[] split = StringUtils.split(tags, ",");
-        List<TagDTO> tagDTOS = get();
+        //这里我们采取每次重新统计一次，即将hots置空后进行赋值
+        showTags = new ArrayList<>();
+        TreeSet<Tag> set = new TreeSet<>();
+        tags.forEach((name, tag) -> {
+            set.add(tag);
+        });
 
-        List<String> tagList = tagDTOS.stream().flatMap(tag -> tag.getTags().stream()).collect(Collectors.toList());
-        String invalid = Arrays.stream(split).filter(t -> StringUtils.isBlank(t) || !tagList.contains(t)).collect(Collectors.joining(","));
-        return invalid;
-    }
-
-    public static void main(String[] args) {
-        int i = (5 - 1) >>> 1;
-        System.out.println(i);
+        //hots数量加到max为止 或者 加到set中元素没了为止
+        while (showTags.size()<max&&set.size()>0){
+            showTags.add(set.pollFirst());
+        }
     }
 }
