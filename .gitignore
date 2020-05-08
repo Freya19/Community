@@ -47,6 +47,7 @@ community.vpp.*
 **/*.log
 **/*.log.*
 
-
+/forum/src/main/java/site/pyyf/cloudDisk/IndependentRunning/OssUpload.java
+/forum/src/main/java/site/pyyf/cloudDisk/utils/FtpUtil.java
 **/*.properties
 **/README-secret.md

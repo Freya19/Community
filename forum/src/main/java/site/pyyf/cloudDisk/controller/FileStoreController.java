@@ -7,7 +7,6 @@ import site.pyyf.cloudDisk.entity.FileFolder;
 import site.pyyf.cloudDisk.entity.MyFile;
 import site.pyyf.cloudDisk.service.IResolveHeaderService;
 import site.pyyf.cloudDisk.utils.CloudDiskConstant;
-import site.pyyf.cloudDisk.utils.FtpUtil;
 import site.pyyf.cloudDisk.utils.RedisKeyUtil;
 import site.pyyf.forum.entity.User;
 import org.apache.commons.lang.StringUtils;

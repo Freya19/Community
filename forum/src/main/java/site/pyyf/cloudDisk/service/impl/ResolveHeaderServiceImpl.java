@@ -15,7 +15,6 @@ import site.pyyf.cloudDisk.entity.Header;
 import site.pyyf.cloudDisk.mapper.IEbookContentMapper;
 import site.pyyf.cloudDisk.service.IEbookService;
 import site.pyyf.cloudDisk.service.IResolveHeaderService;
-import site.pyyf.cloudDisk.utils.FtpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
