@@ -1,6 +1,7 @@
 package site.pyyf.cloudDisk.controller;
 
 import site.pyyf.cloudDisk.entity.MyFile;
+import site.pyyf.cloudDisk.utils.FtpUtil;
 import site.pyyf.commons.utils.MarkdownToHtmlUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

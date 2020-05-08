@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import site.pyyf.cloudDisk.entity.MyFile;
 import site.pyyf.cloudDisk.service.IFileStoreService;
+import site.pyyf.cloudDisk.utils.FtpUtil;
 import site.pyyf.forum.entity.UploadResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

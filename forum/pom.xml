@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>site.pyyf.forum</groupId>
+	<groupId>site.pyyf.community</groupId>
 	<artifactId>forum</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>community</name>
+	<name>forum</name>
 	<description>pyyf community</description>
 	<packaging>jar</packaging>
 
@@ -288,30 +288,11 @@
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
         <dependency>
-            <groupId>site.pyyf.forum</groupId>
+            <groupId>site.pyyf.community</groupId>
             <artifactId>interface</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-
-        <!--		&lt;!&ndash;日志&ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.logging.log4j</groupId>-->
-<!--			<artifactId>log4j-core</artifactId>-->
-<!--			<version>2.12.1</version>-->
-<!--		</dependency>-->
-
-<!--		&lt;!&ndash;引入日志&ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-logging</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>commons-logging</groupId>-->
-<!--			<artifactId>commons-logging-api</artifactId>-->
-<!--			<version>1.1</version>-->
-<!--		</dependency>-->
-
 	</dependencies>
 
 	<dependencyManagement>
@@ -328,7 +309,7 @@
 	</dependencyManagement>
 
 	<build>
-		<finalName>community</finalName>
+		<finalName>forum</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
