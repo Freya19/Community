@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+    <title>博客管理</title>
+</head>
+<body>
+
+<header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(4)"></th:block>
+
+</header>
+
+<!--中间内容-->
+<div class="m-container-small m-padded-tb-big">
+    <div class="ui container">
+        <div class="ui success large  message">
+            <h3>Hi,</h3>
+            <p>葛鹏，欢迎登录！</p>
+        </div>
+
+        <img src="https://unsplash.it/1000/400?image=1005" alt="" class="ui rounded bordered fluid image">
+    </div>
+</div>
+
+<br>
+<br>
+
+<!-- 尾部 -->
+<footer class="bg-dark" th:replace="forum-fragments::footer">
+
+</footer>
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+
+<script>
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+
+</script>
+</body>
+</html>

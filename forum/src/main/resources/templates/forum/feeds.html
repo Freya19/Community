@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!--访问该页面时,在此处生成CSRF令牌.-->
+    <!--	<meta name="_csrf" th:content="${_csrf.token}">-->
+    <!--	<meta name="_csrf_header" th:content="${_csrf.headerName}">-->
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+    <title>鹏方论坛-个人动态</title>
+
+</head>
+<body>
+<div class="nk-container">
+
+    <!-- 头部 -->
+    <header class="bg-dark" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(0)"></th:block>
+
+    </header>
+    <!-- 内容 -->
+    <div class="main">
+        <div class="container">
+            <div class="position-relative">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{|/user/${user.id}|}">个人信息</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{|/user/posts/${user.id}|}">我的帖子</a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link active" th:href="@{|/user/feeds/${user.id}|}">我的动态</a>
+                    </li>
+                </ul>
+                <a th:href="@{|/user/${user.id}|}" class="text-muted position-absolute rt-0">返回个人主页&gt;</a>
+            </div>
+            <!-- 我的动态 -->
+            <div class="mt-4">
+<!--                <h6><b class="square"></b> 回复的帖子(379)</h6>-->
+                <ul class="list-unstyled mt-4 pl-3 pr-3">
+
+                    <li class="border-bottom pb-3 mt-4" th:each="map:${discussPosts}" >
+
+                        <div class="media-body">
+                            <div class="mt-1 font-size-15" th:if="${map.feed.feedType==1}" style="display:inline">
+                                评论了
+                            </div>
+                            <div class="mt-1 font-size-15" th:if="${map.feed.feedType==2}" style="display:inline">
+                                点赞了
+                            </div>
+                            <div class="mt-1 font-size-15" th:if="${map.feed.feedType==3}" style="display:inline">
+                                发布了
+                            </div>
+                            <h6 class="mt-0 mb-3" style="display:inline">
+                                <a th:href="@{|/discuss/${map.post.id}|}" th:utext="${map.post.title}">备战春招，面试刷题跟他复习，一个月全搞定！</a>
+                                <span class="badge badge-secondary bg-primary" th:if="${map.post.type==1}">置顶</span>
+                                <span class="badge badge-secondary bg-danger"
+                                      th:if="${map.post.status==1}">精华</span>
+                            </h6>
+                            <div class="text-muted font-size-12" style="margin-top:10px;">
+                                <div class="text-left font-size-12 text-muted" style="display: inline">
+                                     <b th:text="${#dates.format(map.feed.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15 10:10:10</b>
+                                </div>
+                                <div th:if="${map.post.tags!=null&&map.post.tags!=''&&map.post.tags!='-1'}"
+                                     style="display: inline;margin-left: 20px">
+                                        <span th:each="tag : ${map.post.tags.split(',')}">
+                                            <a th:href="@{/(tag=${tag})}">
+                                                <button class="btn btn-light  btn-sm indexTag"
+                                                        style="padding-top:1px;font-size:small;height:22px;"
+                                                        th:text="${tag}">
+                                                </button>
+                                            </a>
+
+                                        </span>
+                                </div>
+
+                                <ul class="d-inline float-right">
+                                    <li class="d-inline ml-2">赞 <span th:text="${map.likeCount}">11</span></li>
+                                    <li class="d-inline ml-2">|</li>
+                                    <li class="d-inline ml-2">回帖 <span th:text="${map.post.commentCount}">7</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                </ul>
+
+                <!-- 分页 -->
+                <nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>
+                        </li>
+                        <li th:class="|page-item ${page.current==1?'disabled':''}|">
+                            <a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a></li>
+                        <li th:class="|page-item ${i==page.current?'active':''}|"
+                            th:each="i:${#numbers.sequence(page.from,page.to)}">
+                            <a class="page-link" th:href="@{${page.path}(current=${i})}" th:text="${i}">1</a>
+                        </li>
+                        <li th:class="|page-item ${page.current==page.total?'disabled':''}|">
+                            <a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{${page.path}(current=${page.total})}">末页</a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="forum-fragments::footer">
+
+    </footer>
+</div>
+
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="forum-fragments :: script">
+</th:block>
+</body>
+</html>

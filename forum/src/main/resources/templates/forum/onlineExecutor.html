@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.min.css"
+          type="text/css" crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/showCodeMarkdown/css/codemirror.css"
+          crossorigin="anonymous" type="text/css"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/showCodeMarkdown/css/bootstrap.css"
+          crossorigin="anonymous" type="text/css"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/showCodeMarkdown/css/style.css"
+          crossorigin="anonymous" type="text/css"/>
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+
+    <title>鹏方论坛-搜索结果</title>
+</head>
+<body>
+
+
+<div class="nk-container">
+
+    <!-- 头部 -->
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(1)"></th:block>
+
+    </header>
+
+
+    <form method="post" >
+        <div class="row" style="margin-left:54px;margin-top: 12px !important;">
+            <div class="col-xs-16 col-md-10 " style="width:300px !important;">
+                <div class=" input-group  ">
+                    <div class=" input-group-prepend online-input-div">
+                        <span class="input-group-text" id="basic-addon1">输入</span>
+                    </div>
+                    <input id="input" type="text" class="form-control" placeholder="程序的输入"
+                           aria-label="Username"
+                           aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-xs-3 col-md-2">
+                <div>
+                    <button id="fat-btn" class="btn btn-success" data-loading-text="Loading..."
+                            type="button" onclick="executeCode()"> Run Answer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" id="javaFileContent" th:value="${javaFileContent}">
+        <div class="m-auto div-shadow shadow p-3 mb-5 bg-white rounded" style="margin-top: 12px !important;">
+            <div id="code-editor">
+            </div>
+        </div>
+    </form>
+
+
+    <div class="input-group mb-3" style="margin-left:68px;width: 1230px; margin-top: 5px">
+        <div class="input-group-prepend">
+            <span class="input-group-text">输出结果</span>
+        </div>
+
+        <input id="results" type="text" class="form-control" placeholder="输出结果" aria-label="Username"
+               aria-describedby="basic-addon1">
+
+
+    </div>
+
+</div>
+
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="forum-fragments :: script">
+</th:block>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/editormd.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/showCodeMarkdown/js/bootstrap.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/showCodeMarkdown/js/codemirror.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/showCodeMarkdown/model/clike.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script th:inline="javascript">
+    var defaultCode = "public class Test {\n" +
+        "   public static void main(String[] arg) {\n\n" +
+        "   }\n" +
+        "}";
+
+    if ([[${javaFileContent}]] != null)
+        defaultCode = [[${javaFileContent}]];
+    let codeMirror = CodeMirror(document.getElementById("code-editor"), {
+        value: defaultCode,
+        width: 1000,
+        lineNumbers: true,
+        mode: "text/x-java"
+    });
+
+    //执行代码
+    function executeCode() {
+        $("#success").hide();
+        $("#fail").hide();
+        var input_value = document.getElementById('input').value;
+        let value = codeMirror.getValue();
+        $.post("/onlineExecutor", {code: value, input: input_value}, data => {
+            console.log(data);
+            var obj = JSON.parse(data);
+            if (obj.code == 200) {
+                // $("#results").html(data.msg.stdout);
+                $("#results").val(obj.msg);
+
+            }
+        });
+    }
+
+
+    //清空已经输入的代码
+    function clearCode() {
+        codeMirror.setValue(defaultCode);
+    }
+</script>
+
+</body>
+</html>

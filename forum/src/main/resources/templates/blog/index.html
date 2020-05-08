@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+    <title>博客</title>
+</head>
+<body>
+
+<div class="nk-container">
+
+
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(3)"></th:block>
+
+    </header>
+
+
+    <!--中间内容
+        因为中间内容的div显示有点宽，所以重新定义css让div窄一点-->
+    <div class="m-container m-padded-tb-big animated fadeIn page">
+        <!--  一个container,提高与边缘的间隙  -->
+        <div class="ui container">
+            <div class="ui stackable grid">
+                <!--左边博客列表
+                wide表示占满
+                eleven表示16份占11份-->
+                <div class="eleven wide column">
+                    <!--header
+                    attached表示所有的attached都连在一起并用一条线分开，而不是独立分开的
+                    top attached 表示上面时圆角，下面不是圆角，这样后面用attached声明的div可以接上来，而最后一个attached就需要指定下面有圆角，用bottom-->
+                    <div class="ui top attached segment">
+                        <!--    middle aligned表示上下居中
+                              two column grid表示将这个div分成两份的网格布局-->
+                        <div class="ui middle aligned two column grid">
+                            <!--一个column   -->
+                            <div class="column">
+                                <h3 class="ui teal header">博客</h3>
+                            </div>
+                            <!--又一个column-->
+                            <div class="right aligned column">
+                                <!--orange表示橙色，header表示头的格式吧
+                                  m-inline-block表示这些内容放在一行进行显示
+                                  m-text-thin表示字体很瘦（我也不知道该咋说）-->
+                                共 <h2 class="ui orange header m-inline-block m-text-thin" th:text="${page.rows}">
+                                14 </h2> 篇
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--content-->
+                    <div class="ui attached  segment">
+                        <!-- padded表示增大内边距，从而可以让div变大
+                             vertical segment表示这一系列segment是垂直放置的-->
+                        <div class="ui padded vertical segment m-padded-tb-middle blogsListAni animated" th:each="blogUserAndCat : ${bucVO}">
+                            <!--手机端堆叠显示，
+                                只有grid需要stackable
+                                当为移动端时，eleven自动在上面，five自动在下面，reversed表示移动端时，将eleven和five的div反过来，-->
+                            <div class="ui middle aligned mobile reversed stackable grid">
+                                <!--将全部内容分成16，这里占16-->
+                                <div class="sixteen wide column">
+                                    <h3 class="ui header">
+                                        <a href="#"
+                                             th:href="@{/blog/{id}(id=${blogUserAndCat.blog.id})}"
+                                             target="_blank"
+                                             class="m-black" th:text="${blogUserAndCat.blog.title}">你真的理解什么是财富自由吗?
+                                        </a>
+                                    </h3>
+                                    <p class="m-text" th:text="|${blogUserAndCat.blog.description}......|">
+                                        正确做好任何一件事情的前提是清晰、正确的理解目标。而事实是，我们很多人很多时候根本没有对目标正确的定义，甚至根本从来就没有想过，只是大家都那么做而已…...</p>
+                                    <div class="ui grid">
+                                        <div class="eleven wide column">
+                                            <!--mini肯定表示小一号的东西
+                                                horizontal表示头像，名字时间等水平显示啊
+                                                link表示当鼠标放上去的时候有动作，
+                                                list表示剩下的是list，由item组成，嘿嘿，我不知道咋说-->
+                                            <div class="ui mini horizontal link list">
+                                                <div class="item">
+                                                    <!-- 添加在线图片，ui avatar image表示是一个圆形的小图，专门做头像使用的-->
+                                                    <img src="https://unsplash.it/100/100?image=1005"
+                                                         th:src="@{${blogUserAndCat.user.headerUrl}}" alt=""
+                                                         class="ui avatar image">
+                                                    <div class="content"><a href="#" class="header"
+                                                                            th:text="${blogUserAndCat.user.username}">大帅比</a>
+                                                    </div>
+                                                </div>
+                                                <div class="item">
+                                                    <i class="calendar icon"></i><span
+                                                        th:text="${#dates.format(blogUserAndCat.blog.updateTime,'yyyy-MM-dd')}">2017-10-01</span>
+                                                </div>
+                                                <div class="item">
+                                                    <i class="eye icon"></i> <span
+                                                        th:text="${blogUserAndCat.blog.views}">2342</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--right aligned表示靠右显示，-->
+                                        <div class="right aligned five wide column">
+                                            <!--basic表示一个空心的，周围有一圈颜色的label-->
+                                            <a href="#" target="_blank"
+                                               class="ui teal basic label m-padded-mid m-text-thin"
+                                               th:text="${blogUserAndCat.cat.name}">认知升级</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="ui bottom attached segment" th:if="${page.getTotal()}>1">
+
+                        <div class="ui middle aligned two column grid">
+                            <!--     一个column         -->
+                            <div class="column">
+                                <a href="#" th:href="@{/blogs(current=${page.current}-1)}" th:if="${page.current}!=1"
+                                   class="ui mini teal basic button">上一页</a>
+                            </div>
+                            <!--     又一个column，并靠右对齐         -->
+                            <div class="right aligned column">
+                                <a href="#" th:href="@{/blogs(current=${page.current}+1)}" th:if="${page.current!=page.getTotal()}"
+                                   class="ui mini teal basic button">下一页</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!--右边的top-->
+                <div class="four wide column">
+
+                    <!--分类-->
+                    <div class="ui segments">
+                        <div class="ui secondary segment">
+                            <div class="ui two column grid">
+                                <div class="column">
+                                    <i class="idea icon"></i>分类
+                                </div>
+                                <div class="right aligned column">
+                                    <a href="#" th:href="@{/blog/cat/-1}" target="_blank">more <i
+                                            class="angle double right icon"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui teal segment">
+                            <!--充满外层容器
+                                vertical menu表示这是一个菜单，里面的每个item垂直显示
+                                fluid表示充满整个父容器-->
+                            <div class="ui fluid vertical menu">
+                                <a href="#" th:href="@{/blog/cat/{id}(id=${cat.id})}" target="_blank" class="item tagAli animated"
+                                   th:each="cat : ${cats}">
+                                    <span th:text="${cat.name}">学习日志</span>
+                                    <div class="ui teal basic left pointing label"
+                                         th:text="${cat.count}">
+                                        13
+                                    </div>
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!--标签-->
+                    <div class="ui segments m-margin-top-large">
+                        <div class="ui secondary segment">
+                            <!--两列共占一行的左右布局-->
+                            <div class="ui two column grid">
+                                <div class="column">
+                                    <i class="tags icon"></i>标签
+                                </div>
+                                <div class="right aligned column">
+                                    <a href="#" th:href="@{/blog/tag/-1}" target="_blank">more <i
+                                            class="angle double right icon"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui teal segment">
+                            <a href="#" th:href="@{/blog/tag/(tagName=${tag.name})}"
+                               class="ui teal basic left pointing label m-margin-tb-tiny tagAli animated" th:each="tag : ${tags}">
+                                <span th:text="${tag.name}">方法论</span>
+                                <div class="detail" th:text="${tag.count}">23</div>
+                            </a>
+
+                        </div>
+                    </div>
+
+                    <!--最新推荐-->
+                    <div class="ui segments m-margin-top-large">
+                        <div class="ui secondary segment ">
+                            <i class="bookmark icon"></i>最新推荐
+                        </div>
+                        <div class="ui segment tagAli animated" th:each="blog : ${recommendBlogs}">
+                            <a href="#" th:href="@{/blog/{id}(id=${blog.id})}" target="_blank"
+                               class="m-black m-text-thin "
+                               th:text="${blog.title}">用户故事（User Story）</a>
+                        </div>
+
+                    </div>
+
+                    <!--二维码
+                        divider 表示一个横线
+                        horizontal表示水平-->
+                    <h4 class="ui horizontal divider header m-margin-top-large">有需要请联系我</h4>
+                    <!--centered card表示一个框，这个框中内容正好放在card中心，如果不在中心则减小框的范围-->
+                    <div class="ui centered card" style="width: 11em">
+                        <img src="http://pyyf.oss-cn-hangzhou.aliyuncs.com/community/img/wechat.jpg" alt=""
+                             class="ui rounded image">
+                    </div>
+                </div>
+
+                <div class="one wide column">
+                    <th:block th:replace="blog/blog-fragments :: daohang(0)" >
+                    </th:block>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <br>
+    <br>
+    <div>
+        <!-- 尾部 -->
+        <footer class="bg-dark" th:replace="forum-fragments::footer">
+
+        </footer>
+    </div>
+</div>
+
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+
+<script>
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+</script>
+</body>
+</html>

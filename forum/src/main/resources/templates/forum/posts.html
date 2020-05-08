@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!--访问该页面时,在此处生成CSRF令牌.-->
+    <!--	<meta name="_csrf" th:content="${_csrf.token}">-->
+    <!--	<meta name="_csrf_header" th:content="${_csrf.headerName}">-->
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+
+    <title>鹏方论坛-个人主页</title>
+</head>
+<body>
+<div class="nk-container">
+    <!-- 头部 -->
+    <header class="bg-dark" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(0)"></th:block>
+
+    </header>
+
+    <!-- 内容 -->
+    <div class="main">
+        <div class="container">
+            <!-- 选项 -->
+            <div class="position-relative">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{|/user/${user.id}|}">个人信息</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{|/user/posts/${user.id}|}">我的帖子</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{|/user/feeds/${user.id}|}">我的动态</a>
+                    </li>
+                </ul>
+
+                <a th:href="@{|/user/${user.id}|}"  class="text-muted position-absolute rt-0">返回个人主页&gt;</a>
+            </div>
+            <!-- 我的帖子 -->
+            <div class="mt-4">
+                <!-- 帖子列表 -->
+                <ul class="list-unstyled mt-4 pl-3 pr-3" style="margin-top:-10px">
+                    <li class="media pb-3 pt-1 mb-1 border-bottom" th:each="map:${discussPosts}" style="width:100%">
+                        <div class="mr-4">
+                            <a th:href="@{|/user/${map.user.id}|}">
+                                <img th:src="${map.user.headerUrl}" class=" rounded-circle" alt="用户头像"
+                                     style="width:50px;height:50px;">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h6 class="mt-0 mb-3">
+                                <a th:href="@{|/discuss/${map.post.id}|}" th:utext="${map.post.title}">备战春招，面试刷题跟他复习，一个月全搞定！</a>
+                                <span class="badge badge-secondary bg-primary" th:if="${map.post.type==1}">置顶</span>
+                                <span class="badge badge-secondary bg-danger"
+                                      th:if="${map.post.status==1}">精华</span>
+                            </h6>
+                            <div class="text-muted font-size-12">
+                                <div th:if="${map.post.tags!=null&&map.post.tags!=''&&map.post.tags!='-1'}"
+                                     style="display: inline">
+                                        <span th:each="tag : ${map.post.tags.split(',')}">
+                                            <a th:href="@{/(tag=${tag})}">
+                                                <button class="btn btn-light  btn-sm indexTag"
+                                                        style="padding-top:1px;font-size:small;height:22px;"
+                                                        th:text="${tag}">
+                                                </button>
+                                            </a>
+
+                                        </span>
+                                </div>
+
+                                <u class="mr-3" style="margin-left:5px" th:utext="${map.user.username}">寒江雪</u> 发布于
+                                <b th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15
+                                    15:32:18</b>
+                                <b style="color:teal;margin-left:10px;font-size:small"
+                                   th:text="${map.feedContent}" th:if="${#maps.containsKey(map, 'feedContent')}">
+                                </b>
+                                <ul class="d-inline float-right">
+                                    <li class="d-inline ml-2">赞 <span th:text="${map.likeCount}">11</span></li>
+                                    <li class="d-inline ml-2">|</li>
+                                    <li class="d-inline ml-2">回帖 <span th:text="${map.post.commentCount}">7</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+
+<!--                <ul class="list-unstyled mt-4 pl-3 pr-3">-->
+<!--                    <li class="border-bottom pb-3 mt-4" th:each="postsVO:${posts}">-->
+<!--                        <div class="font-size-16 text-info">-->
+<!--                            <a th:href="@{|/discuss/${postsVO.id}|}" class="text-info" th:text="${postsVO.title}"></a>-->
+<!--                        </div>-->
+
+<!--                        <div th:if="${postsVO.post.tags!=null&&postsVO.post.tags!=''&&postsVO.post.tags!='-1'}" style="display: inline">-->
+<!--                                <span th:each="tag : ${postsVO.post.tags.split(',')}">-->
+<!--                                    <a th:href="@{/(tag=${tag})}" >-->
+<!--                                        <button class="btn btn-light  btn-sm indexTag"-->
+<!--                                                style="padding-top:1px;font-size:small;height:22px;" th:text="${tag}">-->
+<!--                                        </button>-->
+<!--                                    </a>-->
+<!--                                </span>-->
+<!--                        </div>-->
+<!--                        <div class="text-right font-size-12 text-muted" style="display: inline;float: right">-->
+<!--                            发布于 <b th:text="${#dates.format(postsVO.post.createTime,'yyyy-MM-dd HH:mm:ss')}"></b>-->
+<!--                        </div>-->
+<!--                    </li>-->
+
+<!--                </ul>-->
+                <!-- 分页 -->
+                <nav class="mt-5" th:if="${page.rows>0}" th:fragment="pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{${page.path}(current=1)}">首页</a>
+                        </li>
+                        <li th:class="|page-item ${page.current==1?'disabled':''}|">
+                            <a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a></li>
+                        <li th:class="|page-item ${i==page.current?'active':''}|"
+                            th:each="i:${#numbers.sequence(page.from,page.to)}">
+                            <a class="page-link" th:href="@{${page.path}(current=${i})}" th:text="${i}">1</a>
+                        </li>
+                        <li th:class="|page-item ${page.current==page.total?'disabled':''}|">
+                            <a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{${page.path}(current=${page.total})}">末页</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="forum-fragments::footer">
+
+    </footer>
+</div>
+
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="forum-fragments :: script">
+</th:block>
+</body>
+</html>

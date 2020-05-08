@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+    <title>管理页面</title>
+</head>
+<body>
+
+
+
+
+<header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(4)"></th:block>
+</header>
+
+<div class="ui container">
+    <div class="ui stackable grid">
+        <div class="fifteen wide column">
+            <!--中间内容-->
+            <div class="m-container-small m-padded-tb-big">
+                <div class="ui container">
+                    <div style="margin-left:300px;float:left">
+                    <a href="#" th:href="@{/admin/blog/cats}" class="ui mini teal basic button">类型管理</a>
+                    </div>
+                    <div style="margin-left:800px">
+                    <a href="#" th:href="@{/admin/blog/tags}" class="ui mini red basic button">标签管理</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="one wide column">
+            <th:block th:replace="blog/blog-fragments :: daohang(6)">
+            </th:block>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<!-- 尾部 -->
+<footer class="bg-dark" th:replace="forum-fragments::footer">
+
+</footer>
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+<script>
+
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+
+    $('.ui.form').form({
+        fields: {
+            title: {
+                identifier: 'name',
+                rules: [{
+                    type: 'empty',
+                    prompt: '请输入分类名称'
+                }]
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+    <title>关于我</title>
+</head>
+<body>
+
+<div class="nk-container">
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(3)"></th:block>
+
+    </header>
+
+    <!--中间内容-->
+    <div class="m-container m-padded-tb-big animated fadeIn">
+        <div class="ui container">
+
+            <div class="ui stackable grid">
+                <div class="eleven wide column">
+                    <div class="ui segment">
+                        <img src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/Blog/20191231092836.jpg" alt=""
+                             class="ui rounded image">
+                    </div>
+                </div>
+                <div class="five wide column">
+                    <div class="ui top attached segment">
+                        <div class="ui header">关于我</div>
+                    </div>
+                    <div class="ui attached segment">
+                        <p class="m-text">葛鹏，一个二流子.</p>
+                        <p class="m-text">没了...</p>
+                    </div>
+                    <div class="ui attached segment">
+                        <div class="ui orange basic left pointing label">编程</div>
+                        <div class="ui orange basic left pointing label">写作</div>
+                        <div class="ui orange basic left pointing label">思考</div>
+                        <div class="ui orange basic left pointing label">运动</div>
+                    </div>
+                    <div class="ui attached segment">
+                        <div class="ui teal basic left pointing label m-margin-tb-tiny">Java</div>
+                        <div class="ui teal basic left pointing label m-margin-tb-tiny">JavaScript</div>
+                        <div class="ui teal basic left pointing label m-margin-tb-tiny">Node</div>
+                        <div class="ui teal basic left pointing label m-margin-tb-tiny">React</div>
+                        <div class="ui teal basic left pointing label m-margin-tb-tiny">RN</div>
+                        <div class="ui teal basic left pointing label m-margin-tb-tiny">MYSQL</div>
+                        <div class="ui teal basic left pointing label m-margin-tb-tiny">...</div>
+                    </div>
+                    <!--          <div class="ui bottom attached segment">-->
+                    <!--            &lt;!&ndash;circular icon button表示是一个圆的图标，也是一个按钮&ndash;&gt;-->
+                    <!--            <a href="#" class="ui circular icon button"><i class="github icon"></i></a>-->
+                    <!--            &lt;!&ndash;wechat用来指示js,125行当鼠标放在wechar按钮上时，弹出wechat-qr，并从下面的中间弹出，on不指定则默认为hover表示鼠标放上即弹出&ndash;&gt;-->
+                    <!--            <a href="#" class="ui wechat circular icon button"><i class="weixin icon"></i></a>-->
+                    <!--            &lt;!&ndash;data-content表示点击这个button，弹出的信息-->
+                    <!--                data-positioon表示从哪弹出，这里表示从下面的中间弹出，这里因为只是弹出一个文本框，所以不需要做一个div吧（我猜的）&ndash;&gt;-->
+                    <!--            <a href="#" class="ui qq circular icon button" data-content="1146816379" data-position="bottom center"><i class="qq icon"></i></a>-->
+                    <!--          </div>-->
+
+                    <!--          <div class="ui wechat-qr flowing popup transition hidden">-->
+                    <!--            <img src="../static/images/wechat.jpg" alt="" class="ui rounded image" style="width: 110px">-->
+                    <!--          </div>-->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="forum-fragments::footer">
+
+    </footer>
+
+</div>
+
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+
+<script>
+    $('.menu.toggle').click(function () {
+        //当点击menu.toggle时，将m-mobile-hide这个属性给去掉，即显示内容
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+    $('.wechat').popup({
+        popup: $('.wechat-qr'),
+        position: 'bottom center'
+    });
+    $('.qq').popup();
+
+</script>
+</body>
+</html>

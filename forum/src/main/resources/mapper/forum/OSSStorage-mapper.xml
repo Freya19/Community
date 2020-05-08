@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="site.pyyf.forum.dao.OSSStorageMapper">
+
+    <sql id="selectFields">
+        id,file_name,url
+    </sql>
+
+    <sql id="insertFields">
+        file_name,url
+    </sql>
+
+    <insert id="insertData">
+        insert into OSSStorage(<include refid="insertFields"></include>)
+        values(#{fileName},#{url})
+    </insert>
+
+
+
+</mapper>

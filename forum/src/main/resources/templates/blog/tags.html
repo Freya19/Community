@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+    <title>标签</title>
+</head>
+<body>
+<div class="nk-container">
+    <header class="bg-dark sticky-top" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(3)"></th:block>
+
+    </header>
+
+    <!--中间内容-->
+    <div class="m-container-small m-padded-tb-big animated fadeIn">
+        <div class="ui container">
+
+            <div class="ui stackable grid">
+                <div class="fifteen wide column">
+                    <!--header-->
+                    <div class="ui top attached segment">
+                        <div class="ui middle aligned two column grid">
+                            <div class="column">
+                                <h3 class="ui teal header">标签</h3>
+                            </div>
+                            <div class="right aligned column">
+                                共 <h2 class="ui orange header m-inline-block m-text-thin"
+                                      th:text="${#lists.size(tags)}">
+                                14 </h2> 个
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui attached segment m-padded-tb-large">
+                        <a href="#" th:href="@{/blog/tag(tagName=${tag.name})}"
+                           class="ui basic left pointing large label m-margin-tb-tiny"
+                           th:classappend="${tag.name==activeTagName} ? 'teal'" th:each="tag : ${tags}">
+                            <span th:text="${tag.name}">方法论</span>
+                            <div class="detail" th:text="${tag.count}">23</div>
+                        </a>
+                    </div>
+
+                    <div class="ui top attached teal segment">
+                        <div class="ui padded vertical segment m-padded-tb-large blogsListAni animated" th:each="buctVO : ${buctVOS}">
+                            <div class="ui middle aligned mobile reversed stackable grid">
+                                <div class="sixteen wide column">
+                                    <h3 class="ui header"><a href="#" th:href="@{/blog/{id}(id=${buctVO.blog.id})}"
+                                                             target="_blank"
+                                                             class="m-black" th:text="${buctVO.blog.title}">你真的理解什么是财富自由吗?</a>
+                                    </h3>
+                                    <p class="m-text" th:text="|${buctVO.blog.description}......|">
+                                        正确做好任何一件事情的前提是清晰、正确的理解目标。而事实是，我们很多人很多时候根本没有对目标正确的定义，甚至根本从来就没有想过，只是大家都那么做而已…...</p>
+                                    <div class="ui grid">
+                                        <div class="row">
+                                            <div class="eleven wide column">
+                                                <div class="ui mini horizontal link list" style="margin-left:15px">
+                                                    <div class="item">
+                                                        <img src="https://unsplash.it/100/100?image=1005"
+                                                             th:src="@{${buctVO.user.headerUrl}}" alt=""
+                                                             class="ui avatar image">
+                                                        <div class="content"><a href="#" class="header"
+                                                                                th:text="${buctVO.user.username}">葛鹏</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="item">
+                                                        <i class="calendar icon"></i><span
+                                                            th:text="${#dates.format(buctVO.blog.updateTime,'yyyy-MM-dd')}">2017-10-01</span>
+                                                    </div>
+                                                    <div class="item">
+                                                        <i class="eye icon"></i> <span
+                                                            th:text="${buctVO.blog.views}">2342</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="right aligned five wide column">
+                                                <a href="#" target="_blank"
+                                                   class="ui teal basic label m-padded-mid m-text-thin"
+                                                   th:text="${buctVO.cat.name}">认知升级</a>
+                                            </div>
+                                        </div>
+                                        <!--row表示占满一行，volumn表示使用一列-->
+                                        <div class="row">
+                                            <div class="column" style="margin-left:10px" th:if="${buctVO.blog.tags!=null&&buctVO.blog.tags!=''&&buctVO.blog.tags!='-1'}">
+                                                <a href="#" th:href="@{/blog/tag(tagName=${tag})}"
+                                                   class="ui  basic left pointing label m-padded-mid m-text-thin"
+                                                   th:classappend="${tag==activeTagName} ? 'teal'"
+                                                   th:each="tag : ${buctVO.blog.tags.split(',')}"
+                                                   th:text="${tag}">方法论</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!--footer-->
+                    <div class="ui bottom attached segment" th:if="${page.getTotal()}>1">
+                        <div class="ui middle aligned two column grid">
+                            <div class="column">
+                                <a href="#" th:href="@{'/blog/tag'(tagName=${activeTagName},current=${page.current}-1)}"
+                                   th:if="${page.current}!=1" class="ui mini teal basic button">上一页</a>
+                            </div>
+                            <div class="right aligned column">
+                                <a href="#" th:href="@{'/blog/tag'(tagName=${activeTagName},current=${page.current}+1)}"
+                                   th:if="${page.current!=page.getTotal()}" class="ui mini teal basic button">下一页</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="one wide column">
+                    <th:block th:replace="blog/blog-fragments :: daohang(3)">
+                    </th:block>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="forum-fragments::footer">
+
+    </footer>
+</div>
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="blog/blog-fragments :: script">
+</th:block>
+
+<script>
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+</script>
+</body>
+</html>

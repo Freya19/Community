@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <th:block th:replace="forum-fragments :: css">
+    </th:block>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/css/discuss-detail.css"
+          crossorigin="anonymous" type="text/css"/>
+    <style>
+
+        .fixed {
+            position: fixed;
+            top: 0px;
+            width: 20%;
+        }
+
+        .container, .container-lg, .container-md, .container-sm, .container-xl {
+            max-width: 1440px;
+        }
+    </style>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.min.css"
+          type="text/css" crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/css/editormd.preview.css"
+          type="text/css" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/css/publish.css">
+
+    <title>鹏方论坛-帖子详情</title>
+</head>
+<body>
+<div class="nk-container">
+    <!-- 头部 -->
+    <header class="bg-dark" style="z-index: 4!important;">
+        <th:block th:replace="forum-fragments::header(0)"></th:block>
+
+    </header>
+
+
+    <!-- 内容 -->
+    <div id="waypoint" class="main" style="margin-left: 80px;margin-right: 80px">
+        <div class="container" style="width:96%;padding: 0">
+            <div class="row">
+                <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" style="border-right:1px solid #dee2e6;">
+
+                    <!-- 帖子详情 -->
+                    <div>
+                        <!-- 标题 -->
+                        <h3 class="mb-4">
+                            <img src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/discuss.png"
+                                 width="25"/>
+                            <span th:utext="${post.title}">备战春招，面试刷题跟他复习，一个月全搞定！</span>
+                            <div class="float-right">
+                                <input type="hidden" id="postId" th:value="${post.id}">
+                                <form method="get" th:action="@{|/discuss/edit/${post.id}|}" style="display:inline">
+                                    <button type="submit" class="btn btn-success btn-sm" id="edit"
+                                            th:if="${loginUserId==user.id ||isAdmin == 1}">编辑
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-danger btn-sm" id="topBtn"
+                                        th:disabled="${post.type==1}" sec:authorize="hasAnyAuthority('moderator')">置顶
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm" id="wonderfulBtn"
+                                        th:disabled="${post.status==1}" sec:authorize="hasAnyAuthority('moderator')">加精
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm" id="deleteBtn"
+                                        th:disabled="${post.status==2}" sec:authorize="hasAnyAuthority('admin')">删除
+                                </button>
+                            </div>
+                        </h3>
+                        <!-- 作者 -->
+                        <div class="media pb-3 border-bottom">
+                            <div class="mr-4">
+                                <a th:href="@{|/user/${user.id}|}">
+                                    <img th:src="${user.headerUrl}" class="align-self-start  rounded-circle user-header"
+                                         alt="用户头像">
+                                </a>
+                            </div>
+
+                            <div class="media-body">
+                                <div class="mt-0 text-warning" th:utext="${user.username}">寒江雪</div>
+                                <div class="text-muted mt-3">
+                                    发布于 <b th:text="${#dates.format(post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15
+                                    15:32:18</b>
+                                    <ul class="d-inline float-right">
+                                        <li class="d-inline ml-2">
+                                            <a href="javascript:;"
+                                               th:onclick="|like(this,1,${post.id},${post.userId},${post.id});|"
+                                               class="text-primary">
+                                                <b th:text="${likeStatus==1?'已赞':'赞'}">赞</b> <i th:text="${likeCount}">11</i>
+                                            </a>
+                                        </li>
+                                        <li class="d-inline ml-2">|</li>
+                                        <li class="d-inline ml-2"><a href="#replyform" class="text-primary">回帖 <i
+                                                th:text="${post.commentCount}">7</i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 正文 -->
+                        <div class="mt-4 mb-3 content">
+                            <div id="test-editormd-view2">
+                                <textarea id="append-test" style="display:none;" th:utext="${post.content}"></textarea>
+                            </div>
+                        </div>
+                        <!--标签-->
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div th:if="${post.tags!=null&&post.tags!=''&&post.tags!='-1'}">
+                                <span th:each="tag : ${post.tags.split(',')}">
+                                    <a th:href="@{/(tag=${tag})}" class="community-tag" style="font-size:medium">
+                                                    <span class="fa fa-tag"></span>
+                                                    <span> &thinsp;</span>
+                                                    <span th:text="${tag}"></span>
+                                    </a>
+
+                                </span>
+                            </div>
+                        </div>
+                        <hr class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="width:96%">
+                    </div>
+
+                    <!-- 回帖 -->
+                    <div class="mt-3">
+                        <!-- 回帖数量 -->
+                        <div class="row">
+                            <div class="col-8">
+                                <h6><b class="square"></b> <i th:text="${post.commentCount}">30</i>条回帖</h6>
+                            </div>
+                            <div class="col-4 text-right">
+                                <a href="#replyform" class="btn btn-success btn-sm">&nbsp;&nbsp;回&nbsp;&nbsp;帖&nbsp;&nbsp;</a>
+                            </div>
+                        </div>
+                        <!-- 回帖列表 -->
+                        <ul class="list-unstyled mt-4">
+                            <li class="media pb-3 pt-3 mb-3 border-bottom" th:each="cvo:${comments}">
+                                <div class="mr-4">
+                                    <a th:href="@{|/user/${user.id}|}">
+                                        <img th:src="${cvo.user.headerUrl}"
+                                             class="align-self-start  rounded-circle user-header"
+                                             alt="用户头像">
+
+                                    </a>
+                                </div>
+                                <div class="media-body">
+                                    <div class="mt-0">
+                                        <span class="font-size-12 text-success"
+                                              th:utext="${cvo.user.username}">掉脑袋切切</span>
+                                        <span class="badge badge-secondary float-right floor">
+                                                <i th:text="${page.offset + cvoStat.count}">1</i>#
+                                            </span>
+                                    </div>
+                                    <div class="mt-2" th:utext="${cvo.comment.content}">
+                                        这开课时间是不是有点晚啊。。。
+                                    </div>
+                                    <div class="mt-4 text-muted font-size-12">
+                                        <span>发布于 <b
+                                                th:text="${#dates.format(cvo.comment.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b></span>
+                                        <ul class="d-inline float-right">
+                                            <li class="d-inline ml-2">
+                                                <a href="javascript:;"
+                                                   th:onclick="|like(this,2,${cvo.comment.id},${cvo.comment.userId},${post.id});|"
+                                                   class="text-primary">
+                                                    <b th:text="${cvo.likeStatus==1?'已赞':'赞'}">赞</b>(<i
+                                                        th:text="${cvo.likeCount}">1</i>)
+                                                </a>
+                                            </li>
+                                            <li class="d-inline ml-2">|</li>
+                                            <li class="d-inline ml-2"><a href="#" class="text-primary"
+                                                                         data-toggle="collapse"
+                                                                         th:attr="data-target='#comment-'+${cvo.comment.id}">回复(<i
+                                                    th:text="${cvo.replyCount}">2</i>)</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- 回复列表 -->
+                                    <ul th:id="${'comment-'+cvo.comment.id}"
+                                        class="collapse list-unstyled mt-4 bg-gray p-3 font-size-12 text-muted">
+
+                                        <li class="pb-3 pt-3 mb-3 border-bottom" th:each="rvo:${cvo.replys}">
+                                            <div>
+                                                    <span th:if="${rvo.target==null}">
+                                                        <b class="text-info" th:text="${rvo.user.username}">寒江雪</b>:&nbsp;&nbsp;
+                                                    </span>
+                                                <span th:if="${rvo.target!=null}">
+                                                        <i class="text-info" th:text="${rvo.user.username}">Sissi</i> 回复
+                                                        <b class="text-info" th:text="${rvo.target.username}">寒江雪</b>:&nbsp;&nbsp;
+                                                    </span>
+                                                <span th:utext="${rvo.reply.content}">这个是直播时间哈，觉得晚的话可以直接看之前的完整录播的~</span>
+                                            </div>
+                                            <div class="mt-3">
+                                                <span th:text="${#dates.format(rvo.reply.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</span>
+                                                <ul class="d-inline float-right">
+                                                    <li class="d-inline ml-2">
+                                                        <a href="javascript:;"
+                                                           th:onclick="|like(this,2,${rvo.reply.id},${rvo.reply.userId},${post.id});|"
+                                                           class="text-primary">
+                                                            <b th:text="${rvo.likeStatus==1?'已赞':'赞'}">赞</b>(<i
+                                                                th:text="${rvo.likeCount}">1</i>)
+                                                        </a>
+                                                    </li>
+                                                    <li class="d-inline ml-2">|</li>
+                                                    <li class="d-inline ml-2"><a th:href="|#huifu-${rvoStat.count}|"
+                                                                                 data-toggle="collapse"
+                                                                                 class="text-primary">回复</a>
+                                                    </li>
+                                                </ul>
+                                                <div th:id="|huifu-${rvoStat.count}|" class="mt-4 collapse">
+                                                    <form method="post" th:action="@{|/comment/${post.id}|}">
+                                                        <div>
+                                                            <input type="text" class="input-size form-control"
+                                                                   name="content"
+                                                                   style="width:100%"
+                                                                   th:placeholder="|回复${rvo.user.username}|"/>
+                                                            <input type="hidden" name="entityType" value="2">
+                                                            <input type="hidden" name="entityId"
+                                                                   th:value="${cvo.comment.id}">
+                                                            <input type="hidden" name="targetId"
+                                                                   th:value="${rvo.user.id}">
+                                                        </div>
+                                                        <div class="text-right mt-2">
+                                                            <button th:if="${hasLogin=='0'}" type="button"
+                                                                    class="btn btn-success btn-sm"
+                                                                    onclick="needLogin()">&nbsp;&nbsp;回&nbsp;&nbsp;复&nbsp;&nbsp;
+                                                            </button>
+                                                            <button th:if="${hasLogin!='0'}" type="submit"
+                                                                    class="btn btn-success btn-sm">&nbsp;&nbsp;回&nbsp;&nbsp;复&nbsp;&nbsp;
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        <!-- 回复输入框 -->
+                                        <li class="pb-3 pt-3">
+                                            <form method="post" th:action="@{|/comment/${post.id}|}">
+                                                <div>
+                                                    <input type="text" class="input-size form-control" name="content"
+                                                           style="width:100%" placeholder="请输入你的观点"/>
+                                                    <input type="hidden" name="entityType" value="2">
+                                                    <input type="hidden" name="entityId" th:value="${cvo.comment.id}">
+                                                </div>
+                                                <div class="text-right mt-2">
+
+                                                    <button type="button" th:if="${hasLogin=='0'}"
+                                                            class="btn btn-success btn-sm" onclick="needLogin()">
+                                                        &nbsp;&nbsp;评&nbsp;&nbsp;论&nbsp;&nbsp;
+                                                    </button>
+                                                    <button type="submit" th:if="${hasLogin!='0'}"
+                                                            class="btn btn-success btn-sm">
+                                                        &nbsp;&nbsp;评&nbsp;&nbsp;论&nbsp;&nbsp;
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                        <!-- 分页 -->
+                        <nav class="mt-5" th:replace="forum-fragments::pagination">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item"><a class="page-link" href="#">首页</a></li>
+                                <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                                <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                                <li class="page-item"><a class="page-link" href="#">末页</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <!-- 回帖输入 -->
+                    <div class="mt-3">
+                        <form id="commentform" class="replyform" method="post" th:action="@{|/comment/${post.id}|}">
+                            <p class="mt-3">
+                                <a name="replyform"></a>
+                                <textarea class="form-control" style="width:100%" placeholder="在这里畅所欲言你的看法吧!"
+                                          name="content" id="content"
+                                          rows="12"></textarea>
+                                <input type="hidden" name="entityType" value="1">
+                                <input type="hidden" name="entityId" th:value="${post.id}">
+                            </p>
+                            <p class="text-right">
+
+                                <button type="button" th:if="${hasLogin=='0'}" class="btn btn-success btn-sm"
+                                        onclick="needLogin()">&nbsp;&nbsp;回&nbsp;&nbsp;帖&nbsp;&nbsp;
+                                </button>
+
+                                <button type="submit" th:if="${hasLogin!='0'}" class="btn btn-success btn-sm">&nbsp;&nbsp;回&nbsp;&nbsp;帖&nbsp;&nbsp;</button>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="" class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                    <div id="sitebar">
+                        <hr class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="width: auto">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <h4>热门问题</h4>
+                            <div class="ui fluid vertical menu" style="box-shadow: none;border:none">
+                                <a href="#" th:href="@{|/discuss/${hotPost.id}|}" class="item"
+                                   th:each="hotPost : ${hotPosts}" style="color: #5b5b5b;padding:10px">
+                                    <span class="fa fa-question"></span>
+                                    <span> &ensp; </span>
+                                    <span th:utext="${hotPost.title}"></span>
+                                </a>
+                            </div>
+
+                        </div>
+
+                        <hr class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top: 50px;width: auto">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <h4>相关问题</h4>
+                            <div class="ui fluid vertical menu" style="box-shadow: none;border:none">
+                                <a th:href="@{|/discuss/${relatedPost.id}|}" class="item"
+                                   th:each="relatedPost : ${relatedPosts}" style="color: #5b5b5b;padding:10px">
+                                    <span class="fa fa-question"></span>
+                                    <span> &ensp; </span>
+                                    <span th:utext="${relatedPost.title}"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!--                    <div style="margin-left: -20px;margin-top: 30%;padding: 0">-->
+                    <!--                        <div id="toc">-->
+                    <!--                            <hr class="col-lg-12 col-md-12 col-sm-12 col-xs-12">-->
+                    <!--                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding: 0">-->
+                    <!--                                <h4 style="margin-left:13%">目录</h4>-->
+                    <!--                                <div class="markdown-body editormd-preview-container" id="custom-toc-container"-->
+                    <!--                                     style="padding: 0;border: none;width:100%">-->
+                    <!--                                    #custom-toc-container-->
+                    <!--                                </div>-->
+
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toolbar" class="m-padded m-fixed m-right-bottom" style="display: none">
+        <div class="ui vertical icon buttons ">
+            <button type="button" class="ui toc teal button">目录</button>
+            <a href="#content" class="ui teal button">留言</a>
+            <div id="toTop-button" class="ui icon button"><i class="chevron up icon"></i></div>
+        </div>
+    </div>
+
+    <div class="ui toc-container flowing popup transition hidden" style="max-height: 480px;padding: 0px;">
+        <div class="markdown-body editormd-preview-container" id="custom-toc-container"
+             style="padding: 0;border: none;background-color:transparent;width:320px;max-height: 478px;">
+        </div>
+    </div>
+
+    <!-- 尾部 -->
+    <footer class="bg-dark" th:replace="forum-fragments::footer">
+
+    </footer>
+</div>
+<th:block th:replace="forum-fragments::registerAndLoginMenu">
+</th:block>
+<th:block th:replace="forum-fragments :: script">
+</th:block>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/Semantic-UI-2.2.4/dist/semantic.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/bootstrap-4.4.1-dist/js/bootstrap.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/community/js/discuss.js" crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/editormd.js"
+        crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/marked.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/prettify.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/marked.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/prettify.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/raphael.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/underscore.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/sequence-diagram.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/flowchart.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/editormd-1.5.0/lib/jquery.flowchart.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.scrollto@2.1.2/jquery.scrollTo.min.js" crossorigin="anonymous"
+        type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/Gepeng18/communityCDN@v0.1.8/lib/waypoints/jquery.waypoints.min.js"
+        crossorigin="anonymous" type="text/javascript"></script>
+
+
+<script>
+    function needLogin() {
+        document.getElementById('loginButton').click();
+    }
+
+    $('.menu.toggle').click(function () {
+        $('.m-item').toggleClass('m-mobile-hide');
+    });
+
+    $('#payButton').popup({
+        popup: $('.payQR.popup'),
+        on: 'click',
+        position: 'bottom center'
+    });
+
+    $('.toc.button').popup({
+        popup: $('.toc-container.popup'),
+        on: 'click',
+        position: 'left center'
+    });
+
+    $('#toTop-button').click(function () {
+        $(window).scrollTo(0, 500);
+    });
+
+    var waypoint = new Waypoint({
+        element: document.getElementById('waypoint'),
+        handler: function (direction) {
+            if (direction == 'down') {
+                $('#toolbar').show(100);
+            } else {
+                $('#toolbar').hide(500);
+            }
+            console.log('Scrolled to waypoint!  ' + direction);
+        }
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        var testEditormdView2, testEditor;
+        testEditormdView2 = editormd.markdownToHTML("test-editormd-view2", {
+            htmlDecode: "style,script,iframe",  // you can filter tags decode
+            tocContainer: "#custom-toc-container", // 自定义 ToC 容器层
+            emoji: true,
+            codeFold: true,
+            tocm: true,
+            taskList: true,
+            tex: true,  // 默认不解析
+            flowChart: true,  // 默认不解析
+            sequenceDiagram: true,  // 默认不解析
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    function getElementViewTop(element) {
+        var actualTop = element.offsetTop;
+        var current = element.offsetParent;
+        while (current !== null) {
+            actualTop += current.offsetTop;
+            current = current.offsetParent;
+        }
+        var elementScrollTop = 0;
+        if (document.compatMode == "BackCompat") {
+            elementScrollTop = document.body.scrollTop;
+        } else {
+            elementScrollTop = document.documentElement.scrollTop;
+        }
+        return actualTop;
+        //　return actualTop-elementScrollTop;
+    }
+
+    function getScroll() {
+        var top, left, width, height;
+
+        if (document.documentElement && document.documentElement.scrollTop) {
+            top = document.documentElement.scrollTop;
+            left = document.documentElement.scrollLeft;
+            width = document.documentElement.scrollWidth;
+            height = document.documentElement.scrollHeight;
+        } else if (document.body) {
+            top = document.body.scrollTop;
+            left = document.body.scrollLeft;
+            width = document.body.scrollWidth;
+            height = document.body.scrollHeight;
+        }
+        return {'top': top, 'left': left, 'width': width, 'height': height};
+    }
+
+    var toc = document.getElementById('sitebar');
+    var posTop = getElementViewTop(toc);
+    window.addEventListener('scroll', function (event) {
+        var scrollTop = getScroll().top;
+        var output = document.getElementById('output');
+        output.innerHTML = posTop + ' ' + scrollTop + ' ' + (posTop - scrollTop);
+        if (posTop >= 12 && posTop - scrollTop <= 12)
+            toc.className = 'toc fixed';
+        else toc.className = 'toc';
+    }, false);
+</script>
+<div id="output" style="position:fixed;width:60px;height:60px;right:100px;bottom:100px;display: none">0</div>
+
+<script>
+    function compile(id) {
+        $("#button" + id).html('<i class="fa fa-spinner fa-pulse"></i>&nbsp;  运行中\n');
+        var code = $('#code' + id).text();
+        console.log("code=" + code);
+        var formData = new FormData();
+        formData.append('code', code);
+        $.ajax({
+            url: '/onlineExecutor',
+            type: 'POST',
+            data: formData,
+            dataType: "json",
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (result) {
+                alert(result.msg);
+                $("#button" + id).html('<i class="fa fa-play"></i>&nbsp;  运行\n');
+            },
+            error: function (result) {
+                console.log("错误");
+                var res = $.parseJSON(result);  //用jQuery处理传过来的json值
+                console.log("处理结果" + res);
+                alert(returndata);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
