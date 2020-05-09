@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class EventConsumer extends BaseController implements CommunityConstant {
@@ -166,8 +167,11 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             for (Map<String, Object> userAndFollowTime : followers) {
                 User user = (User) (userAndFollowTime.get("user"));
                 if ((int) ((new Date().getTime() - user.getLoginTime().getTime()) / (1000 * 3600 * 24)) < 5) {
-                    //把这个feed扔到redis的timeline中
+                    // 把这个feed扔到redis的timeline中
+                    // 如果5天内登录过，则更新5天，
+                    // 如果5天内没有登录，那么5天后这个key就会消失，这样当用户登录后就无法从redis中取，所以就从数据库中取。
                     String timelineKey = RedisKeyUtil.getLatestTimelineKey(user.getId());
+                    redisTemplate.expire(timelineKey,5, TimeUnit.DAYS);
                     redisTemplate.opsForList().leftPush(timelineKey, feed);
                     // 限制最长长度，如果timelineKey的长度过大，就删除后面的新鲜事
                     while (redisTemplate.opsForList().size(timelineKey) > FEEDTIMELINECOUNT)
@@ -195,8 +199,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         /* ------------------- 将event的data的viewTags中的数据全部取出来放到redis中 ----------------- */
         if (event.getEntityType() == ENTITY_TYPE_POST) {
             String timelineKey = RedisKeyUtil.getLatestViewTagsKey(event.getUserId());
-            //fastjson将数组转化为了jsonarray,所以这里先将jsonarry转化为string,再通过parseArray方法转为list
 
+            //fastjson将数组转化为了jsonarray,所以这里先将jsonarry转化为string,再通过parseArray方法转为list
             List<String> tags = JSONObject.parseArray(JSONObject.toJSONString(event.getData().get("viewTags"), SerializerFeature.WriteClassName), String.class);
             if(tags.size()>0){
                 for(String tag:tags){
@@ -250,7 +254,11 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             for (Map<String, Object> userAndFollowTime : followers) {
                 User user = (User) (userAndFollowTime.get("user"));
                 if ((int) ((new Date().getTime() - user.getLoginTime().getTime()) / (1000 * 3600 * 24)) < 5) {
+                    // 把这个feed扔到redis的timeline中
+                    // 如果5天内登录过，则更新5天，
+                    // 如果5天内没有登录，那么5天后这个key就会消失，这样当用户登录后就无法从redis中取，所以就从数据库中取。
                     String timelineKey = RedisKeyUtil.getLatestTimelineKey(user.getId());
+                    redisTemplate.expire(timelineKey,5, TimeUnit.DAYS);
                     redisTemplate.opsForList().leftPush(timelineKey, feed);
                     // 限制最长长度，如果timelineKey的长度过大，就删除后面的新鲜事
                     while (redisTemplate.opsForList().size(timelineKey) > FEEDTIMELINECOUNT)

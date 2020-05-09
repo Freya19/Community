@@ -11,10 +11,8 @@ import java.util.Set;
 
 public interface IFeedService {
 
-
-    List<Feed> getUserFeeds( List<Integer> userIds, int entityType,int count) ;
-
     boolean addFeed(Feed feed) ;
+
     Feed getById(int id);
 
     List<Feed> getFeeds();

@@ -23,28 +23,28 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
     @Autowired
     IFeedMapper iFeedMapper;
 
-    public List<Feed> getUserFeeds(List<Integer> userIds, int entityType, int count) {
-        return iFeedMapper.selectUserFeeds(userIds, entityType, count);
-    }
-
+    @Override
     public boolean addFeed(Feed feed) {
         iFeedMapper.addFeed(feed);
         return feed.getId() > 0;
     }
 
+    @Override
     public Feed getById(int id) {
         return iFeedMapper.getFeedById(id);
     }
 
 
+    @Override
     public List<Feed> getFeeds() {
         List<Feed> feeds = null;
-        if ((int) ((new Date().getTime() - hostHolder.getUser().getLoginTime().getTime()) / (1000 * 3600 * 24)) < 5) {
-            String timelinePersistenceKey = RedisKeyUtil.getPersistenceTimelineKey(hostHolder.getUser().getId());
-            // entityId userName
-            feeds = redisTemplate.opsForList().range(timelinePersistenceKey, 0, -1);
-        } else {
 
+        String timelinePersistenceKey = RedisKeyUtil.getPersistenceTimelineKey(hostHolder.getUser().getId());
+        // entityId userName
+        feeds = redisTemplate.opsForList().range(timelinePersistenceKey, 0, -1);
+
+        //redis中没有，则再从数据库中取
+        if(feeds.size()==0){
             final List<Integer> followerIds = iFollowService.findFollowers(hostHolder.getUser().getId(), 0, Integer.MAX_VALUE).stream().map(m -> {
                 return ((User) m.get("user")).getId();
             }).collect(Collectors.toList());
@@ -54,7 +54,8 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
         return feeds;
     }
 
-    public String getFeedContentByPostId(Integer postId, Set<Feed> published, Set<Feed> liked,Set<Feed> commented){
+    @Override
+    public String getFeedContentByPostId(Integer postId, Set<Feed> published, Set<Feed> liked, Set<Feed> commented){
         StringBuilder feedContent = new StringBuilder();
         boolean publishFlag = false;
         boolean likeFlag = false;
@@ -62,7 +63,7 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
         //这里需要改进
         //向feedContent 加入 Gepeng18 发布此贴 ， 如果搜不到 则"发布此贴"也不加
         for (Feed feed : published) {
-            if (feed.getEntityId() == postId) {
+            if (feed.getEntityId().equals(postId)) {
                 publishFlag = true;
                 feedContent.append(feed.getUserName()).append("、");
             }
@@ -73,7 +74,7 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
 
         //向feedContent 加入 Gepeng18 觉得很赞 ， 如果搜不到 则"觉得很赞"也不加
         for (Feed feed : liked) {
-            if (feed.getEntityId() == postId) {
+            if (feed.getEntityId().equals(postId)) {
                 likeFlag = true;
                 feedContent.append(feed.getUserName()).append("、");
             }
@@ -83,7 +84,7 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
 
         //向feedContent 加入 Gepeng18 评论了此贴 ， 如果搜不到 则"评论了此贴"也不加
         for (Feed feed : commented) {
-            if (feed.getEntityId() == postId) {
+            if (feed.getEntityId().equals(postId)) {
                 commentFlag = true;
                 feedContent.append(feed.getUserName()).append("、");
             }
@@ -218,5 +219,9 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
     @Override
     public boolean deleteById(Integer id) {
         return iFeedMapper.deleteById(id) > 0;
+    }
+
+    public List<Feed> getUserFeeds(List<Integer> userIds, int entityType, int count) {
+        return iFeedMapper.selectUserFeeds(userIds, entityType, count);
     }
 }
