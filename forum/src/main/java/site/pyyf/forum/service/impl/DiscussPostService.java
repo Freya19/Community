@@ -93,6 +93,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
                 });
     }
 
+    @Override
     public List<DiscussPost> queryAllByLimit(DiscussPost discussPost, int orderMode, int offset, int limit) {
         if (discussPost.getUserId() == -1 && orderMode==1) {
             return postListCache.get(offset + ":" + limit+ ":"+discussPost.getTags());
