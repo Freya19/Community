@@ -148,7 +148,7 @@ public class UserController extends CommunityBaseController implements Community
         }
     }
 
-    // 个人主页
+    /**个人主页*/
     @RequestMapping(path = "/{userId}", method = RequestMethod.GET)
     public String getProfilePage(@PathVariable("userId") int userId, Model model) {
         User user = iUserService.queryById(userId);
@@ -179,7 +179,6 @@ public class UserController extends CommunityBaseController implements Community
     }
 
 
-    // 个人主页
     @RequestMapping(path = "/forget", method = RequestMethod.GET)
     public String getForgetPage() {
         return "forum/forget";
@@ -191,7 +190,7 @@ public class UserController extends CommunityBaseController implements Community
      * @param userId 用户id
      * @param model 后端往前端传参的媒介
      * @param page  分页
-     * @return 页面
+     * @return “我 ”的帖子
      */
     @RequestMapping(path ={"/posts/{userId}"},method = {RequestMethod.GET,RequestMethod.POST})
     public String getUserPosts(@PathVariable(value = "userId") int userId, Model model, Page page){
@@ -218,8 +217,8 @@ public class UserController extends CommunityBaseController implements Community
             }).collect(Collectors.toSet());
         }
 
-        //ordermode 0是按照时间排序 1是按照热度排序
-        List<DiscussPost> posts = iDiscussPostService.queryAllByLimit(1,page.getOffset(),page.getLimit());
+        //orderMode:0是按照时间排序 1是按照热度排序
+        List<DiscussPost> posts = iDiscussPostService.queryAllByLimit(query,1,page.getOffset(),page.getLimit());
 
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         if (posts.size()!= 0) {
@@ -234,7 +233,9 @@ public class UserController extends CommunityBaseController implements Community
                         discussPostVO.put("feedContent", "");
                     }
                 }
+
                 discussPostVO.put("post", post);
+
                 User user = iUserService.queryById(post.getUserId());
                 discussPostVO.put("user", user);
 
