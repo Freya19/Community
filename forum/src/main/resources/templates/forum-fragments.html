@@ -66,13 +66,13 @@
                 <div class="nav_computer" style="margin-left: 2%">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item ml-3 btn-group-vertical">
-                            <a class="nav-link" th:classappend="${n==0} ? 'active'" th:href="@{/index}">
+                            <a class="nav-link" th:classappend="${n==0} ? 'active'" th:href="@{/index}" style="font-size:large">
                                 <i class="fa fa-home"></i>&thinsp;首页
                             </a>
                         </li>
 
                         <li class="nav-item ml-3 btn-group-vertical">
-                            <a class="nav-link" th:classappend="${n==1} ? 'active'"
+                            <a class="nav-link" th:classappend="${n==1} ? 'active'" style="font-size:large"
                                th:href="@{/onlineExecutor}">
                                 <img src="https://pyyf.oss-cn-hangzhou.aliyuncs.com/community/icons/java-while.png"
                                      width="20">在线编译
@@ -80,13 +80,13 @@
                         </li>
 
                         <li class="nav-item ml-3 btn-group-vertical">
-                            <a class="nav-link" th:classappend="${n==2} ? 'active'" th:href="@{/files}">
+                            <a class="nav-link" th:classappend="${n==2} ? 'active'" th:href="@{/files}" style="font-size:large">
                                 <i class="fa fa-database"></i>&thinsp;云盘
                             </a>
                         </li>
 
                         <li class="nav-item ml-3 btn-group-vertical">
-                            <a class="nav-link" th:classappend="${n==3} ? 'active'" th:href="@{/blogs}">
+                            <a class="nav-link" th:classappend="${n==3} ? 'active'" th:href="@{/blogs}" style="font-size:large">
                                 <i class="fa fa-bookmark"></i>&thinsp;博客
                             </a>
                         </li>
