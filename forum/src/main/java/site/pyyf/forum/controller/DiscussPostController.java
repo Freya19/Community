@@ -190,7 +190,11 @@ public class DiscussPostController extends CommunityBaseController implements Co
         return "forum/discuss-detail";
     }
 
-    // 置顶
+    /**
+     *  置顶
+     * @param id
+     * @return
+     */
     @RequestMapping(path = "/top", method = RequestMethod.POST)
     @ResponseBody
     public String setTop(int id) {
@@ -207,7 +211,11 @@ public class DiscussPostController extends CommunityBaseController implements Co
         return CommunityUtil.getJSONString(0);
     }
 
-    // 加精
+    /**
+     * 加精
+     * @param id
+     * @return
+     */
     @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
     @ResponseBody
     public String setWonderful(int id) {
@@ -228,7 +236,11 @@ public class DiscussPostController extends CommunityBaseController implements Co
         return CommunityUtil.getJSONString(0);
     }
 
-    // 删除
+    /**
+     *  删除
+     * @param id
+     * @return
+     */
     @RequestMapping(path = "/delete", method = RequestMethod.POST)
     @ResponseBody
     public String setDelete(int id) {

@@ -36,9 +36,8 @@ public class TagTasks {
         log.info("hotTagSchedule start {}", new Date());
         List<DiscussPost> discussPosts = new ArrayList<>();
 
-        Map<String, Tag> hotTags = new HashMap<>();
-        /* ------------------- 统计所有帖子中的标签的分数和数量，存在hotTag中 ----------------- */
-        /* ------------------- name为key， count和score为value ----------------- */
+        Set<String> allTags = new HashSet<>();
+        /* ------------------- 先统计出帖子的所有标签名 ----------------- */
         while (discussPosts.size() >= offset) {
             discussPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
             for (DiscussPost discussPost : discussPosts) {
@@ -48,19 +47,28 @@ public class TagTasks {
                     continue;
                 }
                 for (String tag : tags) {
-                    Tag hotTag = hotTags.get(tag);
-                    if (hotTag != null) {
-                        hotTag.getData().put("score",((Double)(hotTag.getData().get("score"))).doubleValue() + discussPost.getScore());
-                        hotTag.setCount(hotTag.getCount() + 1);
-                    } else {
-                        hotTags.put(tag, new Tag(tag,1). putData("score",discussPost.getScore()));
-                    }
+                    allTags.add(tag);
                 }
             }
             offset += limit;
         }
-        /* ------------------- 将hotTags通过updateTags进行处理 ----------------- */
-        tagCache.setTags(hotTags);
-        log.info("hotTagSchedule stop {}", new Date());
+
+        /* ------------------- 根据每个标签名搜出对应的帖子数量，并统计帖子总分，组成一个tag ----------------- */
+        List<Tag> tagsVO = new ArrayList<>();
+        for(String tagName: allTags){
+            discussPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().tags(tagName).build());
+            Tag tag = new Tag().setCount(discussPosts.size());
+            double scoreSum = 0;
+            for(DiscussPost discussPost:discussPosts){
+                scoreSum += discussPost.getScore();
+            }
+            tag.setName(tagName);
+            tag.putData("score", scoreSum);
+            tagsVO.add(tag);
+        }
+
+        /* ------------------- 将tagsVO通过updateTags进行处理 ----------------- */
+        tagCache.setTags(tagsVO);
+        log.info("tagSchedule stop {}", new Date());
     }
 }

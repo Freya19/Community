@@ -15,7 +15,7 @@ import java.util.*;
 public class TagCache {
     private List<Tag> showTags;
 
-    public void setTags(Map<String, Tag> tags) {
+    public void setTags(List<Tag> tags) {
         int max = 100;
         /**
          * 这是使用优先队列，找30个最大的，这30个不分前后
@@ -48,7 +48,7 @@ public class TagCache {
         //这里我们采取每次重新统计一次，即将hots置空后进行赋值
         showTags = new ArrayList<>();
         TreeSet<Tag> set = new TreeSet<>();
-        tags.forEach((name, tag) -> {
+        tags.forEach(tag -> {
             set.add(tag);
         });
 

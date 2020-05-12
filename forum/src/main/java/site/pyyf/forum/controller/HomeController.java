@@ -34,12 +34,12 @@ public class HomeController extends CommunityBaseController implements Community
         // 方法调用前,SpringMVC会自动实例化Model和Page,并将Page注入Model.
         // 所以,在thymeleaf中可以直接访问Page对象中的数据.
         DiscussPost query = DiscussPost.builder().userId(-1).build();
-        if (!tag.equals("-1")) {
-            //传入了tag，将其作为参数构成query
-            tag = tag.replace("+", "").replace("*", "").replace("?", "");
+        if ("-1".equals(tag)) {
+            //没有tag，将-1作为参数构成query
             query.setTags(tag);
         }else {
-            //没有tag，将-1作为参数构成query
+            //传入了tag，将其作为参数构成query
+            tag = tag.replace("+", "").replace("*", "").replace("?", "");
             query.setTags(tag);
         }
 

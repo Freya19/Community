@@ -21,6 +21,7 @@
     <!--全部字段-->
     <sql id="allColumn"> id, user_id, title, content, type, status, create_time, comment_count, score, tags </sql>
 
+
     <!--添加语句的字段列表-->
     <sql id="insertColumn">
         <if test="userId != null">
@@ -168,11 +169,7 @@
             and score = #{discussPost.score}
         </if>
         <if test="discussPost.tags != null and discussPost.tags != '-1'">
-            <trim prefix="and (" suffix=")" suffixOverrides="or">
-                <foreach collection="discussPost.tags.split(',')" item="item" index="index">
-                    tags regexp #{item} or
-                </foreach>
-            </trim>
+            and tags regexp #{discussPost.tags}
         </if>
         and status !=2
     </sql>
@@ -298,14 +295,6 @@
         </if>
 
         limit #{offset}, #{limit}
-    </select>
-
-    <select id="querySameCount" resultType="java.lang.Integer">
-    select count(*) from discuss_post
-    where
-    user_id = #{userId} and
-    title = #{title} and
-    timestampdiff(second ,#{createTime},create_time) &lt; 100;
     </select>
 
 

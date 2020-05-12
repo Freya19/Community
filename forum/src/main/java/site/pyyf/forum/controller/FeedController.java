@@ -35,7 +35,7 @@ public class FeedController extends CommunityBaseController implements Community
             return "redirect:/index";
         }
 
-        //每访问第一页，就将redis缓存中的数据进行替换
+        //每访问第一页，就将redis缓存中的persistenceKey中的数据进行替换
         if (page.getCurrent() == 1) {
             String persistenceKey = RedisKeyUtil.getPersistenceTimelineKey(hostHolder.getUser().getId());
             String latestKey = RedisKeyUtil.getLatestTimelineKey(hostHolder.getUser().getId());
