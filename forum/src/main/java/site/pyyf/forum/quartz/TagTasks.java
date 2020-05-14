@@ -57,13 +57,17 @@ public class TagTasks {
         List<Tag> tagsVO = new ArrayList<>();
         for(String tagName: allTags){
             discussPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().tags(tagName).build());
+            //设置标签中帖子的数量
             Tag tag = new Tag().setCount(discussPosts.size());
             double scoreSum = 0;
             for(DiscussPost discussPost:discussPosts){
                 scoreSum += discussPost.getScore();
             }
+            //标签的名字
             tag.setName(tagName);
+            //标签中帖子的分数（排名）
             tag.putData("score", scoreSum);
+            //最后将这个tag放到这里
             tagsVO.add(tag);
         }
 
@@ -71,4 +75,5 @@ public class TagTasks {
         tagCache.setTags(tagsVO);
         log.info("tagSchedule stop {}", new Date());
     }
+
 }

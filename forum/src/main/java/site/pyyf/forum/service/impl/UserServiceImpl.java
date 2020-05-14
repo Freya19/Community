@@ -167,6 +167,11 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         return iUserMapper.deleteById(id) > 0;
     }
 
+    /**
+     * 注册功能
+     * @param user
+     * @return
+     */
     public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>();
 
@@ -208,17 +213,19 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         user.setStatus(0);
         user.setActivationCode(CommunityUtil.generateUUID());
 
+        //用户头像
         List<String> heads = iAliyunOssService.queryAll("community/header");
         int index = new Random().nextInt(heads.size());
         user.setHeaderUrl(aliyunConfig.getUrlPrefix()+heads.get(index));
         user.setCreateTime(new Date());
 
+        //往数据库里插入该用户字段
         iUserMapper.insert(user);
 
         // 激活邮件
         Context context = new Context();
         context.setVariable("email", user.getEmail());
-        // http://localhost:8080/community/activation/101/code
+        // 例如http://localhost:8080/community/activation/101/code
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
         context.setVariable("url", url);
         String content = templateEngine.process("mail/activation", context);
@@ -286,7 +293,6 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(1);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-//        loginTicketMapper.insertLoginTicket(loginTicket);
 
         String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
         redisTemplate.opsForValue().set(redisKey, loginTicket);
@@ -322,13 +328,21 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
     }
 
 
-    // 1.优先从缓存中取值
+    /**
+     * 1.优先从缓存中取值
+     * @param userId
+     * @return
+     */
     private User getCache(int userId) {
         String redisKey = RedisKeyUtil.getUserKey(userId);
         return (User) redisTemplate.opsForValue().get(redisKey);
     }
 
-    // 2.取不到时初始化缓存数据
+    /**
+     *  2.取不到时初始化缓存数据
+     * @param userId
+     * @return
+     */
     private User initCache(int userId) {
         User user = iUserMapper.queryById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
@@ -336,7 +350,10 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         return user;
     }
 
-    // 3.数据变更时清除缓存数据
+    /**
+     * /3.数据变更时清除缓存数据
+     * @param userId
+     */
     private void clearCache(int userId) {
         String redisKey = RedisKeyUtil.getUserKey(userId);
         redisTemplate.delete(redisKey);

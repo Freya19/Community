@@ -58,23 +58,11 @@ public class LoginController extends CommunityBaseController implements Communit
     @Autowired
     private GithubProvider githubProvider;
 
-    @RequestMapping(path = "/register", method = RequestMethod.GET)
-    public String getRegisterPage(Model model) {
-        final int i = iSiteSettingService.allowRegister();
-        if (i == 0) {
-            model.addAttribute("msg", "非常抱歉，本网站由于安全问题，暂关闭注册，请谅解");
-            model.addAttribute("target", "/index");
-            return "forum/info/operate-result";
-        } else
-            return "forum/register";
-    }
-
-
     @ResponseBody
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public String register(User user) {
         Map<String, Object> resultMap = new HashMap<>();
-        if (iSiteSettingService.allowRegister() == 1) {
+        if (iSiteSettingService.allowRegister() == 0) {
             resultMap.put("usernameMsg", "本网站由于安全性暂关闭注册，敬请谅解");
             return CommunityUtil.getJSONString(1, "注册失败", resultMap);
         }
@@ -162,8 +150,11 @@ public class LoginController extends CommunityBaseController implements Communit
             Map<String, Object> map = iUserService.login("TEST", "123456", REMEMBER_EXPIRED_SECONDS);
             if (map.containsKey("ticket")) {
                 Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
+                //cookie生效的范围
                 cookie.setPath(contextPath);
+                //设置cookie生效的时间
                 cookie.setMaxAge(REMEMBER_EXPIRED_SECONDS);
+                //cookie存放在response的头部
                 response.addCookie(cookie);
                 return CommunityUtil.getJSONString(0, "登录成功");
             }
@@ -226,12 +217,6 @@ public class LoginController extends CommunityBaseController implements Communit
                 user = iUserService.insert(user);
                 if (user.getId() != null) {
                     logger.info("注册用户成功！当前注册用户" + user);
-//                            User store = User.builder().id(insert.getId()).build();
-//                            if (iUserService.addUser(store) == 1){
-//                                user.setUserId(store.getUserId());
-//                                iUserService.update(user);
-//                                logger.info("注册仓库成功！当前注册仓库" + store);
-//                              }
                 } else {
                     logger.error("注册用户失败！");
                     model.addAttribute("reason","注册用户失败");
