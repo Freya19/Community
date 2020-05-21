@@ -50,15 +50,10 @@ public class BaseController {
     protected ICodePreviewService iCodePreviewService;
 
     @Autowired
-    private HostHolder hostHolder;
+    protected HostHolder hostHolder;
 
     @Autowired
     protected IFeedService iFeedService;
-
-    protected User loginUser;
-    protected HttpServletRequest request;
-    protected HttpServletResponse response;
-    protected HttpSession session;
 
     /**
      * 在每个子类方法调用之前先调用
@@ -69,11 +64,7 @@ public class BaseController {
      */
     @ModelAttribute
     public void setReqAndRes(Model model,HttpServletRequest request, HttpServletResponse response) {
-        this.request = request;
-        this.response = response;
-        this.session = request.getSession(true);
-        loginUser = hostHolder.getUser();
-        if(loginUser!=null)
+        if(hostHolder.getUser()!=null)
             model.addAttribute("hasLogin","1");
         else
             model.addAttribute("hasLogin","0");

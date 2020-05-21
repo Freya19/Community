@@ -2,6 +2,7 @@ package site.pyyf.blog.controller.admin;
 
 import site.pyyf.blog.controller.BaseController;
 import site.pyyf.blog.entity.Blog;
+import site.pyyf.commons.utils.HostHolder;
 import site.pyyf.commons.utils.TagsVO;
 import site.pyyf.forum.entity.Category;
 import site.pyyf.forum.entity.User;
@@ -103,7 +104,7 @@ public class BlogController extends BaseController implements CommunityConstant 
 
     @PostMapping("/blog")
     public String addBlog(Blog blog, RedirectAttributes attributes) {
-        if (loginUser == null) {
+        if (hostHolder.getUser() == null) {
             return CommunityUtil.getJSONString(403, "你还没有登录哦!");
         }
             if(blog.getFlag()==null||blog.getFlag().equals("")){
