@@ -10,7 +10,7 @@
 
 ### [更新日志](https://github.com/Freya19/Community/blob/master/docs/更新日志.md)
 
-### [项目截图](https://github.com/Freya19/Community/blob/master/docs/项目截图.md)
+### [项目展示](https://github.com/Freya19/Community/blob/master/docs/项目展示.md)
 
 
 
