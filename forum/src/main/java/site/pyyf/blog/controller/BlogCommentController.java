@@ -97,8 +97,8 @@ public class BlogCommentController extends  BaseController implements CommunityC
                     String.valueOf(blogId),iBlogService.queryById(blogId).getTitle(),comment.getContent());
         }
 
-        if (loginUser != null) {
-            comment.setUserId(loginUser.getId());
+        if (hostHolder.getUser() != null) {
+            comment.setUserId(hostHolder.getUser().getId());
         } else {
             //对博客评论时，如未登陆则创建用户后评论
             User insertUser = iUserService.insert(user);

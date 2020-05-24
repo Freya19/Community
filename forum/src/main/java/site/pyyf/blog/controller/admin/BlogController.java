@@ -114,7 +114,7 @@ public class BlogController extends BaseController implements CommunityConstant 
         String description = CommunityUtil.extractChinese(blog.getContent());
         if(description.length()>100)
             description = description.substring(0,100);
-        blog.setUserId(loginUser.getId()).setDescription(description);
+        blog.setUserId(hostHolder.getUser().getId()).setDescription(description);
 
         Blog b;
         if (blog.getId() == null) {
