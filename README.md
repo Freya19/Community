@@ -13,6 +13,6 @@
 
 社区网站地址：http://wd.pyyf.site 
 
-github地址（实时更新；主分支）: https://github.com/freya19/Community
+github地址（主分支；实时更新）: https://github.com/freya19/Community
 
 gitee地址：https://gitee.com/gepeng18/Community
