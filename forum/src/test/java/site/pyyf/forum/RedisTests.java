@@ -1,5 +1,6 @@
 package site.pyyf.forum;
 
+import org.junit.Assert;
 import site.pyyf.ForumApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -240,4 +241,24 @@ public class RedisTests {
         System.out.println(redisTemplate.opsForValue().getBit(redisKey, 6));
     }
 
+    @Test
+    public void testExpire() throws InterruptedException {
+        String redisKey = "test:expire:num1";
+
+        redisTemplate.opsForValue().set(redisKey, 1);
+        Assert.assertEquals(1,redisTemplate.opsForValue().get(redisKey));
+
+        //根据key获取过期时间
+        //getExpire返回单位为秒过期时长 返回值为-1时 此键值没有设置过期日期 返回值为-2时 不存在此键
+        Assert.assertEquals(Long.valueOf(-1),redisTemplate.getExpire(redisKey));
+
+        //设置过期时间
+        redisTemplate.expire(redisKey,10000 , TimeUnit.MILLISECONDS);
+
+        Thread.sleep(5000);
+        Assert.assertEquals(1,redisTemplate.opsForValue().get(redisKey));
+
+        Assert.assertEquals(Long.valueOf(5),redisTemplate.getExpire(redisKey));
+
+    }
 }
