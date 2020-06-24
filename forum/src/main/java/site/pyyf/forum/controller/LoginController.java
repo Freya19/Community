@@ -146,6 +146,8 @@ public class LoginController extends CommunityBaseController implements Communit
         Map<String, Object> resultMap = new HashMap<>();
 
         final int allowKaptchaLogin = iSiteSettingService.allowKaptchaLogin();
+
+        /*自己写着玩儿*/
         if ((allowKaptchaLogin == 1) && (verifycode.equals("####"))) {
             Map<String, Object> map = iUserService.login("TEST", "123456", REMEMBER_EXPIRED_SECONDS);
             if (map.containsKey("ticket")) {
@@ -159,6 +161,7 @@ public class LoginController extends CommunityBaseController implements Communit
                 return CommunityUtil.getJSONString(0, "登录成功");
             }
         }
+
         // 检查验证码
         // String kaptcha = (String) session.getAttribute("kaptcha");
         String kaptcha = null;
@@ -200,6 +203,7 @@ public class LoginController extends CommunityBaseController implements Communit
         GithubAccessTokenDTO.setRedirect_uri(redirectUri);
         GithubAccessTokenDTO.setState(state);
         String accessToken = githubProvider.getAccessToken(GithubAccessTokenDTO);
+
         GithubUser githubUser = githubProvider.getUser(accessToken);
         if (githubUser != null && githubUser.getId() != null) {
             //获取到了用户信息，开始判断是否已经注册

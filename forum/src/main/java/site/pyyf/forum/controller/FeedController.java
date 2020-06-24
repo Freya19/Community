@@ -51,7 +51,6 @@ public class FeedController extends CommunityBaseController implements Community
             redisTemplate.delete(persistenceKey);
             if (redisTemplate.opsForList().range(latestKey, 0, -1).size() > 0)
                 redisTemplate.opsForList().leftPushAll(persistenceKey, redisTemplate.opsForList().range(latestKey, 0, -1));
-
         }
 
         page.setRows(iDiscussPostService.queryCount());
