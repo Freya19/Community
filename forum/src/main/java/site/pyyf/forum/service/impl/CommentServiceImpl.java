@@ -163,7 +163,8 @@ public class CommentServiceImpl extends BaseService implements ICommentService, 
         return iCommentMapper.deleteById(id) > 0;
     }
 
-    public void notifyUser(int emailType,String username,String email,String blogId,String blogTitle,String commentContent){
+    @Override
+    public void notifyUser(int emailType, String username, String email, String blogId, String blogTitle, String commentContent){
         Map<String, Object> emailSetting = new HashMap<>();
         String url = domain  + "/blog/" + blogId;
         emailSetting.put("username",username);

@@ -29,28 +29,14 @@ public class FeedController extends CommunityBaseController implements Community
     private String getPushFeeds(Model model, Page page) {
 
         //判断用户多久没登录了，按照5天计算，5天内则是推的，5天前登录则让它拉
-        if (hostHolder.getUser() == null)
-            //这里让前端控制，未登录则禁止访问
-        {
+        //这里前端也加以控制，未登录则禁止访问
+        if (hostHolder.getUser() == null) {
             return "redirect:/index";
         }
 
-        //每访问第一页，就将redis缓存中的persistenceKey中的数据进行替换
+        //每访问第一页，就将redis缓存中的persistenceKey中的数据使用Latest进行替换
         if (page.getCurrent() == 1) {
-            String persistenceKey = RedisKeyUtil.getPersistenceTimelineKey(hostHolder.getUser().getId());
-            String latestKey = RedisKeyUtil.getLatestTimelineKey(hostHolder.getUser().getId());
-            //当redisTemplate.opsForList().range(latestKey, 0, -1)为空时，leftPushAll会报错
-            redisTemplate.delete(persistenceKey);
-            if (redisTemplate.opsForList().range(latestKey, 0, -1).size() > 0)
-                redisTemplate.opsForList().leftPushAll(persistenceKey, redisTemplate.opsForList().range(latestKey, 0, -1));
-
-            persistenceKey = latestKey = null;
-
-            persistenceKey = RedisKeyUtil.getPersistenceViewTagsKey(hostHolder.getUser().getId());
-            latestKey = RedisKeyUtil.getLatestViewTagsKey(hostHolder.getUser().getId());
-            redisTemplate.delete(persistenceKey);
-            if (redisTemplate.opsForList().range(latestKey, 0, -1).size() > 0)
-                redisTemplate.opsForList().leftPushAll(persistenceKey, redisTemplate.opsForList().range(latestKey, 0, -1));
+            replaceLatestRedisKey();
         }
 
         page.setRows(iDiscussPostService.queryCount());
@@ -95,8 +81,7 @@ public class FeedController extends CommunityBaseController implements Community
                 if (feedContent.length() > 0) {
                     discussPostVO.put("feedContent", feedContent);
                 } else
-                    //简单粗暴，这样前端就好写了
-                {
+                    {//简单粗暴置空字符串，这样前端就好写了
                     discussPostVO.put("feedContent", "");
                 }
                 discussPostVO.put("post", post);
@@ -109,6 +94,7 @@ public class FeedController extends CommunityBaseController implements Community
                 discussPostVOS.add(discussPostVO);
             }
         }
+
         model.addAttribute("discussPosts", discussPostVOS);
         model.addAttribute("orderMode", 2);
         List<Tag> hotTags = tagCache.getShowTags();
@@ -120,8 +106,26 @@ public class FeedController extends CommunityBaseController implements Community
         model.addAttribute("hotPosts", hotPosts);
 
         return "index";
-
     }
+
+
+    private void replaceLatestRedisKey() {
+        String persistenceKey = RedisKeyUtil.getPersistenceTimelineKey(hostHolder.getUser().getId());
+        String latestKey = RedisKeyUtil.getLatestTimelineKey(hostHolder.getUser().getId());
+        //当redisTemplate.opsForList().range(latestKey, 0, -1)为空时，leftPushAll会报错
+        redisTemplate.delete(persistenceKey);
+        if (redisTemplate.opsForList().range(latestKey, 0, -1).size() > 0)
+            redisTemplate.opsForList().leftPushAll(persistenceKey, redisTemplate.opsForList().range(latestKey, 0, -1));
+
+        persistenceKey = latestKey = null;
+        persistenceKey = RedisKeyUtil.getPersistenceViewTagsKey(hostHolder.getUser().getId());
+        latestKey = RedisKeyUtil.getLatestViewTagsKey(hostHolder.getUser().getId());
+        redisTemplate.delete(persistenceKey);
+        if (redisTemplate.opsForList().range(latestKey, 0, -1).size() > 0)
+            redisTemplate.opsForList().leftPushAll(persistenceKey, redisTemplate.opsForList().range(latestKey, 0, -1));
+    }
+
+
 
     /**
      * 个性化定制之 我的动态

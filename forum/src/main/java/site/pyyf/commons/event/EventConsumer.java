@@ -113,6 +113,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         mailClient.sendMail((String) emailSetting.get("email"), "【鹏圆云方博客】", content);
     }
 
+
+
     @KafkaListener(topics = {TOPIC_COMMENT, TOPIC_LIKE, TOPIC_FOLLOW})
     public void handleCommentMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
@@ -127,11 +129,14 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         }
 
         // 发送站内通知
+        // （userId点赞了某个帖子，实体记录在content中（谁点赞的，点赞了哪个帖子，这是实体，都记录在content中），
+        // 这个通知要发给谁，记录在message的toid中，点赞操作记录在conversationId中
         Message message = new Message();
         message.setFromId(SYSTEM_USER_ID);
         message.setToId(event.getEntityUserId());
         message.setConversationId(event.getTopic());
         message.setCreateTime(new Date());
+
 
         Map<String, Object> content = new HashMap<>();
         content.put("userId", event.getUserId());
@@ -168,11 +173,9 @@ public class EventConsumer extends BaseController implements CommunityConstant {
                 User user = (User) (userAndFollowTime.get("user"));
                 if ((int) ((new Date().getTime() - user.getLoginTime().getTime()) / (1000 * 3600 * 24)) < 5) {
                     // 把这个feed扔到redis的timeline中
-                    // 如果5天内登录过，则更新5天，
-                    // 如果5天内没有登录，那么5天后这个key就会消失，这样当用户登录后就无法从redis中取，所以就从数据库中取。
                     String timelineKey = RedisKeyUtil.getLatestTimelineKey(user.getId());
-                    redisTemplate.expire(timelineKey,5, TimeUnit.DAYS);
                     redisTemplate.opsForList().leftPush(timelineKey, feed);
+
                     // 限制最长长度，如果timelineKey的长度过大，就删除后面的新鲜事
                     while (redisTemplate.opsForList().size(timelineKey) > FEEDTIMELINECOUNT)
                         redisTemplate.opsForList().rightPop(timelineKey);
@@ -180,6 +183,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             }
         }
     }
+
 
 
     @KafkaListener(topics = {TOPIC_VIEW})
@@ -210,7 +214,6 @@ public class EventConsumer extends BaseController implements CommunityConstant {
                         redisTemplate.opsForList().rightPop(timelineKey);
                 }
             }
-
         }
     }
 
@@ -254,12 +257,11 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             for (Map<String, Object> userAndFollowTime : followers) {
                 User user = (User) (userAndFollowTime.get("user"));
                 if ((int) ((new Date().getTime() - user.getLoginTime().getTime()) / (1000 * 3600 * 24)) < 5) {
+
                     // 把这个feed扔到redis的timeline中
-                    // 如果5天内登录过，则更新5天，
-                    // 如果5天内没有登录，那么5天后这个key就会消失，这样当用户登录后就无法从redis中取，所以就从数据库中取。
                     String timelineKey = RedisKeyUtil.getLatestTimelineKey(user.getId());
-                    redisTemplate.expire(timelineKey,5, TimeUnit.DAYS);
                     redisTemplate.opsForList().leftPush(timelineKey, feed);
+
                     // 限制最长长度，如果timelineKey的长度过大，就删除后面的新鲜事
                     while (redisTemplate.opsForList().size(timelineKey) > FEEDTIMELINECOUNT)
                         redisTemplate.opsForList().rightPop(timelineKey);
@@ -269,6 +271,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
 
 
     }
+
+
 
     // 消费删帖事件
     @KafkaListener(topics = {TOPIC_DELETE})
@@ -286,6 +290,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
 
         elasticsearchService.deleteDiscussPost(event.getEntityId());
     }
+
+
 
     // 消费分享事件
     @KafkaListener(topics = TOPIC_SHARE)
@@ -343,6 +349,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             this.future = future;
         }
 
+        // 0.5秒执行一次，如果执行时间过长，则任务取消，如果上传次数较多，则任务取消，如果任务执行成功，则任务取消（不取消0.5秒后又会执行），
+        // 如果执行过程中出现了异常，则记录日志后，等待0.5秒后被重新调用
         @Override
         public void run() {
             // 生成失败
@@ -390,6 +398,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             }
         }
     }
+
+
 
     private static int topicToFeedType(String topic) {
         if (topic.equals(TOPIC_LIKE))
