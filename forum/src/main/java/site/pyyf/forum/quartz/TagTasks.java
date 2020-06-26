@@ -30,7 +30,7 @@ public class TagTasks {
     @PostConstruct
     @Scheduled(fixedRate = 1000 * 60 * 60 * 3)
     public void hotTagSchedule() {
-        //分批次取数据进行统计
+        /* 1. 分批次取数据进行统计 */
         int offset = 0;
         int limit = 20;
         log.info("hotTagSchedule start {}", new Date());
@@ -53,7 +53,7 @@ public class TagTasks {
             offset += limit;
         }
 
-        /* ------------------- 根据每个标签名搜出对应的帖子数量，并统计帖子总分，组成一个tag ----------------- */
+        /* 2. 根据每个标签名搜出对应的帖子数量，并统计帖子总分，组成一个tag  */
         List<Tag> tagsVO = new ArrayList<>();
         for(String tagName: allTags){
             discussPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().tags(tagName).build());
@@ -71,7 +71,7 @@ public class TagTasks {
             tagsVO.add(tag);
         }
 
-        /* ------------------- 将tagsVO通过updateTags进行处理 ----------------- */
+        /* 3. 将tagsVO通过updateTags进行处理 */
         tagCache.setTags(tagsVO);
         log.info("tagSchedule stop {}", new Date());
     }

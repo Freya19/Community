@@ -21,12 +21,14 @@ public class DataService  extends BaseService  implements IDataSevice {
     private SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 
     // 将指定的IP计入UV
+    @Override
     public void recordUV(String ip) {
         String redisKey = RedisKeyUtil.getUVKey(df.format(new Date()));
         redisTemplate.opsForHyperLogLog().add(redisKey, ip);
     }
 
     // 统计指定日期范围内的UV
+    @Override
     public long calculateUV(Date start, Date end) {
         if (start == null || end == null) {
             throw new IllegalArgumentException("参数不能为空!");
@@ -51,12 +53,14 @@ public class DataService  extends BaseService  implements IDataSevice {
     }
 
     // 将指定用户计入DAU
+    @Override
     public void recordDAU(int userId) {
         String redisKey = RedisKeyUtil.getDAUKey(df.format(new Date()));
         redisTemplate.opsForValue().setBit(redisKey, userId, true);
     }
 
     // 统计指定日期范围内的DAU
+    @Override
     public long calculateDAU(Date start, Date end) {
         if (start == null || end == null) {
             throw new IllegalArgumentException("参数不能为空!");

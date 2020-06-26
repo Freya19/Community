@@ -126,6 +126,7 @@ public class MessageController extends CommunityBaseController implements Commun
         Message message = new Message();
         message.setFromId(hostHolder.getUser().getId());
         message.setToId(target.getId());
+
         //生成conversationId的时候，将小的userId放在前面，这样查询时快
         if (message.getFromId() < message.getToId()) {
             message.setConversationId(message.getFromId() + "_" + message.getToId());
@@ -138,6 +139,8 @@ public class MessageController extends CommunityBaseController implements Commun
 
         return CommunityUtil.getJSONString(0);
     }
+
+
 
     @RequestMapping(path = "/notices", method = RequestMethod.GET)
     public String getNoticeList(Model model) {
@@ -220,6 +223,7 @@ public class MessageController extends CommunityBaseController implements Commun
         return "forum/notice";
     }
 
+
     @RequestMapping(path = "/notice/{topic}", method = RequestMethod.GET)
     public String getNoticeDetail(@PathVariable("topic") String topic, Page page, Model model) {
         User user = hostHolder.getUser();
@@ -242,7 +246,7 @@ public class MessageController extends CommunityBaseController implements Commun
                 map.put("entityType", data.get("entityType"));
                 map.put("entityId", data.get("entityId"));
                 map.put("postId", data.get("postId"));
-                // 通知作者
+                // 通知的发出者，A点赞B，则fromUser是A，所以准确的说是消息的发出者
                 map.put("fromUser",iUserService.queryById((Integer) data.get("userId")));
                 noticeVoList.add(map);
             }

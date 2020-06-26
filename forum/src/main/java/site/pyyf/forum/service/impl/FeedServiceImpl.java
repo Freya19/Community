@@ -10,7 +10,6 @@ import site.pyyf.forum.service.IFeedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,8 +43,8 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
         feeds = redisTemplate.opsForList().range(timelinePersistenceKey, 0, -1);
 
         //redis中没有，则再从数据库中取
-        if(feeds.size()==0){
-            final List<Integer> followerIds = iFollowService.findFollowers(hostHolder.getUser().getId(), 0, Integer.MAX_VALUE).stream().map(m -> {
+        if(feeds==null || feeds.size()==0){
+            final List<Integer> followerIds = iFollowService.findFans(hostHolder.getUser().getId(), 0, Integer.MAX_VALUE).stream().map(m -> {
                 return ((User) m.get("user")).getId();
             }).collect(Collectors.toList());
 
