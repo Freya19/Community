@@ -19,7 +19,9 @@ import java.util.*;
 @Controller
 public class MessageController extends CommunityBaseController implements CommunityConstant {
 
-    // 私信列表
+    /**
+     * 私信列表
+     */
     @RequestMapping(path = "/letters", method = RequestMethod.GET)
     public String getLetterList(Model model, Page page) {
         User user = hostHolder.getUser();
@@ -124,6 +126,7 @@ public class MessageController extends CommunityBaseController implements Commun
         Message message = new Message();
         message.setFromId(hostHolder.getUser().getId());
         message.setToId(target.getId());
+        //生成conversationId的时候，将小的userId放在前面，这样查询时快
         if (message.getFromId() < message.getToId()) {
             message.setConversationId(message.getFromId() + "_" + message.getToId());
         } else {
