@@ -47,8 +47,10 @@ public class FeedController extends CommunityBaseController implements Community
         String tagKey = RedisKeyUtil.getPersistenceViewTagsKey(hostHolder.getUser().getId());
         List<String> tags = redisTemplate.opsForList().range(tagKey, 0, -1);
 
+        //取 FEEDTIMELINECOUNT 条feed
         List<Feed> feeds = iFeedService.getFeeds();
 
+        //对feed进行整理
         final Set<Feed> published = feeds.stream().filter(feed -> {
             return feed.getFeedType() == FEED_PUBLISH;
         }).collect(Collectors.toSet());
@@ -70,18 +72,20 @@ public class FeedController extends CommunityBaseController implements Community
                         commented.stream().map(feed -> {
                             return (Integer) feed.getEntityId();
                         }).collect(Collectors.toList()),
-                        tags, 5, page.getOffset(), page.getLimit());
+                        tags, 5,
+                        page.getOffset(), page.getLimit());
 
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         if (discussPosts != null) {
             for (DiscussPost post : discussPosts) {
 
                 Map<String, Object> discussPostVO = new HashMap<>();
+                //判断postId 是否在这三个集合中，如果在，则加上相应的文字
                 String feedContent = iFeedService.getFeedContentByPostId(post.getId(), published, liked, commented);
                 if (feedContent.length() > 0) {
                     discussPostVO.put("feedContent", feedContent);
-                } else
-                    {//简单粗暴置空字符串，这样前端就好写了
+                } else {
+                    //简单粗暴置空字符串，这样前端就好写了
                     discussPostVO.put("feedContent", "");
                 }
                 discussPostVO.put("post", post);
@@ -141,7 +145,6 @@ public class FeedController extends CommunityBaseController implements Community
 
         model.addAttribute("user",iUserService.queryById(userId));
 
-
         List<Feed> feeds = iFeedService.queryAllByLimit(Feed.builder().entityType(ENTITY_TYPE_POST).userId(userId).build(), page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         for(Feed feed:feeds){
@@ -161,4 +164,7 @@ public class FeedController extends CommunityBaseController implements Community
 
         return "forum/feeds";
     }
+
+
+
 }

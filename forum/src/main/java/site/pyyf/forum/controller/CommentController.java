@@ -40,7 +40,7 @@ public class CommentController extends CommunityBaseController implements Commun
         eventProducer.fireEvent(event);
 
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
-            // 触发发帖事件
+            // 触发评论事件
             event = new Event()
                     .setTopic(TOPIC_COMMENT)
                     .setUserId(comment.getUserId())

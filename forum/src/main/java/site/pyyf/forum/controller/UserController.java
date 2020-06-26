@@ -163,10 +163,10 @@ public class UserController extends CommunityBaseController implements Community
         model.addAttribute("likeCount", likeCount);
 
         // 关注数量
-        Long followeeCount = iFollowService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        Long followeeCount = iFollowService.findFollowCount(userId, ENTITY_TYPE_USER);
         model.addAttribute("followeeCount", followeeCount);
         // 粉丝数量
-        Long followerCount = iFollowService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        Long followerCount = iFollowService.findFansCount(ENTITY_TYPE_USER, userId);
         model.addAttribute("followerCount", followerCount);
         // 是否已关注
         boolean hasFollowed = false;

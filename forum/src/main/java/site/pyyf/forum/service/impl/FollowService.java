@@ -15,34 +15,36 @@ import java.util.*;
 public class FollowService extends BaseService implements IFollowService,CommunityConstant{
 
 
+    @Override
     public void follow(int userId, int entityType, int entityId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
-                String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
-                String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
+                String followKey = RedisKeyUtil.getFollowKey(userId, entityType);
+                String fansKey = RedisKeyUtil.getFansKey(entityType, entityId);
 
                 operations.multi();
 
-                operations.opsForZSet().add(followeeKey, entityId, System.currentTimeMillis());
-                operations.opsForZSet().add(followerKey, userId, System.currentTimeMillis());
+                operations.opsForZSet().add(followKey, entityId, System.currentTimeMillis());
+                operations.opsForZSet().add(fansKey, userId, System.currentTimeMillis());
 
                 return operations.exec();
             }
         });
     }
 
+    @Override
     public void unfollow(int userId, int entityType, int entityId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
-                String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
-                String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
+                String followKey = RedisKeyUtil.getFollowKey(userId, entityType);
+                String fansKey = RedisKeyUtil.getFansKey(entityType, entityId);
 
                 operations.multi();
 
-                operations.opsForZSet().remove(followeeKey, entityId);
-                operations.opsForZSet().remove(followerKey, userId);
+                operations.opsForZSet().remove(followKey, entityId);
+                operations.opsForZSet().remove(fansKey, userId);
 
                 return operations.exec();
             }
@@ -50,27 +52,31 @@ public class FollowService extends BaseService implements IFollowService,Communi
     }
 
     // 查询关注的实体的数量
-    public Long findFolloweeCount(int userId, int entityType) {
-        String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
-        return redisTemplate.opsForZSet().zCard(followeeKey);
+    @Override
+    public Long findFollowCount(int userId, int entityType) {
+        String followKey = RedisKeyUtil.getFollowKey(userId, entityType);
+        return redisTemplate.opsForZSet().zCard(followKey);
     }
 
     // 查询实体的粉丝的数量
-    public Long findFollowerCount(int entityType, int entityId) {
-        String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
-        return redisTemplate.opsForZSet().zCard(followerKey);
+    @Override
+    public Long findFansCount(int entityType, int entityId) {
+        String fansKey = RedisKeyUtil.getFansKey(entityType, entityId);
+        return redisTemplate.opsForZSet().zCard(fansKey);
     }
 
     // 查询当前用户是否已关注该实体
+    @Override
     public boolean hasFollowed(int userId, int entityType, int entityId) {
-        String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
-        return redisTemplate.opsForZSet().score(followeeKey, entityId) != null;
+        String followKey = RedisKeyUtil.getFollowKey(userId, entityType);
+        return redisTemplate.opsForZSet().score(followKey, entityId) != null;
     }
 
     // 查询某用户关注的人
-    public List<Map<String, Object>> findFollowees(int userId, int offset, int limit) {
-        String followeeKey = RedisKeyUtil.getFolloweeKey(userId, ENTITY_TYPE_USER);
-        Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(followeeKey, offset, offset + limit - 1);
+    @Override
+    public List<Map<String, Object>> findFollow(int userId, int offset, int limit) {
+        String followKey = RedisKeyUtil.getFollowKey(userId, ENTITY_TYPE_USER);
+        Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(followKey, offset, offset + limit - 1);
 
         if (targetIds == null) {
             return null;
@@ -81,7 +87,7 @@ public class FollowService extends BaseService implements IFollowService,Communi
             Map<String, Object> map = new HashMap<>();
             User user = iUserService.queryById(targetId);
             map.put("user", user);
-            Double score = redisTemplate.opsForZSet().score(followeeKey, targetId);
+            Double score = redisTemplate.opsForZSet().score(followKey, targetId);
             map.put("followTime", new Date(score.longValue()));
             list.add(map);
         }
@@ -90,9 +96,10 @@ public class FollowService extends BaseService implements IFollowService,Communi
     }
 
     // 查询某用户的粉丝
-    public List<Map<String, Object>> findFollowers(int userId, int offset, int limit) {
-        String followerKey = RedisKeyUtil.getFollowerKey(ENTITY_TYPE_USER, userId);
-        Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(followerKey, offset, offset + limit - 1);
+    @Override
+    public List<Map<String, Object>> findFans(int userId, int offset, int limit) {
+        String fansKey = RedisKeyUtil.getFansKey(ENTITY_TYPE_USER, userId);
+        Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(fansKey, offset, offset + limit - 1);
 
         if (targetIds == null) {
             return null;
@@ -103,7 +110,7 @@ public class FollowService extends BaseService implements IFollowService,Communi
             Map<String, Object> map = new HashMap<>();
             User user = iUserService.queryById(targetId);
             map.put("user", user);
-            Double score = redisTemplate.opsForZSet().score(followerKey, targetId);
+            Double score = redisTemplate.opsForZSet().score(fansKey, targetId);
             map.put("followTime", new Date(score.longValue()));
             list.add(map);
         }

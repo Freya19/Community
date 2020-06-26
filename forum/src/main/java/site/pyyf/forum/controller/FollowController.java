@@ -18,7 +18,6 @@ import java.util.Map;
 @Controller
 public class FollowController extends CommunityBaseController implements CommunityConstant {
 
-
     @RequestMapping(path = "/follow", method = RequestMethod.POST)
     @ResponseBody
     public String follow(int entityType, int entityId) {
@@ -49,7 +48,7 @@ public class FollowController extends CommunityBaseController implements Communi
     }
 
     @RequestMapping(path = "/followees/{userId}", method = RequestMethod.GET)
-    public String getFollowees(@PathVariable("userId") int userId, Page page, Model model) {
+    public String getFollow(@PathVariable("userId") int userId, Page page, Model model) {
         User user = iUserService.queryById(userId);
         if (user == null) {
             throw new RuntimeException("该用户不存在!");
@@ -58,9 +57,9 @@ public class FollowController extends CommunityBaseController implements Communi
 
         page.setLimit(5);
         page.setPath("/followees/" + userId);
-        page.setRows((int)(long) iFollowService.findFolloweeCount(userId, ENTITY_TYPE_USER));
+        page.setRows((int)(long) iFollowService.findFollowCount(userId, ENTITY_TYPE_USER));
 
-        List<Map<String, Object>> userList = iFollowService.findFollowees(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> userList = iFollowService.findFollow(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {
                 User u = (User) map.get("user");
@@ -73,7 +72,7 @@ public class FollowController extends CommunityBaseController implements Communi
     }
 
     @RequestMapping(path = "/followers/{userId}", method = RequestMethod.GET)
-    public String getFollowers(@PathVariable("userId") int userId, Page page, Model model) {
+    public String getFans(@PathVariable("userId") int userId, Page page, Model model) {
         User user = iUserService.queryById(userId);
         if (user == null) {
             throw new RuntimeException("该用户不存在!");
@@ -82,9 +81,9 @@ public class FollowController extends CommunityBaseController implements Communi
 
         page.setLimit(5);
         page.setPath("/followers/" + userId);
-        page.setRows((int)(long) iFollowService.findFollowerCount(ENTITY_TYPE_USER, userId));
+        page.setRows((int)(long) iFollowService.findFansCount(ENTITY_TYPE_USER, userId));
 
-        List<Map<String, Object>> userList = iFollowService.findFollowers(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> userList = iFollowService.findFans(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {
                 User u = (User) map.get("user");

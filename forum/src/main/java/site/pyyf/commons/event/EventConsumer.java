@@ -30,7 +30,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import site.pyyf.forum.entity.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class EventConsumer extends BaseController implements CommunityConstant {
@@ -166,7 +164,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
 
 
             // 获得所有粉丝
-            List<Map<String, Object>> followers = iFollowService.findFollowers(feed.getUserId(), 0, Integer.MAX_VALUE);
+            List<Map<String, Object>> followers = iFollowService.findFans(feed.getUserId(), 0, Integer.MAX_VALUE);
 
             // 给所有5天内登陆过的粉丝推事件
             for (Map<String, Object> userAndFollowTime : followers) {
@@ -251,7 +249,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
 
 
             // 获得所有粉丝
-            List<Map<String, Object>> followers = iFollowService.findFollowers(feed.getUserId(), 0, Integer.MAX_VALUE);
+            List<Map<String, Object>> followers = iFollowService.findFans(feed.getUserId(), 0, Integer.MAX_VALUE);
 
             // 给所有5天内登陆过的粉丝推事件
             for (Map<String, Object> userAndFollowTime : followers) {
