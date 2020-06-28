@@ -107,7 +107,7 @@ public class FeedController extends CommunityBaseController implements Community
         List<Tag> hotTags = tagCache.getShowTags();
         model.addAttribute("hotTags", hotTags);
 
-        /* ------------------- 热门问题 ----------------- */
+        //  热门问题
         List<DiscussPost> hotPosts = iDiscussPostService
                 .queryAllByLimit(DiscussPost.builder().userId(-1).tags("-1").build(), ORDER_TOPANDSCORE, 0, 5);
         model.addAttribute("hotPosts", hotPosts);
