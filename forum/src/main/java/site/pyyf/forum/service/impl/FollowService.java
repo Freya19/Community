@@ -15,19 +15,28 @@ import java.util.*;
 public class FollowService extends BaseService implements IFollowService,CommunityConstant{
 
 
+    /**
+     * 存储两次：关注的目标、粉丝。所以一项业务有两次存储，所以要保证事务
+     * @param userId “我 ”
+     * @param entityType  关注的目标可以是 用户、帖子、题目等  ———————— 统一定义为 Entity
+     * @param entityId  实体的id
+     */
     @Override
     public void follow(int userId, int entityType, int entityId) {
+        //添加事务
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
                 String followKey = RedisKeyUtil.getFollowKey(userId, entityType);
                 String fansKey = RedisKeyUtil.getFansKey(entityType, entityId);
 
+                //启动事务
                 operations.multi();
 
                 operations.opsForZSet().add(followKey, entityId, System.currentTimeMillis());
                 operations.opsForZSet().add(fansKey, userId, System.currentTimeMillis());
 
+                //提交事务
                 return operations.exec();
             }
         });
