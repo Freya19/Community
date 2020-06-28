@@ -44,13 +44,14 @@ public class FeedController extends CommunityBaseController implements Community
 
         List<DiscussPost> discussPosts = null;
 
+        //1. 取用户最近看的若干个tag，直接从redis中取（tag不过期）
         String tagKey = RedisKeyUtil.getPersistenceViewTagsKey(hostHolder.getUser().getId());
         List<String> tags = redisTemplate.opsForList().range(tagKey, 0, -1);
 
-        //取 FEEDTIMELINECOUNT 条feed
-        List<Feed> feeds = iFeedService.getFeeds();
+        //2. 取当前用户关注的人的最新的N条feed，redis中有则从redis中拿，没有则从数据库中拿
+        List<Feed> feeds = iFeedService.getFeeds(hostHolder.getUser().getId());
 
-        //对feed进行整理
+        //3. 对feed进行整理，将发布，点赞，评论分开
         final Set<Feed> published = feeds.stream().filter(feed -> {
             return feed.getFeedType() == FEED_PUBLISH;
         }).collect(Collectors.toSet());
@@ -61,6 +62,7 @@ public class FeedController extends CommunityBaseController implements Community
             return feed.getFeedType() == FEED_COMMENT;
         }).collect(Collectors.toSet());
 
+        //4. 根据所有的发布. 点赞. 评论. 标签搜索对应的帖子，并page
         discussPosts = iDiscussPostService
                 .queryAllByLimitByPersonalized(
                         published.stream().map(feed -> {
@@ -75,12 +77,13 @@ public class FeedController extends CommunityBaseController implements Community
                         tags, 5,
                         page.getOffset(), page.getLimit());
 
+        //5. 对于所有的帖子，如果是关注的人发布. 点赞. 评论，则生成对应的feedContent传给前端
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         if (discussPosts != null) {
             for (DiscussPost post : discussPosts) {
 
                 Map<String, Object> discussPostVO = new HashMap<>();
-                //判断postId 是否在这三个集合中，如果在，则加上相应的文字
+                //5.1 判断postId 是否在这三个集合中，如果在，则加上相应的文字
                 String feedContent = iFeedService.getFeedContentByPostId(post.getId(), published, liked, commented);
                 if (feedContent.length() > 0) {
                     discussPostVO.put("feedContent", feedContent);

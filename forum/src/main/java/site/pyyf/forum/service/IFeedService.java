@@ -15,7 +15,7 @@ public interface IFeedService {
 
     Feed getById(int id);
 
-    List<Feed> getFeeds();
+    List<Feed> getFeeds(int userId);
 
     String getFeedContentByPostId(Integer postId, Set<Feed> published, Set<Feed> liked, Set<Feed> commented);
 

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class FeedServiceImpl extends CommunityBaseController implements IFeedService, CommunityConstant {
+
     @Autowired
     IFeedMapper iFeedMapper;
 
@@ -35,7 +36,7 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
 
 
     @Override
-    public List<Feed> getFeeds() {
+    public List<Feed> getFeeds(int userId) {
         List<Feed> feeds = null;
 
         String timelinePersistenceKey = RedisKeyUtil.getPersistenceTimelineKey(hostHolder.getUser().getId());
@@ -44,11 +45,11 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
 
         //redis中没有，则再从数据库中取
         if(feeds==null || feeds.size()==0){
-            final List<Integer> followerIds = iFollowService.findFans(hostHolder.getUser().getId(), 0, Integer.MAX_VALUE).stream().map(m -> {
+            final List<Integer> followIds = iFollowService.findFollow(userId, 0, Integer.MAX_VALUE).stream().map(m -> {
                 return ((User) m.get("user")).getId();
             }).collect(Collectors.toList());
 
-            feeds = getUserFeeds(followerIds, ENTITY_TYPE_POST, FEEDTIMELINECOUNT);
+            feeds = getUserFeeds(followIds, ENTITY_TYPE_POST, FEEDTIMELINECOUNT);
         }
         return feeds;
     }

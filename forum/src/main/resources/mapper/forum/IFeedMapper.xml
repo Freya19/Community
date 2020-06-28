@@ -219,7 +219,7 @@
             </foreach>
         </if>
         where  entity_type = ${entityType}
-        ORDER BY feed_type DESC
+        ORDER BY create_time DESC
         LIMIT #{count}
     </select>
 </mapper>
