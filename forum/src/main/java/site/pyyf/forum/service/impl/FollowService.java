@@ -16,6 +16,7 @@ public class FollowService extends BaseService implements IFollowService,Communi
 
 
     /**
+     * 关注和取关模块都是操作 Redis（因为快，操作频繁）
      * 存储两次：关注的目标、粉丝。所以一项业务有两次存储，所以要保证事务
      * @param userId “我 ”
      * @param entityType  关注的目标可以是 用户、帖子、题目等  ———————— 统一定义为 Entity

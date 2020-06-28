@@ -23,7 +23,7 @@ public class CommentController extends CommunityBaseController implements Commun
         comment.setCreateTime(new Date());
         iCommentService.insert(comment);
 
-        // 触发评论事件
+        // 1. 触发评论事件 ---
         Event event = new Event()
                 .setTopic(TOPIC_COMMENT)
                 .setUserId(hostHolder.getUser().getId())
