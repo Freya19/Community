@@ -51,7 +51,7 @@ public class HomeController extends CommunityBaseController implements Community
         Set<Feed> liked = null;
         Set<Feed> commented = null;
         if(hostHolder.getUser()!=null){
-            feeds = iFeedService.getFeeds();
+            feeds = iFeedService.getFeeds(hostHolder.getUser().getId());
             published = feeds.stream().filter(feed -> {
                 return feed.getFeedType() == FEED_PUBLISH;
             }).collect(Collectors.toSet());
