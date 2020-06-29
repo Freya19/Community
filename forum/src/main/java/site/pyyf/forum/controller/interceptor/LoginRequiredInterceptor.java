@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
+@Deprecated
 @Component
 public class LoginRequiredInterceptor implements HandlerInterceptor {
 
@@ -18,7 +19,7 @@ public class LoginRequiredInterceptor implements HandlerInterceptor {
     private HostHolder hostHolder;
 
     /**
-     * 需要拦截器拦截是否登录
+     * 需要拦截器拦截是否登录（但是后面用spring security替代了）
      * @param request 请求
      * @param response 响应
      * @param handler

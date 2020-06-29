@@ -24,7 +24,6 @@ public class FollowService extends BaseService implements IFollowService,Communi
      */
     @Override
     public void follow(int userId, int entityType, int entityId) {
-        //添加事务
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
