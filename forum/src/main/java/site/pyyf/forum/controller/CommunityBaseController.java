@@ -81,26 +81,26 @@ public class CommunityBaseController {
      * 获取用户是否登录的状态以及用户类型是否是管理员
      * isAdmin：0-非管理员; 1-超级管理员;
      *
-     * @param request
-     * @param response
      */
     @ModelAttribute
-    public void setReqAndRes(Model model, HttpServletRequest request, HttpServletResponse response) {
+    public void setReqAndRes(Model model) {
         User loginUser = hostHolder.getUser();
+        // 1. 告诉前端用户是否登录
         if (loginUser != null) {
             model.addAttribute("hasLogin", "1");
         } else {
             model.addAttribute("hasLogin", "0");
         }
 
-        //获取前端当前登录用户
+        // 2. 告诉前端当前登录用户
         if(hostHolder.getUser()==null) {
             model.addAttribute("loginUserId","-1");
         } else {
             model.addAttribute("loginUserId",hostHolder.getUser().getId());
         }
 
-        //用户类型为1和2 即具有管理员权限
+        // 3. 告诉前端是否是管理员
+        // 用户类型为1和2 即具有管理员权限
         model.addAttribute("isAdmin",
                 hostHolder.getUser() != null && (hostHolder.getUser().getUserType() == 1 || hostHolder.getUser().getUserType() == 2) ? 1 : 0);
     }

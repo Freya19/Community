@@ -108,18 +108,18 @@ public class FollowService extends BaseService implements IFollowService,Communi
     @Override
     public List<Map<String, Object>> findFans(int userId, int offset, int limit) {
         String fansKey = RedisKeyUtil.getFansKey(ENTITY_TYPE_USER, userId);
-        Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(fansKey, offset, offset + limit - 1);
+        Set<Integer> fansIds = redisTemplate.opsForZSet().reverseRange(fansKey, offset, offset + limit - 1);
 
-        if (targetIds == null) {
+        if (fansIds == null) {
             return null;
         }
 
         List<Map<String, Object>> list = new ArrayList<>();
-        for (Integer targetId : targetIds) {
+        for (Integer fansId : fansIds) {
             Map<String, Object> map = new HashMap<>();
-            User user = iUserService.queryById(targetId);
+            User user = iUserService.queryById(fansId);
             map.put("user", user);
-            Double score = redisTemplate.opsForZSet().score(fansKey, targetId);
+            Double score = redisTemplate.opsForZSet().score(fansKey, fansId);
             map.put("followTime", new Date(score.longValue()));
             list.add(map);
         }
