@@ -400,14 +400,15 @@ public class EventConsumer extends BaseController implements CommunityConstant {
 
 
     private static int topicToFeedType(String topic) {
-        if (topic.equals(TOPIC_LIKE))
+        if (topic.equals(TOPIC_LIKE)) {
             return FEED_LIKE;
-        else if (topic.equals(TOPIC_COMMENT))
+        } else if (topic.equals(TOPIC_COMMENT)) {
             return FEED_COMMENT;
-        else if (topic.equals(TOPIC_PUBLISH))
+        } else if (topic.equals(TOPIC_PUBLISH)) {
             return FEED_PUBLISH;
-        else
+        } else {
             throw new RuntimeException("无效的类别参数");
+        }
     }
 
 
