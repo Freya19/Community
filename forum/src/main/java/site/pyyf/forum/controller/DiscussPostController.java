@@ -106,6 +106,14 @@ public class DiscussPostController extends CommunityBaseController implements Co
         page.setRows(post.getCommentCount());
 
         // 2. 获取帖子的评论列表。评论: 给帖子的评论 ; 回复: 给评论的评论
+        /**
+         * 获取评论列表总过程：
+         * 1. 根据帖子找到所有的直接评论（通过帖子和帖子id字段）
+         * 2. 根据每个评论找到评论的回复（通过评论和评论id字段）
+         *   2.1 找到评论的回复时将目标target找到，前端可以显示 Gepeng18 回复 Freya
+         *   2.2 有的是直接评论评论，所以targetId=0,这时前端不显示；
+         *   2.3 如果是回复评论的，则targetId=对应的userId,这时需要将user取出
+         */
         List<Comment> commentList = iCommentService.queryAllByLimit(
                 Comment.builder().entityType(ENTITY_TYPE_POST).entityId(post.getId()).build()
                 , page.getOffset(), page.getLimit());
@@ -163,11 +171,11 @@ public class DiscussPostController extends CommunityBaseController implements Co
             }
         }
         model.addAttribute("comments", commentVoList);
+
         // 3. 热门问题
         List<DiscussPost> hotPosts = iDiscussPostService
                 .queryAllByLimit(DiscussPost.builder().userId(-1).tags("-1").build(),3, 0, 5);
         model.addAttribute("hotPosts", hotPosts);
-
 
         //4. 相关问题
         int relatedPostsCount  = 7;

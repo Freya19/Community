@@ -31,6 +31,8 @@ public class CommentController extends CommunityBaseController implements Commun
                 .setEntityType(comment.getEntityType())
                 .setEntityId(comment.getEntityId())
                 .setData("postId", discussPostId);
+
+        //通知哪位少侠
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
             DiscussPost target = iDiscussPostService.findDiscussPostById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
