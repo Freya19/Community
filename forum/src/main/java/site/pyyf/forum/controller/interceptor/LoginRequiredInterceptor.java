@@ -11,6 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
+/**
+ * 使用spring security进行替代
+ */
 @Deprecated
 @Component
 public class LoginRequiredInterceptor implements HandlerInterceptor {
