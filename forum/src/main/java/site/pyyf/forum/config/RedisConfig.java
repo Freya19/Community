@@ -6,6 +6,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import java.util.Date;
+
 @Configuration
 public class RedisConfig {
 
@@ -25,6 +27,7 @@ public class RedisConfig {
 
         template.afterPropertiesSet();
         return template;
+
     }
 
 }

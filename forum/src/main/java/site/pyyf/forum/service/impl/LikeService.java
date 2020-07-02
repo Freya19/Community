@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class LikeService extends BaseService implements ILikeService {
 
     // 点赞
+    @Override
     public void like(int userId, int entityType, int entityId, int entityUserId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
@@ -36,18 +37,21 @@ public class LikeService extends BaseService implements ILikeService {
     }
 
     // 查询某实体点赞的数量
+    @Override
     public Long findEntityLikeCount(int entityType, int entityId) {
         String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType, entityId);
         return redisTemplate.opsForSet().size(entityLikeKey);
     }
 
     // 查询某人对某实体的点赞状态
+    @Override
     public int findEntityLikeStatus(int userId, int entityType, int entityId) {
         String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType, entityId);
         return redisTemplate.opsForSet().isMember(entityLikeKey, userId) ? 1 : 0;
     }
 
     // 查询某个用户获得的赞
+    @Override
     public int findUserLikeCount(int userId) {
         String userLikeKey = RedisKeyUtil.getUserLikeKey(userId);
         Integer count = (Integer) redisTemplate.opsForValue().get(userLikeKey);

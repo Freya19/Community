@@ -122,7 +122,6 @@ public class ElasticsearchService extends BaseService implements IElasticsearchS
 
 
     @Override
-    @Deprecated
     public Page<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
         NativeSearchQueryBuilder baseQuery = new NativeSearchQueryBuilder();
         boolean inQuery = false;

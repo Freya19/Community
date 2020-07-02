@@ -47,6 +47,10 @@ public class FollowController extends CommunityBaseController implements Communi
         return CommunityUtil.getJSONString(0, "已取消关注!");
     }
 
+    /**
+     * 获取userId用户关注的人
+     * @return
+     */
     @RequestMapping(path = "/followees/{userId}", method = RequestMethod.GET)
     public String getFollow(@PathVariable("userId") int userId, Page page, Model model) {
         User user = iUserService.queryById(userId);
@@ -59,6 +63,7 @@ public class FollowController extends CommunityBaseController implements Communi
         page.setPath("/followees/" + userId);
         page.setRows((int)(long) iFollowService.findFollowCount(userId, ENTITY_TYPE_USER));
 
+        //查询userId用户关注的人
         List<Map<String, Object>> userList = iFollowService.findFollow(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {
@@ -71,6 +76,13 @@ public class FollowController extends CommunityBaseController implements Communi
         return "forum/followee";
     }
 
+    /**
+     * 获取userId用户的粉丝
+     * @param userId
+     * @param page
+     * @param model
+     * @return
+     */
     @RequestMapping(path = "/followers/{userId}", method = RequestMethod.GET)
     public String getFans(@PathVariable("userId") int userId, Page page, Model model) {
         User user = iUserService.queryById(userId);
@@ -83,10 +95,12 @@ public class FollowController extends CommunityBaseController implements Communi
         page.setPath("/followers/" + userId);
         page.setRows((int)(long) iFollowService.findFansCount(ENTITY_TYPE_USER, userId));
 
+        // 1. 从Redis中查询userId用户的粉丝
         List<Map<String, Object>> userList = iFollowService.findFans(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {
                 User u = (User) map.get("user");
+                // 2. 记录userId用户的粉丝 userId用户是否关注了其粉丝
                 map.put("hasFollowed", hasFollowed(u.getId()));
             }
         }
