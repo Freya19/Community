@@ -50,14 +50,14 @@ public class ElasticsearchService extends BaseService implements IElasticsearchS
     /**
      * 第一版本，作为参考
      *
-     * @param keyword
+     * @param searchKey
      * @param current
      * @param limit
      * @return
      * @Override
-     * @Deprecated public Page<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
+     * @Deprecated public Page<DiscussPost> searchDiscussPost(String searchKey, int current, int limit) {
      * SearchQuery searchQuery = new NativeSearchQueryBuilder()
-     * .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
+     * .withQuery(QueryBuilders.multiMatchQuery(searchKey, "title", "content"))
      * .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
      * .withSort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
      * .withSort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
@@ -122,17 +122,22 @@ public class ElasticsearchService extends BaseService implements IElasticsearchS
 
 
     @Override
-    public Page<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
+    @Deprecated
+    public Page<DiscussPost> searchDiscussPost(String searchKey, int current, int limit) {
         NativeSearchQueryBuilder baseQuery = new NativeSearchQueryBuilder();
         boolean inQuery = false;
-        String[] inputFields = keyword.split(" ");
-        List<String> normalConditions = new ArrayList<>();
+        // 1. 用户输入的搜索条件按照空格分为若干部分
+        String[] inputFields = searchKey.split(" ");
 
+        // 2. 用户输入的搜索条件被分为两个部分，有:的部分则是条件部分，否则就是关键词部分
+        List<String> keyConditions = new ArrayList<>();
         for (String inputField : inputFields) {
             if (!inputField.contains(":")) {
-                normalConditions.add(inputField);
+                keyConditions.add(inputField);
             }
         }
+
+        // 3. 对于条件部分，则需要构建搜索条件
         for (String segment : inputFields) {
             if (segment.contains(":")) {
                 String[] splits = segment.split(":");
@@ -141,26 +146,29 @@ public class ElasticsearchService extends BaseService implements IElasticsearchS
                 String regrex = splits[0];
                 String condition = splits[1].trim();
                 if (regrex.equals("user")) {
-                    //是user，则后面传入的一定是用户名，所以根据用户名得到ID,在es中查ID
+                    // :前是user，则后面传入的一定是用户名，所以根据用户名得到ID,在es中查ID
                     List<User> users = iUserService.queryAll(User.builder().username(condition).build());
                     if (users.size() > 0) {
                         for (User user : users)
+                            // 构建条件
                             baseQuery = baseQuery.withQuery(QueryBuilders.multiMatchQuery(user.getId().toString(), "userId"));
                     }
                 } else if (regrex.equals("in")) {
-                    //将normalCondition中的所有条件都在condition中查一遍
-                    for (String normalCondition : normalConditions)
-                        baseQuery = baseQuery.withQuery(QueryBuilders.multiMatchQuery(normalCondition, condition));
+                    // :前是in, 则将keyCondition中的所有关键词都在condition中查一遍
+                    // 即 git 多线程 in tags  则将帖子的标签与git 多线程分别进行匹配
+                    for (String keyCondition : keyConditions)
+                        baseQuery = baseQuery.withQuery(QueryBuilders.multiMatchQuery(keyCondition, condition));
                     inQuery = true;
                 }
             }
         }
 
-        //只要没有in查询 ,则根据传来的条件需要匹配
+        //4. 只要没有in查询 ,则根据传来的条件进行匹配，这里匹配标题和内容
         if (!inQuery)
-            for (String normalCondition : normalConditions)
-                baseQuery = baseQuery.withQuery(QueryBuilders.multiMatchQuery(normalCondition, "title", "content"));
+            for (String keyCondition : keyConditions)
+                baseQuery = baseQuery.withQuery(QueryBuilders.multiMatchQuery(keyCondition, "title", "content"));
 
+        // 5. 继续构建搜索条件，按照类型降序(置顶. 精品. 普通)，按照分数和时间降序，分页，标题匹配到则高亮，内容匹配到则高亮
         SearchQuery searchQuery = baseQuery
                 .withSort(SortBuilders.scoreSort())
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
@@ -172,6 +180,7 @@ public class ElasticsearchService extends BaseService implements IElasticsearchS
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
                 ).build();
 
+        // 6. 将之前构建的搜索条件正式进行搜索，并将结果封装
         return elasticTemplate.queryForPage(searchQuery, DiscussPost.class, new SearchResultMapper() {
             @Override
             public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass, Pageable pageable) {

@@ -48,8 +48,7 @@ public class FollowController extends CommunityBaseController implements Communi
     }
 
     /**
-     * 获取userId用户关注的人
-     * @return
+     * 关注者
      */
     @RequestMapping(path = "/followees/{userId}", method = RequestMethod.GET)
     public String getFollow(@PathVariable("userId") int userId, Page page, Model model) {
@@ -77,11 +76,7 @@ public class FollowController extends CommunityBaseController implements Communi
     }
 
     /**
-     * 获取userId用户的粉丝
-     * @param userId
-     * @param page
-     * @param model
-     * @return
+     * fans
      */
     @RequestMapping(path = "/followers/{userId}", method = RequestMethod.GET)
     public String getFans(@PathVariable("userId") int userId, Page page, Model model) {

@@ -31,6 +31,8 @@ public class CommentController extends CommunityBaseController implements Commun
                 .setEntityType(comment.getEntityType())
                 .setEntityId(comment.getEntityId())
                 .setData("postId", discussPostId);
+
+        // 通知哪位少侠
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
             DiscussPost target = iDiscussPostService.findDiscussPostById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
@@ -40,15 +42,16 @@ public class CommentController extends CommunityBaseController implements Commun
         }
         eventProducer.fireEvent(event);
 
+        // 3. 触发发帖事件，交由异步处理，将帖子在ES中覆盖
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
-            // 3. 触发发帖事件，交由异步处理，将帖子在ES中覆盖
             event = new Event()
                     .setTopic((TOPIC_PUBLISH))
                     .setUserId(comment.getUserId())
                     .setEntityType(ENTITY_TYPE_POST)
                     .setEntityId(discussPostId);
             eventProducer.fireEvent(event);
-            // 4. 将帖子id加入Redis中，交由quartz计算帖子分数
+
+            // 4. 将帖子id加入Redis中，交由quartz计算帖子分数（增量计算）
             // 因为计算分数涉及的数据量比较多，所以只将变化（比如新增点赞、评论等）的帖子的id存入Redis中，然后交由Quartz定时取出，重新计算其分数
             String redisKey = RedisKeyUtil.getPostScoreKey();
             redisTemplate.opsForSet().add(redisKey, discussPostId);

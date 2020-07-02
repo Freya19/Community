@@ -36,22 +36,27 @@ public class MessageService extends BaseService implements IMessageService {
         return iMessageMapper.insert(message);
     }
 
+    @Override
     public int readMessage(List<Integer> ids) {
         return iMessageMapper.updateStatus(ids, 1);
     }
 
+    @Override
     public Message findLatestNotice(int userId, String topic) {
         return iMessageMapper.selectLatestNotice(userId, topic);
     }
 
+    @Override
     public int findNoticeCount(int userId, String topic) {
         return iMessageMapper.selectNoticeCount(userId, topic);
     }
 
+    @Override
     public int findNoticeUnreadCount(int userId, String topic) {
         return iMessageMapper.selectNoticeUnreadCount(userId, topic);
     }
 
+    @Override
     public List<Message> findNotices(int userId, String topic, int offset, int limit) {
         return iMessageMapper.selectNotices(userId, topic, offset, limit);
     }

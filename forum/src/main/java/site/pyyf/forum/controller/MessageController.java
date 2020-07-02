@@ -21,6 +21,7 @@ public class MessageController extends CommunityBaseController implements Commun
 
     /**
      * 私信列表
+     * a. 与useId相关 b. group by conversation_id c.每组中找个最大值(最新的）
      */
     @RequestMapping(path = "/letters", method = RequestMethod.GET)
     public String getLetterList(Model model, Page page) {
@@ -40,6 +41,7 @@ public class MessageController extends CommunityBaseController implements Commun
                 map.put("conversation", message);
                 map.put("letterCount", iMessageService.findLetterCount(message.getConversationId()));
                 map.put("unreadCount", iMessageService.findLetterUnreadCount(user.getId(), message.getConversationId()));
+                //对方用户，为了显示头像
                 int targetId = user.getId() == message.getFromId() ? message.getToId() : message.getFromId();
                 map.put("target", iUserService.queryById(targetId));
 
@@ -48,7 +50,7 @@ public class MessageController extends CommunityBaseController implements Commun
         }
         model.addAttribute("conversations", conversations);
 
-        // 查询未读消息数量
+        // 查询用户的所有未读消息数量
         int letterUnreadCount = iMessageService.findLetterUnreadCount(user.getId(), null);
         model.addAttribute("letterUnreadCount", letterUnreadCount);
         int noticeUnreadCount = iMessageService.findNoticeUnreadCount(user.getId(), null);
@@ -57,6 +59,10 @@ public class MessageController extends CommunityBaseController implements Commun
         return "forum/letter";
     }
 
+    /**
+     * 根据conversationId展示所有对话
+     * 并将返回的对话设置为已读
+     */
     @RequestMapping(path = "/letter/{conversationId}", method = RequestMethod.GET)
     public String getLetterDetail(@PathVariable("conversationId") String conversationId, Page page, Model model) {
         // 分页信息
@@ -115,6 +121,9 @@ public class MessageController extends CommunityBaseController implements Commun
         return ids;
     }
 
+    /**
+     * 发送私信，两个用户之间的私信conversationId相同，
+     */
     @RequestMapping(path = "/letter", method = RequestMethod.POST)
     @ResponseBody
     public String sendLetter(String toName, String content) {
@@ -127,7 +136,7 @@ public class MessageController extends CommunityBaseController implements Commun
         message.setFromId(hostHolder.getUser().getId());
         message.setToId(target.getId());
 
-        //生成conversationId的时候，将小的userId放在前面，这样查询时快
+        //生成conversationId的时候，将小的userId放在前面，这样查询方便
         if (message.getFromId() < message.getToId()) {
             message.setConversationId(message.getFromId() + "_" + message.getToId());
         } else {
@@ -141,7 +150,10 @@ public class MessageController extends CommunityBaseController implements Commun
     }
 
 
-
+    /**
+     * 查看通知列表，每种通知查出最新的一条数据
+     * （a. from 系统 b. to userId  c. topic 类型）
+     */
     @RequestMapping(path = "/notices", method = RequestMethod.GET)
     public String getNoticeList(Model model) {
         User user = hostHolder.getUser();
@@ -224,6 +236,10 @@ public class MessageController extends CommunityBaseController implements Commun
     }
 
 
+    /**
+     * 查看具体某一类的通知列表，根据topic查出所有通知
+     * （a. from 系统 b. to userId  c. topic 类型）
+     */
     @RequestMapping(path = "/notice/{topic}", method = RequestMethod.GET)
     public String getNoticeDetail(@PathVariable("topic") String topic, Page page, Model model) {
         User user = hostHolder.getUser();

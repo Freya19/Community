@@ -21,6 +21,8 @@ public class DiscussPostController extends CommunityBaseController implements Co
         return "forum/publish";
     }
 
+
+
     @RequestMapping(path="/edit/{discussPostId}",method = RequestMethod.GET)
     public String getEditPage(Model model,@PathVariable("discussPostId") int discussPostId){
         DiscussPost discussPost = iDiscussPostService.queryById(discussPostId);
@@ -33,13 +35,17 @@ public class DiscussPostController extends CommunityBaseController implements Co
     }
 
 
+
     @RequestMapping(method = RequestMethod.POST)
     public String addDiscussPost(DiscussPost discussPost) {
         User user = hostHolder.getUser();
+        // 1. tag验证
         if ( discussPost.getTags()==null || discussPost.getTags().equals("")) {
             discussPost.setTags("-1");
         }
 
+        // 2. 组建如果DiscussPost。传来的discussPost有id，那表明是修改完毕后发送，所以是更新，
+        //    因为getEditPage返回编辑窗口时，是将id也传给前端，而单纯的发布帖子是没有id的
         if(discussPost.getId()!=null){
             final DiscussPost update = DiscussPost.builder()
                     .id(discussPost.getId())
@@ -49,15 +55,17 @@ public class DiscussPostController extends CommunityBaseController implements Co
                     .content(discussPost.getContent())
                     .build();
 
-            //修改数据库以及elasticsearch
+            //3. 修改数据库
             iDiscussPostService.update(update);
+            //4. 更新elasticsearch
             elasticsearchService.saveDiscussPost(update);
 
         }else{
+            // 3. 插入数据库
             discussPost.setUserId(user.getId()).setCreateTime(new Date());
             iDiscussPostService.insert(discussPost);
 
-            // 触发发帖事件
+            // 4. 触发发帖事件更新es
             Event event = new Event()
                     .setTopic(TOPIC_PUBLISH)
                     .setUserId(user.getId())
@@ -66,18 +74,17 @@ public class DiscussPostController extends CommunityBaseController implements Co
             eventProducer.fireEvent(event);
         }
 
-        // 计算帖子分数
+        // 5. 计算帖子分数
         String redisKey = RedisKeyUtil.getPostScoreKey();
         redisTemplate.opsForSet().add(redisKey, discussPost.getId());
 
-        // 报错的情况,将来统一处理.
         return "redirect:/index";
     }
 
     @RequestMapping(path = "/{discussPostId}", method = RequestMethod.GET)
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
 
-        // 帖子
+        // 1. 获取指定帖子并为java代码添加编译模块
         DiscussPost post = iDiscussPostService.queryById(discussPostId);
         post.setContent(iCodePreviewService.addCompileModule(new StringBuilder(post.getContent()),"java",1).toString());
 
@@ -98,9 +105,15 @@ public class DiscussPostController extends CommunityBaseController implements Co
         page.setPath("/discuss/" + discussPostId);
         page.setRows(post.getCommentCount());
 
-        // 评论: 给帖子的评论
-        // 回复: 给评论的评论
-        // 评论列表
+        // 2. 获取帖子的评论列表。评论: 给帖子的评论 ; 回复: 给评论的评论
+        /**
+         * 获取评论列表总过程：
+         * 1. 根据帖子找到所有的直接评论（通过帖子和帖子id字段）
+         * 2. 根据每个评论找到评论的回复（通过评论和评论id字段）
+         *   2.1 找到评论的回复时将目标target找到，前端可以显示 Gepeng18 回复 Freya
+         *   2.2 有的是直接评论评论，所以targetId=0,这时前端不显示；
+         *   2.3 如果是回复评论的，则targetId=对应的userId,这时需要将user取出
+         */
         List<Comment> commentList = iCommentService.queryAllByLimit(
                 Comment.builder().entityType(ENTITY_TYPE_POST).entityId(post.getId()).build()
                 , page.getOffset(), page.getLimit());
@@ -158,14 +171,16 @@ public class DiscussPostController extends CommunityBaseController implements Co
             }
         }
         model.addAttribute("comments", commentVoList);
-        /* ------------------- 热门问题 ----------------- */
+
+        // 3. 热门问题
         List<DiscussPost> hotPosts = iDiscussPostService
                 .queryAllByLimit(DiscussPost.builder().userId(-1).tags("-1").build(),3, 0, 5);
         model.addAttribute("hotPosts", hotPosts);
-        /* ------------------- 相关问题 ----------------- */
+
+        //4. 相关问题
         int relatedPostsCount  = 7;
         List<DiscussPost> preRelatedPosts = iDiscussPostService.queryAllByLimit(DiscussPost.builder().userId(-1).tags(post.getTags()).build(), 1, 0, relatedPostsCount);
-        /* ------------------- 相关问题肯定不能包括自己，所以搜出5个，如果自己在就去掉自己，否则去掉最后一个 ----------------- */
+        //相关问题肯定不能包括自己，所以搜出relatedPostsCount个，如果自己在就去掉自己，否则去掉最后一个
         List<DiscussPost> relatedPosts = new ArrayList<>();
         for(DiscussPost  discussPost: preRelatedPosts)
             if(discussPost.getId() != discussPostId)
@@ -174,13 +189,14 @@ public class DiscussPostController extends CommunityBaseController implements Co
             relatedPosts.remove(relatedPosts.size()-1);
         model.addAttribute("relatedPosts",relatedPosts);
 
+
         if(hostHolder.getUser()!=null){
             Event event = new Event()
                     .setTopic(TOPIC_VIEW)
                     .setUserId(hostHolder.getUser().getId())
                     .setEntityType(ENTITY_TYPE_POST)
                     .setEntityId(discussPostId);
-            // 触发看帖事件
+            // 5. 触发看帖事件
             String[] tags = post.getTags().split(",|，");
             if(tags.length>0)
                 event.setData("viewTags",tags);
@@ -191,7 +207,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
     }
 
     /**
-     *  置顶
+     *  置顶，其实就是修改数据库的某一位
      * @param id
      * @return
      */
@@ -200,7 +216,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
     public String setTop(int id) {
         iDiscussPostService.updateType(id, 1);
 
-        // 触发发帖事件
+        // 触发发帖事件，使ES覆盖，因为es搜索出所有帖子后会按照类型排列，所以需要覆盖
         Event event = new Event()
                 .setTopic(TOPIC_PUBLISH)
                 .setUserId(hostHolder.getUser().getId())

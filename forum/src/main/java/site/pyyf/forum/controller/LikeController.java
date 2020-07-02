@@ -22,19 +22,19 @@ public class LikeController extends CommunityBaseController implements Community
     public String like(int entityType, int entityId, int entityUserId, int postId) {
         User user = hostHolder.getUser();
 
-        // 点赞
+        // 1. 点赞插入redis数据库（双向插入）
         iLikeService.like(user.getId(), entityType, entityId, entityUserId);
 
-        // 数量
+        // 2. 更新目标的点赞数量
         Long likeCount = iLikeService.findEntityLikeCount(entityType, entityId);
-        // 状态
+        // 3. 返回点赞状态，利于前端展示
         int likeStatus = iLikeService.findEntityLikeStatus(user.getId(), entityType, entityId);
         // 返回的结果
         Map<String, Object> map = new HashMap<>();
         map.put("likeCount", (long)likeCount);
         map.put("likeStatus", likeStatus);
 
-        // 触发点赞事件
+        // 4. 触发点赞事件，通知被点赞人
         if (likeStatus == 1) {
             Event event = new Event()
                     .setTopic(TOPIC_LIKE)
@@ -46,8 +46,8 @@ public class LikeController extends CommunityBaseController implements Community
             eventProducer.fireEvent(event);
         }
 
+        //5. 重新计算帖子分数
         if(entityType == ENTITY_TYPE_POST) {
-            // 计算帖子分数
             String redisKey = RedisKeyUtil.getPostScoreKey();
             redisTemplate.opsForSet().add(redisKey, postId);
         }

@@ -17,12 +17,14 @@ public class Event {
 
     private String topic;
 
+    /** 哪位少侠干的，对哪个对象干的（userId、entityType、entityId）*/
     private int userId;
 
     private int entityType;
 
     private int entityId;
 
+    /** 通知哪位少侠*/
     private int entityUserId;
 
     //附加信息

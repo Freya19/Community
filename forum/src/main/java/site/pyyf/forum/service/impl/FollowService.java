@@ -119,19 +119,19 @@ public class FollowService extends BaseService implements IFollowService,Communi
     public List<Map<String, Object>> findFans(int userId, int offset, int limit) {
         // Redis中获得粉丝集合
         String fansKey = RedisKeyUtil.getFansKey(ENTITY_TYPE_USER, userId);
-        Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(fansKey, offset, offset + limit - 1);
+        Set<Integer> fansIds = redisTemplate.opsForZSet().reverseRange(fansKey, offset, offset + limit - 1);
 
-        if (targetIds == null) {
+        if (fansIds == null) {
             return null;
         }
 
         // 从粉丝集合中取出 粉丝，关注时间，存入list
         List<Map<String, Object>> list = new ArrayList<>();
-        for (Integer targetId : targetIds) {
+        for (Integer fansId : fansIds) {
             Map<String, Object> map = new HashMap<>();
-            User user = iUserService.queryById(targetId);
+            User user = iUserService.queryById(fansId);
             map.put("user", user);
-            Double score = redisTemplate.opsForZSet().score(fansKey, targetId);
+            Double score = redisTemplate.opsForZSet().score(fansKey, fansId);
             map.put("followTime", new Date(score.longValue()));
             list.add(map);
         }
