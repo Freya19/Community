@@ -207,7 +207,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
     }
 
     /**
-     *  置顶
+     *  置顶，其实就是修改数据库的某一位
      * @param id
      * @return
      */
@@ -216,7 +216,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
     public String setTop(int id) {
         iDiscussPostService.updateType(id, 1);
 
-        // 触发发帖事件
+        // 触发发帖事件，使ES覆盖，因为es搜索出所有帖子后会按照类型排列，所以需要覆盖
         Event event = new Event()
                 .setTopic(TOPIC_PUBLISH)
                 .setUserId(hostHolder.getUser().getId())

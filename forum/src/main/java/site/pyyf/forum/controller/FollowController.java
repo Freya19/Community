@@ -47,6 +47,9 @@ public class FollowController extends CommunityBaseController implements Communi
         return CommunityUtil.getJSONString(0, "已取消关注!");
     }
 
+    /**
+     * 关注者
+     */
     @RequestMapping(path = "/followees/{userId}", method = RequestMethod.GET)
     public String getFollow(@PathVariable("userId") int userId, Page page, Model model) {
         User user = iUserService.queryById(userId);
@@ -71,6 +74,9 @@ public class FollowController extends CommunityBaseController implements Communi
         return "forum/followee";
     }
 
+    /**
+     * fans
+     */
     @RequestMapping(path = "/followers/{userId}", method = RequestMethod.GET)
     public String getFans(@PathVariable("userId") int userId, Page page, Model model) {
         User user = iUserService.queryById(userId);
