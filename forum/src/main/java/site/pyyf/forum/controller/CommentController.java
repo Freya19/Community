@@ -51,7 +51,7 @@ public class CommentController extends CommunityBaseController implements Commun
                     .setEntityId(discussPostId);
             eventProducer.fireEvent(event);
 
-            // 4. 将帖子id加入Redis中，交由quartz计算帖子分数
+            // 4. 将帖子id加入Redis中，交由quartz计算帖子分数（增量计算）
             // 因为计算分数涉及的数据量比较多，所以只将变化（比如新增点赞、评论等）的帖子的id存入Redis中，然后交由Quartz定时取出，重新计算其分数
             String redisKey = RedisKeyUtil.getPostScoreKey();
             redisTemplate.opsForSet().add(redisKey, discussPostId);
