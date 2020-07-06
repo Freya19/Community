@@ -30,6 +30,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import sun.net.www.content.image.png;
 
 import java.io.File;
 import java.io.IOException;
@@ -321,6 +322,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         // 启用定时器,监视该图片,一旦生成了,则上传至七牛云.
         UploadTask task = new UploadTask(fileName, suffix);
         Future future = taskScheduler.scheduleAtFixedRate(task, 500);
+
         task.setFuture(future);
     }
 
