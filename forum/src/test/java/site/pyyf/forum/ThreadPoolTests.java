@@ -111,7 +111,7 @@ public class ThreadPoolTests {
         };
 
         Date startTime = new Date(System.currentTimeMillis() + 10000);
-        taskScheduler.scheduleAtFixedRate(task, startTime, 1000);
+        taskScheduler.scheduleAtFixedRate(task,startTime,1000);
 
         sleep(30000);
     }
