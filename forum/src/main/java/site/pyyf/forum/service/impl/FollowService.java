@@ -74,14 +74,22 @@ public class FollowService extends BaseService implements IFollowService,Communi
         return redisTemplate.opsForZSet().zCard(fansKey);
     }
 
-    // 查询当前用户是否已关注该实体
+    /**
+     * 查询当前用户是否已关注该实体
+     */
     @Override
     public boolean hasFollowed(int userId, int entityType, int entityId) {
         String followKey = RedisKeyUtil.getFollowKey(userId, entityType);
         return redisTemplate.opsForZSet().score(followKey, entityId) != null;
     }
 
-    // 查询某用户关注的人
+    /**
+     * 查询userId用户关注的人
+     * @param userId
+     * @param offset
+     * @param limit
+     * @return
+     */
     @Override
     public List<Map<String, Object>> findFollow(int userId, int offset, int limit) {
         String followKey = RedisKeyUtil.getFollowKey(userId, ENTITY_TYPE_USER);
@@ -104,9 +112,12 @@ public class FollowService extends BaseService implements IFollowService,Communi
         return list;
     }
 
-    // 查询某用户的粉丝
+    /**
+     * 查询某用户的粉丝
+     */
     @Override
     public List<Map<String, Object>> findFans(int userId, int offset, int limit) {
+        // Redis中获得粉丝集合
         String fansKey = RedisKeyUtil.getFansKey(ENTITY_TYPE_USER, userId);
         Set<Integer> fansIds = redisTemplate.opsForZSet().reverseRange(fansKey, offset, offset + limit - 1);
 
@@ -114,6 +125,7 @@ public class FollowService extends BaseService implements IFollowService,Communi
             return null;
         }
 
+        // 从粉丝集合中取出 粉丝，关注时间，存入list
         List<Map<String, Object>> list = new ArrayList<>();
         for (Integer fansId : fansIds) {
             Map<String, Object> map = new HashMap<>();

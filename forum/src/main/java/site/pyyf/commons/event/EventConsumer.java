@@ -313,6 +313,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         String cmd = wkImageCommand + " --quality 75 "
                 + htmlUrl + " " + wkImageStorage + "/" + fileName + suffix;
         try {
+            // 实现了调用服务器命令脚本 来执行功能需要
             Runtime.getRuntime().exec(cmd);
             logger.info("生成长图成功: " + cmd);
         } catch (IOException e) {
@@ -382,7 +383,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
                     // 开始上传图片
                     Response response = manager.put(
                             path, fileName, uploadToken, null, "image/" + suffix, false);
-                    // 处理响应结果
+                    // 处理响应结果（转换为json对象）
                     JSONObject json = JSONObject.parseObject(response.bodyString());
                     if (json == null || json.get("code") == null || !json.get("code").toString().equals("0")) {
                         logger.info(String.format("第%d次上传失败[%s].", uploadTimes, fileName));

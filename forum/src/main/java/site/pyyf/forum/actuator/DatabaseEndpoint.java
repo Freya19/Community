@@ -12,6 +12,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+
+/**
+ * 帮助实现对程序内部运行情况监控，这里是对数据连接池：DataSource链接情况的监控
+ */
 @Component
 @Endpoint(id = "database")
 public class DatabaseEndpoint {
