@@ -212,6 +212,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         user.setUserType(0);
         user.setStatus(0);
         user.setActivationCode(CommunityUtil.generateUUID());
+        user.setLoginTime(new Date());
 
         //用户头像
         List<String> heads = iAliyunOssService.queryAll("community/header");
@@ -230,6 +231,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         context.setVariable("url", url);
         String content = templateEngine.process("mail/activation", context);
         mailClient.sendMail(user.getEmail(), "激活账号", content);
+
 
         return map;
     }

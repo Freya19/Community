@@ -17,12 +17,18 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
     @RequestMapping(method = RequestMethod.GET)
     public String getInputPage(Model model){
+        //获取发布页下面的所有标签
         model.addAttribute("tags", TagsVO.get());
         return "forum/publish";
     }
 
 
-
+    /**
+     * 编辑帖子
+     * @param model model
+     * @param discussPostId 帖子id
+     * @return 发布页面
+     */
     @RequestMapping(path="/edit/{discussPostId}",method = RequestMethod.GET)
     public String getEditPage(Model model,@PathVariable("discussPostId") int discussPostId){
         DiscussPost discussPost = iDiscussPostService.queryById(discussPostId);
@@ -35,7 +41,11 @@ public class DiscussPostController extends CommunityBaseController implements Co
     }
 
 
-
+    /**
+     * 新增帖子
+     * @param discussPost 帖子
+     * @return 首页
+     */
     @RequestMapping(method = RequestMethod.POST)
     public String addDiscussPost(DiscussPost discussPost) {
         User user = hostHolder.getUser();
@@ -44,9 +54,11 @@ public class DiscussPostController extends CommunityBaseController implements Co
             discussPost.setTags("-1");
         }
 
-        // 2. 组建如果DiscussPost。传来的discussPost有id，那表明是修改完毕后发送，所以是更新，
-        //    因为getEditPage返回编辑窗口时，是将id也传给前端，而单纯的发布帖子是没有id的
+        // 2. 组建如果DiscussPost。
+        //    传来的discussPost有id，那表明是修改完毕后发送，所以是更新，因为getEditPage返回编辑窗口时，是将id也传给前端;
+        //    而单纯的发布帖子是没有id的
         if(discussPost.getId()!=null){
+            // ---  更新帖子（编辑）----
             final DiscussPost update = DiscussPost.builder()
                     .id(discussPost.getId())
                     .tags(discussPost.getTags())
@@ -57,21 +69,32 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
             //3. 修改数据库
             iDiscussPostService.update(update);
-            //4. 更新elasticsearch
-            elasticsearchService.saveDiscussPost(update);
+            //4. 更新ES （ES-非关系型数据库）
+//            elasticsearchService.saveDiscussPost(update);
+            Event eventES = new Event()
+                    .setTopic(TOPIC_UPDATE_ES)
+                    .setEntityId(discussPost.getId());
+            eventProducer.fireEvent(eventES);
 
         }else{
+            //  -----  新增帖子  -------
             // 3. 插入数据库
             discussPost.setUserId(user.getId()).setCreateTime(new Date());
             iDiscussPostService.insert(discussPost);
 
-            // 4. 触发发帖事件更新es
-            Event event = new Event()
+            // 4. 触发更新ES事件
+            Event eventES = new Event()
+                    .setTopic(TOPIC_UPDATE_ES)
+                    .setEntityId(discussPost.getId());
+            eventProducer.fireEvent(eventES);
+
+            // 5. 触发发帖事件  ------ 给粉丝推送发帖动态
+            Event eventPublish = new Event()
                     .setTopic(TOPIC_PUBLISH)
                     .setUserId(user.getId())
                     .setEntityType(ENTITY_TYPE_POST)
                     .setEntityId(discussPost.getId());
-            eventProducer.fireEvent(event);
+            eventProducer.fireEvent(eventPublish);
         }
 
         // 5. 计算帖子分数
@@ -81,6 +104,9 @@ public class DiscussPostController extends CommunityBaseController implements Co
         return "redirect:/index";
     }
 
+    /**
+     * 查看帖子 ---- 主要涉及到看帖后 个性化推荐
+     */
     @RequestMapping(path = "/{discussPostId}", method = RequestMethod.GET)
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
 
@@ -189,14 +215,13 @@ public class DiscussPostController extends CommunityBaseController implements Co
             relatedPosts.remove(relatedPosts.size()-1);
         model.addAttribute("relatedPosts",relatedPosts);
 
-
         if(hostHolder.getUser()!=null){
             Event event = new Event()
                     .setTopic(TOPIC_VIEW)
                     .setUserId(hostHolder.getUser().getId())
                     .setEntityType(ENTITY_TYPE_POST)
                     .setEntityId(discussPostId);
-            // 5. 触发看帖事件
+            // 5. 触发看帖事件 ----
             String[] tags = post.getTags().split(",|，");
             if(tags.length>0)
                 event.setData("viewTags",tags);
@@ -207,20 +232,17 @@ public class DiscussPostController extends CommunityBaseController implements Co
     }
 
     /**
-     *  置顶，其实就是修改数据库的某一位
-     * @param id
-     * @return
+     * 置顶，其实就是修改数据库的某一位
+     * @param id 帖子id
      */
     @RequestMapping(path = "/top", method = RequestMethod.POST)
     @ResponseBody
     public String setTop(int id) {
         iDiscussPostService.updateType(id, 1);
 
-        // 触发发帖事件，使ES覆盖，因为es搜索出所有帖子后会按照类型排列，所以需要覆盖
+        // 触发更新ES事件，重新覆盖ES，因为es搜索出所有帖子后会按照类型排序
         Event event = new Event()
-                .setTopic(TOPIC_PUBLISH)
-                .setUserId(hostHolder.getUser().getId())
-                .setEntityType(ENTITY_TYPE_POST)
+                .setTopic(TOPIC_UPDATE_ES)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
 
@@ -229,8 +251,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
     /**
      * 加精
-     * @param id
-     * @return
+     * @param id  帖子id
      */
     @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
     @ResponseBody
@@ -239,9 +260,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
         // 触发发帖事件
         Event event = new Event()
-                .setTopic(TOPIC_PUBLISH)
-                .setUserId(hostHolder.getUser().getId())
-                .setEntityType(ENTITY_TYPE_POST)
+                .setTopic(TOPIC_UPDATE_ES)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
 

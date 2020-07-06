@@ -62,10 +62,6 @@ public class LoginController extends CommunityBaseController implements Communit
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public String register(User user) {
         Map<String, Object> resultMap = new HashMap<>();
-        if (iSiteSettingService.allowRegister() == 0) {
-            resultMap.put("usernameMsg", "本网站由于安全性暂关闭注册，敬请谅解");
-            return CommunityUtil.getJSONString(1, "注册失败", resultMap);
-        }
 
         Map<String, Object> map = iUserService.register(user);
         if (map == null || map.isEmpty()) {
@@ -84,7 +80,6 @@ public class LoginController extends CommunityBaseController implements Communit
         model.addAttribute("target", "/index");
         return "forum/info/operate-result";
     }
-
 
     // http://localhost:8080/community/activation/101/code
     @RequestMapping(path = "/activation/{userId}/{code}", method = RequestMethod.GET)
@@ -140,7 +135,7 @@ public class LoginController extends CommunityBaseController implements Communit
     @ResponseBody
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(String username, String password, String verifycode, boolean rememberme,
-                        HttpServletResponse response,HttpServletRequest request,
+                        HttpServletResponse response, HttpServletRequest request,
                         @CookieValue("kaptchaOwner") String kaptchaOwner) {
 
         Map<String, Object> resultMap = new HashMap<>();
@@ -194,8 +189,8 @@ public class LoginController extends CommunityBaseController implements Communit
 
     @GetMapping("/githubCallback")
     public String githubCallback(@RequestParam(name = "code") String code,
-                           @RequestParam(name = "state") String state,
-                           HttpServletResponse response,Model model) {
+                                 @RequestParam(name = "state") String state,
+                                 HttpServletResponse response, Model model) {
         GithubAccessTokenDTO GithubAccessTokenDTO = new GithubAccessTokenDTO();
         GithubAccessTokenDTO.setClient_id(clientId);
         GithubAccessTokenDTO.setClient_secret(clientSecret);
@@ -208,25 +203,25 @@ public class LoginController extends CommunityBaseController implements Communit
         if (githubUser != null && githubUser.getId() != null) {
             //获取到了用户信息，开始判断是否已经注册
             List<User> users = iUserService.queryAll(User.builder().openId(String.valueOf(githubUser.getId())).build());
-            if (users.size() > 1){
+            if (users.size() > 1) {
                 logger.error("根据信息检索出了超过一条用户");
-                model.addAttribute("reason","根据信息检索出了超过一条用户");
+                model.addAttribute("reason", "根据信息检索出了超过一条用户");
                 return "error/500";
             }
 
             /* ------------------- 有则取出，无则注册 ----------------- */
             User user = null;
-            if(users.size() == 0){
+            if (users.size() == 0) {
                 user = User.builder().registerType(1).username(githubUser.getLogin()).openId(String.valueOf(githubUser.getId())).headerUrl(githubUser.getAvatarUrl()).build();
                 user = iUserService.insert(user);
                 if (user.getId() != null) {
                     logger.info("注册用户成功！当前注册用户" + user);
                 } else {
                     logger.error("注册用户失败！");
-                    model.addAttribute("reason","注册用户失败");
+                    model.addAttribute("reason", "注册用户失败");
                     return "error/500";
                 }
-            }else {
+            } else {
                 user = users.get(0);
                 user.setUsername(githubUser.getLogin());
                 user.setHeaderUrl(githubUser.getAvatarUrl());
@@ -250,7 +245,7 @@ public class LoginController extends CommunityBaseController implements Communit
             return "redirect:/index";
         } else {
             logger.error("callback get github error,{}", githubUser);
-            model.addAttribute("reason","未获取到github用户信息");
+            model.addAttribute("reason", "未获取到github用户信息");
             return "error/500";
         }
     }
@@ -283,14 +278,14 @@ public class LoginController extends CommunityBaseController implements Communit
      * @Param []
      **/
     @GetMapping("/tencentqqCallback")
-    public String connection(HttpServletRequest request, HttpServletResponse response,Model model) {
+    public String connection(HttpServletRequest request, HttpServletResponse response, Model model) {
         try {
             AccessToken accessTokenObj = (new Oauth()).getAccessTokenByRequest(request);
             String accessToken = null, openID = null;
             long tokenExpireIn = 0L;
             if ("".equals(accessTokenObj.getAccessToken())) {
                 logger.error("登录失败:没有获取到响应参数");
-                model.addAttribute("reason","没有获取到响应参数");
+                model.addAttribute("reason", "没有获取到响应参数");
                 return "error/500";
             } else {
                 accessToken = accessTokenObj.getAccessToken();
@@ -310,9 +305,9 @@ public class LoginController extends CommunityBaseController implements Communit
 
                     //设置用户信息
                     List<User> users = iUserService.queryAll(User.builder().openId(openID).build());
-                    if (users.size() > 1){
+                    if (users.size() > 1) {
                         logger.error("根据信息检索出了超过一条用户");
-                        model.addAttribute("reason","根据信息检索出了超过一条用户");
+                        model.addAttribute("reason", "根据信息检索出了超过一条用户");
                         return "error/500";
                     }
                     User user = null;
@@ -332,7 +327,7 @@ public class LoginController extends CommunityBaseController implements Communit
 //                              }
                         } else {
                             logger.error("注册用户失败");
-                            model.addAttribute("reason","注册用户失败");
+                            model.addAttribute("reason", "注册用户失败");
                             return "error/500";
                         }
                     } else {
@@ -360,13 +355,13 @@ public class LoginController extends CommunityBaseController implements Communit
                     return "redirect:/index";
                 } else {
                     logger.error("未获取到用户信息");
-                    model.addAttribute("reason","未获取到用户信息");
+                    model.addAttribute("reason", "未获取到用户信息");
                     return "error/500";
                 }
             }
         } catch (QQConnectException e) {
             e.printStackTrace();
-            model.addAttribute("reason","服务器发生了故障");
+            model.addAttribute("reason", "服务器发生了故障");
             return "error/500";
         }
     }

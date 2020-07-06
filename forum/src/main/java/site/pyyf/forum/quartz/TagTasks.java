@@ -12,12 +12,14 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.Executors;
 
 /**
  * @author Gepeng18
  * @date 2019/8/1
  */
-@Component
+//@Component
+@Deprecated
 @Slf4j
 public class TagTasks {
 
@@ -35,7 +37,6 @@ public class TagTasks {
         int limit = 20;
         log.info("hotTagSchedule start {}", new Date());
         List<DiscussPost> discussPosts = new ArrayList<>();
-
         Set<String> allTags = new HashSet<>();
         /* ------------------- 先统计出帖子的所有标签名 ----------------- */
         while (discussPosts.size() >= offset) {

@@ -2,12 +2,12 @@ package site.pyyf.commons.event;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import site.pyyf.blog.controller.BaseController;
-import site.pyyf.commons.utils.RedisKeyUtil;
+import site.pyyf.commons.utils.*;
+import site.pyyf.forum.dao.IDiscussPostMapper;
 import site.pyyf.forum.entity.*;
-import site.pyyf.commons.utils.CommunityConstant;
-import site.pyyf.commons.utils.CommunityUtil;
-import site.pyyf.commons.utils.MailClient;
 import site.pyyf.forum.service.IFollowService;
 import site.pyyf.forum.service.impl.DiscussPostService;
 import site.pyyf.forum.service.impl.ElasticsearchService;
@@ -33,10 +33,7 @@ import org.thymeleaf.context.Context;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Future;
 
 @Component
@@ -62,6 +59,12 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     @Autowired
     private ElasticsearchService elasticsearchService;
 
+    @Autowired
+    private TagCache tagCache;
+
+    @Autowired
+    private IDiscussPostMapper iDiscussPostMapper;
+
     @Value("${wk.image.command}")
     private String wkImageCommand;
 
@@ -84,6 +87,9 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     protected MailClient mailClient;
 
 
+    /**
+     * 消费发送邮件事件
+     */
     @KafkaListener(topics = {TOPIC_EMAIL})
     public void handleSendEmail(ConsumerRecord record) {
         if (record == null || record.value() == null) {
@@ -111,8 +117,9 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         mailClient.sendMail((String) emailSetting.get("email"), "【鹏圆云方博客】", content);
     }
 
-
-
+    /**
+     * 消费评论、点赞、关注事件 ---- 发送站内通知、推送动态给粉丝
+     */
     @KafkaListener(topics = {TOPIC_COMMENT, TOPIC_LIKE, TOPIC_FOLLOW})
     public void handleCommentMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
@@ -175,15 +182,18 @@ public class EventConsumer extends BaseController implements CommunityConstant {
                     redisTemplate.opsForList().leftPush(timelineKey, feed);
 
                     // 限制最长长度，如果timelineKey的长度过大，就删除后面的新鲜事
-                    while (redisTemplate.opsForList().size(timelineKey) > FEEDTIMELINECOUNT)
+                    while (redisTemplate.opsForList().size(timelineKey) > FEEDTIMELINECOUNT) {
                         redisTemplate.opsForList().rightPop(timelineKey);
+                    }
                 }
             }
         }
     }
 
 
-
+    /**
+     * 消费看帖事件 ----- 个性化推荐
+     */
     @KafkaListener(topics = {TOPIC_VIEW})
     public void handleView(ConsumerRecord record) {
         if (record == null || record.value() == null) {
@@ -203,7 +213,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             String timelineKey = RedisKeyUtil.getLatestViewTagsKey(event.getUserId());
 
             //fastjson将数组转化为了jsonarray,所以这里先将jsonarry转化为string,再通过parseArray方法转为list
-            List<String> tags = JSONObject.parseArray(JSONObject.toJSONString(event.getData().get("viewTags"), SerializerFeature.WriteClassName), String.class);
+            List<String> tags = JSONObject.parseArray(JSONObject.toJSONString(event.getData().get("viewTags"),
+                    SerializerFeature.WriteClassName), String.class);
             if(tags.size()>0){
                 for(String tag:tags){
                     redisTemplate.opsForList().leftPush(timelineKey, tag);
@@ -216,8 +227,9 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     }
 
 
-
-    // 消费发帖事件
+    /**
+     * 消费发帖事件  -----  推送动态给粉丝
+     */
     @KafkaListener(topics = {TOPIC_PUBLISH})
     public void handlePublishMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
@@ -231,8 +243,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             return;
         }
 
-        DiscussPost post = discussPostService.findDiscussPostById(event.getEntityId());
-        elasticsearchService.saveDiscussPost(post);
+//        DiscussPost post = discussPostService.findDiscussPostById(event.getEntityId());
+//        elasticsearchService.saveDiscussPost(post);
 
 
         /* ------------------- 帖子则发feed ----------------- */
@@ -271,8 +283,31 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     }
 
 
+    /**
+     * 消费更新ES事件 ---- 更新ES
+     */
+    @KafkaListener(topics = {TOPIC_UPDATE_ES})
+    public void handleUpdateEs(ConsumerRecord record){
+        if (record == null || record.value() == null) {
+            logger.error("消息的内容为空!");
+            return;
+        }
 
-    // 消费删帖事件
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+        if (event == null) {
+            logger.error("消息格式错误!");
+            return;
+        }
+
+        DiscussPost post = discussPostService.findDiscussPostById(event.getEntityId());
+        elasticsearchService.saveDiscussPost(post);
+
+    }
+
+
+    /**
+     * 消费删帖事件
+     */
     @KafkaListener(topics = {TOPIC_DELETE})
     public void handleDeleteMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
@@ -290,8 +325,9 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     }
 
 
-
-    // 消费分享事件
+    /**
+     * 消费分享事件
+     */
     @KafkaListener(topics = TOPIC_SHARE)
     public void handleShareMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
@@ -352,6 +388,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         // 如果执行过程中出现了异常，则记录日志后，等待0.5秒后被重新调用
         @Override
         public void run() {
+
             // 生成失败
             if (System.currentTimeMillis() - startTime > 30000) {
                 logger.error("执行时间过长,终止任务:" + fileName);
@@ -397,8 +434,6 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             }
         }
     }
-
-
 
     private static int topicToFeedType(String topic) {
         if (topic.equals(TOPIC_LIKE)) {

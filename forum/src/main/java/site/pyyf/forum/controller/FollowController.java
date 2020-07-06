@@ -25,7 +25,7 @@ public class FollowController extends CommunityBaseController implements Communi
 
         iFollowService.follow(user.getId(), entityType, entityId);
 
-        // 1. 触发关注事件，目前只涉及对用户关注
+        // 1. 触发关注事件，目前只涉及对 用户 关注
         Event event = new Event()
                 .setTopic(TOPIC_FOLLOW)
                 .setUserId(hostHolder.getUser().getId())

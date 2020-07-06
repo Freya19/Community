@@ -97,6 +97,11 @@ public interface CommunityConstant {
     String TOPIC_DELETE = "delete";
 
     /**
+     * 主题：更新ES
+     */
+    String TOPIC_UPDATE_ES = "updateEs";
+
+    /**
      * 主题: 分享
      */
     String TOPIC_SHARE = "share";
@@ -105,6 +110,7 @@ public interface CommunityConstant {
      * 主题: 查看帖子
      */
     String TOPIC_VIEW = "view";
+
 
     /**
      * 系统用户ID

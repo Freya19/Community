@@ -42,12 +42,10 @@ public class CommentController extends CommunityBaseController implements Commun
         }
         eventProducer.fireEvent(event);
 
-        // 3. 触发发帖事件，交由异步处理，将帖子在ES中覆盖
+        // 3. 触发更新ES事件，交由异步处理，将帖子在ES中覆盖
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
             event = new Event()
-                    .setTopic((TOPIC_PUBLISH))
-                    .setUserId(comment.getUserId())
-                    .setEntityType(ENTITY_TYPE_POST)
+                    .setTopic((TOPIC_UPDATE_ES))
                     .setEntityId(discussPostId);
             eventProducer.fireEvent(event);
 
