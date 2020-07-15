@@ -1,28 +1,28 @@
-package site.pyyf.olexec.execute;
+package site.pyyf.execute;
 
 public class ClassModifier {
     /**
      * Class文件中常量池的起始偏移
      */
-    private static int CONSTANT_POOL_COUNT_INDEX = 8;
+    private static final int CONSTANT_POOL_COUNT_INDEX = 8;
 
     /**
      * CONSTANT_UTF8_INFO常量的tag
      */
-    private static int CONSTANT_UTF8_INFO = 1;
+    private static final int CONSTANT_UTF8_INFO = 1;
 
     /**
      * 常量池中11种常量的长度，CONSTANT_ITEM_LENGTH[tag]表示它的长度
      */
-    private static int[] CONSTANT_ITEM_LENGTH = {-1, -1, -1, 5, 5, 9, 9, 3, 3, 5, 5, 5, 5};
+    private static final int[] CONSTANT_ITEM_LENGTH = {-1, -1, -1, 5, 5, 9, 9, 3, 3, 5, 5, 5, 5};
 
     /**
      * 1个和2个字节的符号数，用来在classByte数组中取tag和len
      * tag用u1个字节表示
      * len用u2个字节表示
      */
-    private static int u1 = 1;
-    private static int u2 = 2;
+    private static final int u1 = 1;
+    private static final int u2 = 2;
 
     /**
      * 要被修改的字节码文件
@@ -46,10 +46,12 @@ public class ClassModifier {
      * @param oldStr
      * @param newStr
      * @return 修改后的字节码字节数组
+     * 每个常量在常量池中的内容分为三部分 tag len 以及内容
      */
     public byte[] modifyUTF8Constant(String oldStr, String newStr) {
         int cpc = getConstantPoolCount();
-        int offset = CONSTANT_POOL_COUNT_INDEX + u2;  // 真实的常量起始位置
+        // 真实的常量起始位置
+        int offset = CONSTANT_POOL_COUNT_INDEX + u2;
         for (int i = 1; i < cpc; i++) {
             int tag = ByteUtils.byte2Int(classByte, offset, u1);
             if (tag == CONSTANT_UTF8_INFO) {
@@ -63,7 +65,8 @@ public class ClassModifier {
                     classByte = ByteUtils.byteReplace(classByte, offset - u2, u2, intReplaceBytes);
                     // 替换字符串本身
                     classByte = ByteUtils.byteReplace(classByte, offset, len, strReplaceBytes);
-                    return classByte;  // 就一个地方需要改，改完就可以返回了
+                    // 就一个地方需要改，改完就可以返回了
+                    return classByte;
                 } else {
                     offset += len;
                 }

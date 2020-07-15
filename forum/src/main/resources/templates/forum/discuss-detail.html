@@ -506,7 +506,7 @@
 <script>
     function compile(id) {
         $("#button" + id).html('<i class="fa fa-spinner fa-pulse"></i>&nbsp;  运行中\n');
-        var code = $('#code' + id).text();
+        var code = $('#code' + id)[0].innerText;
         console.log("code=" + code);
         var formData = new FormData();
         formData.append('code', code);

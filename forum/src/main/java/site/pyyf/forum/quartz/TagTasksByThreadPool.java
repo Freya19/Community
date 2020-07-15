@@ -33,7 +33,7 @@ public class TagTasksByThreadPool {
     @PostConstruct
     public void calculateTags() {
         TagTask task = new TagTask();
-        threadPoolTaskScheduler.scheduleAtFixedRate(task, 1000 *60*60* 3);
+        threadPoolTaskScheduler.scheduleAtFixedRate(task, 1000 * 60 * 60 * 3);
     }
 
 
@@ -49,7 +49,12 @@ public class TagTasksByThreadPool {
             List<DiscussPost> discussPosts = new ArrayList<>();
             Set<String> allTags = new HashSet<>();
             /* ------------------- 先统计出帖子的所有标签名 ----------------- */
-            while (discussPosts.size() >= offset) {
+            // 60
+            // 0  < 60
+            // 20 < 60
+            // 40 < 60
+            // 60 < 60 结束
+            while (offset < discussPosts.size()) {
                 discussPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
                 for (DiscussPost discussPost : discussPosts) {
                     //tags字段一定有值

@@ -1,10 +1,21 @@
-package site.pyyf.olexec.execute;
+package site.pyyf.execute;
 
 import java.io.*;
 
+/**
+ * write print（前两个都是写） toString（这个是读） flush close这些方法都是操作线程独占的outputstream
+ * error相关：setError  clearError checkError也都是操作线程独占的trouble的flag
+ */
 public class HackPrintStream extends PrintStream {
-    private ThreadLocal<ByteArrayOutputStream> out; // 每个线程的标准输出流
-    private ThreadLocal<Boolean> trouble; // 每个线程的标准输出写入过程是否抛出IOException
+    /**
+     *  每个线程的标准输出流
+     */
+    private ThreadLocal<ByteArrayOutputStream> out;
+
+    /**
+     * 每个线程的标准输出写入过程是否抛出IOException
+     */
+    private ThreadLocal<Boolean> trouble;
 
     public HackPrintStream() {
         super(new ByteArrayOutputStream());
@@ -33,6 +44,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @see        OutputStream#flush()
      */
+    @Override
     public void flush() {
         try {
             ensureOpen();
@@ -49,6 +61,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @see        OutputStream#close()
      */
+    @Override
     public void close() {
         try {
             out.get().close();
@@ -77,6 +90,7 @@ public class HackPrintStream extends PrintStream {
      *         <code>InterruptedIOException</code>, or the
      *         <code>setError</code> method has been invoked
      */
+    @Override
     public boolean checkError() {
         if (out.get() != null)
             flush();
@@ -92,6 +106,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @since JDK1.1
      */
+    @Override
     protected void setError() {
         trouble.set(true);
     }
@@ -105,6 +120,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @since 1.6
      */
+    @Override
     protected void clearError() {
         trouble.remove();
     }
@@ -128,6 +144,7 @@ public class HackPrintStream extends PrintStream {
      * @see #print(char)
      * @see #println(char)
      */
+    @Override
     public void write(int b) {
         try {
             ensureOpen();
@@ -157,6 +174,7 @@ public class HackPrintStream extends PrintStream {
      * @param  off   Offset from which to start taking bytes
      * @param  len   Number of bytes to write
      */
+    @Override
     public void write(byte buf[], int off, int len) {
         try {
             ensureOpen();
@@ -170,7 +188,7 @@ public class HackPrintStream extends PrintStream {
         }
     }
 
-    /*
+    /**
      * The following private methods on the text- and character-output streams
      * always flush the stream buffers, so that writes to the underlying byte
      * stream occur as promptly as with the original PrintStream.
@@ -226,6 +244,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param      b   The <code>boolean</code> to be printed
      */
+    @Override
     public void print(boolean b) {
         write(b ? "true" : "false");
     }
@@ -238,6 +257,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param      c   The <code>char</code> to be printed
      */
+    @Override
     public void print(char c) {
         write(String.valueOf(c));
     }
@@ -252,6 +272,7 @@ public class HackPrintStream extends PrintStream {
      * @param      i   The <code>int</code> to be printed
      * @see        Integer#toString(int)
      */
+    @Override
     public void print(int i) {
         write(String.valueOf(i));
     }
@@ -266,6 +287,7 @@ public class HackPrintStream extends PrintStream {
      * @param      l   The <code>long</code> to be printed
      * @see        Long#toString(long)
      */
+    @Override
     public void print(long l) {
         write(String.valueOf(l));
     }
@@ -280,6 +302,7 @@ public class HackPrintStream extends PrintStream {
      * @param      f   The <code>float</code> to be printed
      * @see        Float#toString(float)
      */
+    @Override
     public void print(float f) {
         write(String.valueOf(f));
     }
@@ -294,6 +317,7 @@ public class HackPrintStream extends PrintStream {
      * @param      d   The <code>double</code> to be printed
      * @see        Double#toString(double)
      */
+    @Override
     public void print(double d) {
         write(String.valueOf(d));
     }
@@ -308,6 +332,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @throws  NullPointerException  If <code>s</code> is <code>null</code>
      */
+    @Override
     public void print(char s[]) {
         write(s);
     }
@@ -321,6 +346,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param      s   The <code>String</code> to be printed
      */
+    @Override
     public void print(String s) {
         if (s == null) {
             s = "null";
@@ -338,6 +364,7 @@ public class HackPrintStream extends PrintStream {
      * @param      obj   The <code>Object</code> to be printed
      * @see        Object#toString()
      */
+    @Override
     public void print(Object obj) {
         write(String.valueOf(obj));
     }
@@ -351,6 +378,7 @@ public class HackPrintStream extends PrintStream {
      * <code>line.separator</code>, and is not necessarily a single newline
      * character (<code>'\n'</code>).
      */
+    @Override
     public void println() {
         newLine();
     }
@@ -362,6 +390,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  The <code>boolean</code> to be printed
      */
+    @Override
     public void println(boolean x) {
         print(x);
         newLine();
@@ -374,6 +403,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  The <code>char</code> to be printed.
      */
+    @Override
     public void println(char x) {
         print(x);
         newLine();
@@ -386,6 +416,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  The <code>int</code> to be printed.
      */
+    @Override
     public void println(int x) {
         print(x);
         newLine();
@@ -398,6 +429,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  a The <code>long</code> to be printed.
      */
+    @Override
     public void println(long x) {
         print(x);
         newLine();
@@ -410,6 +442,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  The <code>float</code> to be printed.
      */
+    @Override
     public void println(float x) {
         print(x);
         newLine();
@@ -422,6 +455,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  The <code>double</code> to be printed.
      */
+    @Override
     public void println(double x) {
         print(x);
         newLine();
@@ -434,6 +468,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  an array of chars to print.
      */
+    @Override
     public void println(char x[]) {
         print(x);
         newLine();
@@ -446,6 +481,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  The <code>String</code> to be printed.
      */
+    @Override
     public void println(String x) {
         print(x);
         newLine();
@@ -460,6 +496,7 @@ public class HackPrintStream extends PrintStream {
      *
      * @param x  The <code>Object</code> to be printed.
      */
+    @Override
     public void println(Object x) {
         String s = String.valueOf(x);
         print(s);
