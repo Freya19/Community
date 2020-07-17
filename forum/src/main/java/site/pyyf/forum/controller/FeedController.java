@@ -62,7 +62,7 @@ public class FeedController extends CommunityBaseController implements Community
             return feed.getFeedType() == FEED_COMMENT;
         }).collect(Collectors.toSet());
 
-        //4. 根据所有的发布. 点赞. 评论. 标签搜索对应的帖子，并page
+        //4. 根据所有的发布. 点赞. 评论. 标签 搜索对应的帖子，并page
         discussPosts = iDiscussPostService
                 .queryAllByLimitByPersonalized(
                         published.stream().map(feed -> {
