@@ -62,7 +62,7 @@ public class FollowController extends CommunityBaseController implements Communi
         page.setPath("/followees/" + userId);
         page.setRows((int)(long) iFollowService.findFollowCount(userId, ENTITY_TYPE_USER));
 
-        //查询userId用户关注的人
+        //查询userId用户关注的人,并查看自己是否关注了
         List<Map<String, Object>> userList = iFollowService.findFollow(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {
@@ -90,7 +90,7 @@ public class FollowController extends CommunityBaseController implements Communi
         page.setPath("/followers/" + userId);
         page.setRows((int)(long) iFollowService.findFansCount(ENTITY_TYPE_USER, userId));
 
-        // 1. 从Redis中查询userId用户的粉丝
+        // 1. 从Redis中查询userId用户的粉丝，并查看自己是否关注了
         List<Map<String, Object>> userList = iFollowService.findFans(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {

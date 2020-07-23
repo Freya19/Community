@@ -173,7 +173,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
                         replyVo.put("reply", reply);
                         // 作者
                         replyVo.put("user", iUserService.queryById(reply.getUserId()));
-                        // 回复目标
+                        // 回复目标,如果不是回复任何人，则targetId=0
                         User target = reply.getTargetId() == 0 ? null : iUserService.queryById(reply.getTargetId());
                         replyVo.put("target", target);
                         // 点赞数量

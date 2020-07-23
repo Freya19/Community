@@ -158,7 +158,7 @@ public class MessageController extends CommunityBaseController implements Commun
     public String getNoticeList(Model model) {
         User user = hostHolder.getUser();
 
-        // 查询评论类通知
+        // 查询最新的评论类通知
         Message message = iMessageService.findLatestNotice(user.getId(), TOPIC_COMMENT);
         if (message != null) {
             Map<String, Object> messageVO = new HashMap<>();
@@ -181,7 +181,7 @@ public class MessageController extends CommunityBaseController implements Commun
             model.addAttribute("commentNotice", messageVO);
         }
 
-        // 查询点赞类通知
+        // 查询最新的点赞类通知
         message = iMessageService.findLatestNotice(user.getId(), TOPIC_LIKE);
         if (message != null) {
             Map<String, Object> messageVO = new HashMap<>();
@@ -204,7 +204,7 @@ public class MessageController extends CommunityBaseController implements Commun
             model.addAttribute("likeNotice", messageVO);
         }
 
-        // 查询关注类通知
+        // 查询最新的关注类通知
         message = iMessageService.findLatestNotice(user.getId(), TOPIC_FOLLOW);
         if (message != null) {
             Map<String, Object> messageVO = new HashMap<>();
@@ -263,10 +263,12 @@ public class MessageController extends CommunityBaseController implements Commun
                 map.put("entityId", data.get("entityId"));
                 map.put("postId", data.get("postId"));
                 // 通知的发出者，A点赞B，则fromUser是A，所以准确的说是消息的发出者
+                // 这里就是261行的user，可以删除，这里是以前脑梗写多了
                 map.put("fromUser",iUserService.queryById((Integer) data.get("userId")));
                 noticeVoList.add(map);
             }
         }
+
         model.addAttribute("notices", noticeVoList);
 
         // 设置已读

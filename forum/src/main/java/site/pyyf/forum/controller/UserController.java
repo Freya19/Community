@@ -56,6 +56,12 @@ public class UserController extends CommunityBaseController implements Community
     @Value("${quniu.bucket.header.url}")
     private String headerBucketUrl;
 
+    /**
+     * 这里的整体逻辑是：
+     * 1. 生成一个一次性上传凭证和临时文件名给前端
+     * 2. 前端拿到这个一次性凭证和文件名后，直接上传图片给OSS
+     * 3. 上传成功后，将OSS返回的url发送到后端头像更新接口，头像修改结束
+     */
     @LoginRequired
     @RequestMapping(method = RequestMethod.GET)
     public String getSettingPage(Model model) {
@@ -88,7 +94,7 @@ public class UserController extends CommunityBaseController implements Community
         return CommunityUtil.getJSONString(0);
     }
 
-    // 废弃
+    @Deprecated
     @LoginRequired
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
@@ -125,7 +131,7 @@ public class UserController extends CommunityBaseController implements Community
         return "redirect:/index";
     }
 
-    // 废弃
+    @Deprecated
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 服务器存放路径
@@ -186,11 +192,11 @@ public class UserController extends CommunityBaseController implements Community
 
 
     /**
-     * 个性化定制 之 我的帖子
+     * 个人主页中的帖子页面
      * @param userId 用户id
      * @param model 后端往前端传参的媒介
      * @param page  分页
-     * @return “我 ”的帖子
+     * @return 所有帖子
      */
     @RequestMapping(path ={"/posts/{userId}"},method = {RequestMethod.GET,RequestMethod.POST})
     public String getUserPosts(@PathVariable(value = "userId") int userId, Model model, Page page){
