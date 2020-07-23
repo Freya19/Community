@@ -17,23 +17,24 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class OSSController extends CommunityBaseController {
 
+    @Deprecated
     @LoginRequired
     @ResponseBody
     @RequestMapping(path = "/OSS/upload", method = RequestMethod.POST)
-    public String uploadFile(@RequestParam(value = "file") MultipartFile url,
+    public String uploadFile(@RequestParam(value = "file") MultipartFile file,
                              Model model, Page page) {
         // path: ""   dir1*dir2
-        if (url == null) {
+        if (file == null) {
             model.addAttribute("error", "您还没有选择文件!");
             return "forum/shareFiles";
         }
-        String fileName = url.getOriginalFilename();
+        String fileName = file.getOriginalFilename();
         String suffix = fileName.substring(fileName.lastIndexOf("."));
         if (StringUtils.isBlank(suffix)) {
             model.addAttribute("error", "文件的格式不正确!");
         }
 
-        final UploadResult result = iAliyunOssService.upload("fileBase",url );
+        final UploadResult result = iAliyunOssService.upload("fileBase",file );
         iAliyunOssService.insertDatabase(fileName, result.getUrl());
 
         return CommunityUtil.getJSONString(200, result.getUrl());

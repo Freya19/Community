@@ -25,6 +25,7 @@ public class LikeController extends CommunityBaseController implements Community
         // 1. 点赞插入redis数据库（双向插入）
         iLikeService.like(user.getId(), entityType, entityId, entityUserId);
 
+        //  -------------------------  下面就开始页面显示了  ----------------------
         // 2. 更新目标的点赞数量
         Long likeCount = iLikeService.findEntityLikeCount(entityType, entityId);
 
@@ -36,7 +37,7 @@ public class LikeController extends CommunityBaseController implements Community
         map.put("likeCount", (long)likeCount);
         map.put("likeStatus", likeStatus);
 
-        // 4. 触发点赞事件，通知被点赞人
+        // 4. 触发点赞事件，通知被点赞人: 谁 点赞 谁 的哪个帖子
         if (likeStatus == 1) {
             Event event = new Event()
                     .setTopic(TOPIC_LIKE)

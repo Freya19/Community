@@ -1,30 +1,37 @@
-package site.pyyf.olexec.service.Impl;
+package site.pyyf.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.stereotype.Component;
 import site.pyyf.CommunityInterface.service.IExecuteStringSourceService;
-import site.pyyf.olexec.compile.StringSourceCompiler;
-import site.pyyf.olexec.execute.JavaClassExecutor;
+import site.pyyf.compile.StringSourceCompiler;
+import site.pyyf.execute.JavaClassExecutor;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
+/**
+ * @author Freya
+ */
 @Component
 @Service
-public class ExecuteStringSourceServiceImpl implements IExecuteStringSourceService {
-    /* 客户端发来的程序的运行时间限制 */
+public class ExecuteStringSourceService implements IExecuteStringSourceService {
+
+    /**
+     * 客户端发来的程序的运行时间限制
+     */
+
     private static final int RUN_TIME_LIMITED = 15;
 
-    /* N_THREAD = N_CPU + 1，因为是 CPU 密集型的操作 */
+    /** N_THREAD = N_CPU + 1，因为是 CPU 密集型的操作 */
     private static final int N_THREAD = 5;
 
-    /* 负责执行客户端代码的线程池，根据《Java 开发手册》不可用 Executor 创建，有 OOM 的可能 */
+    /** 负责执行客户端代码的线程池，根据《Java 开发手册》不可用 Executor 创建，有 OOM 的可能 */
     private static final ExecutorService pool = new ThreadPoolExecutor(N_THREAD, N_THREAD,
             0L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(N_THREAD));
 
@@ -37,11 +44,11 @@ public class ExecuteStringSourceServiceImpl implements IExecuteStringSourceServi
         // 从源码字符串中匹配类名
         final String className = StringSourceCompiler.matchPublicClassName(source);
 
-        DiagnosticCollector<JavaFileObject> compileCollector = new DiagnosticCollector<>(); // 编译结果收集器
+        // 编译结果收集器
+        DiagnosticCollector<JavaFileObject> compileCollector = new DiagnosticCollector<>();
 
         // 编译源代码
         Map<String, JavaFileObject> fileObjectMap = StringSourceCompiler.compile(source, compileCollector);
-
 
         // 编译不通过，获取并返回编译错误信息
         if (fileObjectMap == null) {
@@ -56,7 +63,9 @@ public class ExecuteStringSourceServiceImpl implements IExecuteStringSourceServi
             }
             return compileErrorRes.toString();
         }
-        
+
+
+
         // 运行字节码的main方法
         Callable<String> runTask = new Callable<String>() {
             @Override
@@ -79,7 +88,7 @@ public class ExecuteStringSourceServiceImpl implements IExecuteStringSourceServi
         } catch (InterruptedException e) {
             runResult = "Program interrupted.";
         } catch (ExecutionException e) {
-            runResult = e.getCause().getMessage();
+            runResult = e.getMessage();
         } catch (TimeoutException e) {
             runResult = "Time Limit Exceeded.";
         } finally {
@@ -87,4 +96,5 @@ public class ExecuteStringSourceServiceImpl implements IExecuteStringSourceServi
         }
         return runResult != null ? runResult : NO_OUTPUT;
     }
+
 }

@@ -4,6 +4,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+@Deprecated
 public class AlphaJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {

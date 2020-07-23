@@ -1,4 +1,4 @@
-package site.pyyf.olexec.execute;
+package site.pyyf.execute;
 
 import sun.misc.LRUCache;
 
@@ -26,20 +26,23 @@ import java.util.regex.Pattern;
  * 该类整个复制 Scanner 类，唯一的区别在于修改一下这个构造函数：
  * HackScanner(InputStream source)
  *
+ * 判断一下输入的 InputStream 是不是 我们自己写的InputStream，
+ * 如果是就调用一下它的 get 方法，把当前线程的输入流从 ThreadLocal 中取出来转化为 reader后传给构造函数
+ *
  * 然后在把所有报错的地方修改一下，主要修改：
- * 1. 构造函数的类名：Scanner -> HackScanner
- * 2. 几个方法的返回参数类型：java.util.Scanner -> site.pyyf.compiler.execute.HackScanner
+ *      1. 构造函数的类名：Scanner -> HackScanner
+ *      2. 几个方法的返回参数类型：java.util.Scanner -> org.olexec.execute.HackScanner
  *
  * PS. Scanner 类要是能 extends 就好了，这样就不用写这么多了，现在这个类看起来好吓人...
  */
 
-public class HackScanner implements Iterator<String>, Closeable {
+public final class HackScanner implements Iterator<String>, Closeable {
 
     // Internal buffer used to hold input
     private CharBuffer buf;
 
     // Size of internal character buffer
-    private static int BUFFER_SIZE = 1024; // change to 1024;
+    private static final int BUFFER_SIZE = 1024; // change to 1024;
 
     // The index into the buffer currently held by the Scanner
     private int position;
@@ -95,9 +98,11 @@ public class HackScanner implements Iterator<String>, Closeable {
     // A cache of the last few recently used Patterns
     private LRUCache<String,Pattern> patternCache =
             new LRUCache<String,Pattern>(7) {
+                @Override
                 protected Pattern create(String s) {
                     return Pattern.compile(s);
                 }
+                @Override
                 protected boolean hasName(Pattern p, String s) {
                     return p.pattern().equals(s);
                 }
@@ -135,7 +140,7 @@ public class HackScanner implements Iterator<String>, Closeable {
      * Fields and an accessor method to match booleans
      */
     private static volatile Pattern boolPattern;
-    private static String BOOLEAN_PATTERN = "true|false";
+    private static final String BOOLEAN_PATTERN = "true|false";
     private static Pattern boolPattern() {
         Pattern bp = boolPattern;
         if (bp == null)
@@ -154,7 +159,7 @@ public class HackScanner implements Iterator<String>, Closeable {
     private String buildIntegerPatternString() {
         String radixDigits = digits.substring(0, radix);
         // \\p{javaDigit} is not guaranteed to be appropriate
-        // here but what can we do? The authority will be
+        // here but what can we do? The final authority will be
         // whatever parse method is invoked, so ultimately the
         // Scanner will do the right thing
         String digit = "((?i)["+radixDigits+"]|\\p{javaDigit})";
@@ -182,9 +187,9 @@ public class HackScanner implements Iterator<String>, Closeable {
      */
     private static volatile Pattern separatorPattern;
     private static volatile Pattern linePattern;
-    private static String LINE_SEPARATOR_PATTERN =
+    private static final String LINE_SEPARATOR_PATTERN =
             "\r\n|[\n\r\u2028\u2029\u0085]";
-    private static String LINE_PATTERN = ".*("+LINE_SEPARATOR_PATTERN+")|.+$";
+    private static final String LINE_PATTERN = ".*("+LINE_SEPARATOR_PATTERN+")|.+$";
 
     private static Pattern separatorPattern() {
         Pattern sp = separatorPattern;

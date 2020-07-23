@@ -1,6 +1,6 @@
-package site.pyyf.olexec.execute;
+package site.pyyf.execute;
 
-import site.pyyf.olexec.compile.StringSourceCompiler;
+import site.pyyf.compile.StringSourceCompiler;
 
 import javax.tools.JavaFileObject;
 import java.lang.reflect.InvocationTargetException;
@@ -24,22 +24,24 @@ public class JavaClassExecutor {
 //    private static volatile AtomicInteger runningCount = new AtomicInteger(0);
 
     public static String execute(Map<String, JavaFileObject> fileObjectMap,String publicClassName, String systemIn) throws ClassNotFoundException {
-        Map<String,byte[]> modifiedByte = new HashMap<>();
+        Map<String,byte[]> modifiedBytes = new HashMap<>();
         for (Map.Entry<String, JavaFileObject> fileObject : fileObjectMap.entrySet()) {
             // 2. new ClassModifier，并传入需要被修改的字节数组
             ClassModifier cm = new ClassModifier(((StringSourceCompiler.TmpJavaFileObject) fileObject.getValue()).getCompiledBytes());
 
             // 3. 调用ClassModifier#modifyUTF8Constant修改
-            byte[] modifyBytes = cm.modifyUTF8Constant("java/lang/System", "site/pyyf/olexec/execute/HackSystem");
-            modifyBytes = cm.modifyUTF8Constant("java/util/Scanner", "site/pyyf/olexec/execute/HackScanner");
-            modifiedByte.put(fileObject.getKey(),modifyBytes);
-
+            //System类负责 控制台与程序之间的输入输出流的控制；数组的复制；并且公有的属性有 3 个，即标准输入流、标准输出流和标准错误流：
+            //因此我们需要将标准输入流换为我们的自定义输入流、标准输出流和标准错误流共用我们的自定义标准输出流
+            byte[] modifyBytes = cm.modifyUTF8Constant("java/lang/System","site/pyyf/execute/HackSystem");
+            modifyBytes = cm.modifyUTF8Constant("java/util/Scanner", "site/pyyf/execute/HackScanner");
+            modifiedBytes.put(fileObject.getKey(),modifyBytes);
         }
 
         // 设置用户传入的标准输入
         ((HackInputStream) HackSystem.in).set(systemIn);
+
         // 4. new一个类加载器，把字节数组加载为Class对象
-       HotSwapClassLoader classLoader = new HotSwapClassLoader(modifiedByte);
+        HotSwapClassLoader classLoader = new HotSwapClassLoader(modifiedBytes);
 
         Class clazz = classLoader.loadClass(publicClassName);
 

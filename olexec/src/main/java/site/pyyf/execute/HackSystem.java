@@ -1,25 +1,22 @@
-package site.pyyf.olexec.execute;
+package site.pyyf.execute;
 
 import sun.reflect.CallerSensitive;
 
-import java.io.Console;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.channels.Channel;
 import java.util.Properties;
 
 
-public class HackSystem {
+public final class HackSystem {
 
     private HackSystem() {
     }
 
-    public static InputStream in = new HackInputStream();
+    public final static InputStream in = new HackInputStream();
 
-    public static PrintStream out = new HackPrintStream();
+    public final static PrintStream out = new HackPrintStream();
 
-    public static PrintStream err = out;
+    public final static PrintStream err = out;
 
     /**
      * 获取当前线程的输出流中的内容
@@ -82,7 +79,7 @@ public class HackSystem {
         throw new SecurityException("Use hazardous method: System.inheritedChannel().");
     }
 
-    public static void setSecurityManager(SecurityManager s) {
+    public static void setSecurityManager(final SecurityManager s) {
         throw new SecurityException("Use hazardous method: System.setSecurityManager().");
     }
 
@@ -93,7 +90,6 @@ public class HackSystem {
     public static Properties getProperties() {
         throw new SecurityException("Use hazardous method: System.getProperties().");
     }
-
 
 
     public static void setProperties(Properties props) {
