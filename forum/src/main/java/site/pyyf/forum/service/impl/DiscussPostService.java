@@ -1,10 +1,9 @@
 package site.pyyf.forum.service.impl;
 
+
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import site.pyyf.forum.entity.DiscussPost;
-import site.pyyf.forum.service.IDiscussPostService;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -12,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
+import site.pyyf.forum.entity.DiscussPost;
+import site.pyyf.forum.service.IDiscussPostService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -135,28 +136,33 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
         return iDiscussPostMapper.insert(post);
     }
 
+    @Override
     public DiscussPost findDiscussPostById(int id) {
         return iDiscussPostMapper.queryById(id);
     }
 
+    @Override
     public int updateCommentCount(int id, int commentCount) {
         DiscussPost query = queryById(id);
         query.setCommentCount(commentCount);
         return iDiscussPostMapper.update(query);
     }
 
+    @Override
     public int updateType(int id, int type) {
         DiscussPost query = queryById(id);
         query.setType(type);
         return iDiscussPostMapper.update(query);
     }
 
+    @Override
     public int updateStatus(int id, int status) {
         DiscussPost query = queryById(id);
         query.setStatus(status);
         return iDiscussPostMapper.update(query);
     }
 
+    @Override
     public int updateScore(int id, double score) {
         DiscussPost query = queryById(id);
         query.setScore(score);

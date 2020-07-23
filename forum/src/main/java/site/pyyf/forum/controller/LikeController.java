@@ -27,8 +27,10 @@ public class LikeController extends CommunityBaseController implements Community
 
         // 2. 更新目标的点赞数量
         Long likeCount = iLikeService.findEntityLikeCount(entityType, entityId);
+
         // 3. 返回点赞状态，利于前端展示
         int likeStatus = iLikeService.findEntityLikeStatus(user.getId(), entityType, entityId);
+
         // 返回的结果
         Map<String, Object> map = new HashMap<>();
         map.put("likeCount", (long)likeCount);

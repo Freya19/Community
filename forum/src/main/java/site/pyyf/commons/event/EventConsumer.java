@@ -279,8 +279,6 @@ public class EventConsumer extends BaseController implements CommunityConstant {
                 }
             }
         }
-
-
     }
 
 

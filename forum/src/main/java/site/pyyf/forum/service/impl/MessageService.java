@@ -10,26 +10,32 @@ import java.util.List;
 @Service
 public class MessageService extends BaseService implements IMessageService {
 
+    @Override
     public List<Message> findConversations(int userId, int offset, int limit) {
         return iMessageMapper.selectConversations(userId, offset, limit);
     }
 
+    @Override
     public int findConversationCount(int userId) {
         return iMessageMapper.selectConversationCount(userId);
     }
 
+    @Override
     public List<Message> findLetters(String conversationId, int offset, int limit) {
         return iMessageMapper.selectLetters(conversationId, offset, limit);
     }
 
+    @Override
     public int findLetterCount(String conversationId) {
         return iMessageMapper.selectLetterCount(conversationId);
     }
 
+    @Override
     public int findLetterUnreadCount(int userId, String conversationId) {
         return iMessageMapper.selectLetterUnreadCount(userId, conversationId);
     }
 
+    @Override
     public int addMessage(Message message) {
         message.setContent(HtmlUtils.htmlEscape(message.getContent()));
         message.setContent(sensitiveFilter.filter(message.getContent()));

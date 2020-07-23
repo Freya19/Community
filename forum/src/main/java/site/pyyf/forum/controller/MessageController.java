@@ -21,7 +21,9 @@ public class MessageController extends CommunityBaseController implements Commun
 
     /**
      * 私信列表
-     * a. 与useId相关 b. group by conversation_id c.每组中找个最大值(最新的）
+     * a. 与useId相关
+     * b. group by conversation_id
+     * c.每组中找个最大值(最新的）
      */
     @RequestMapping(path = "/letters", method = RequestMethod.GET)
     public String getLetterList(Model model, Page page) {
@@ -152,7 +154,9 @@ public class MessageController extends CommunityBaseController implements Commun
 
     /**
      * 查看通知列表，每种通知查出最新的一条数据
-     * （a. from 系统 b. to userId  c. topic 类型）
+     * a. from 系统
+     * b. to userId
+     * c. topic 类型
      */
     @RequestMapping(path = "/notices", method = RequestMethod.GET)
     public String getNoticeList(Model model) {
