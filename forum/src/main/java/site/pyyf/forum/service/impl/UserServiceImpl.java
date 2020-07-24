@@ -304,7 +304,6 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
     }
 
     public void logout(String ticket) {
-//        loginTicketMapper.updateStatus(ticket, 1);
         String redisKey = RedisKeyUtil.getTicketKey(ticket);
         LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
         loginTicket.setStatus(0);
@@ -312,7 +311,6 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
     }
 
     public LoginTicket findLoginTicket(String ticket) {
-//        return loginTicketMapper.selectByTicket(ticket);
         String redisKey = RedisKeyUtil.getTicketKey(ticket);
         return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
     }

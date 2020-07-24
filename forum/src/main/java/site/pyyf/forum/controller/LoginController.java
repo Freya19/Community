@@ -74,13 +74,6 @@ public class LoginController extends CommunityBaseController implements Communit
         }
     }
 
-    @RequestMapping(path = "/registerSuccess")
-    public String registerSuccess(Model model) {
-        model.addAttribute("msg", "注册成功,我们已经向您的邮箱发送了一封激活邮件,请尽快激活!");
-        model.addAttribute("target", "/index");
-        return "forum/info/operate-result";
-    }
-
     // http://localhost:8080/community/activation/101/code
     @RequestMapping(path = "/activation/{userId}/{code}", method = RequestMethod.GET)
     public String activation(Model model, @PathVariable("userId") int userId, @PathVariable("code") String code) {
@@ -140,25 +133,7 @@ public class LoginController extends CommunityBaseController implements Communit
 
         Map<String, Object> resultMap = new HashMap<>();
 
-        final int allowKaptchaLogin = iSiteSettingService.allowKaptchaLogin();
-
-        /*自己写着玩儿*/
-        if ((allowKaptchaLogin == 1) && (verifycode.equals("####"))) {
-            Map<String, Object> map = iUserService.login("TEST", "123456", REMEMBER_EXPIRED_SECONDS);
-            if (map.containsKey("ticket")) {
-                Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
-                //cookie生效的范围
-                cookie.setPath(contextPath);
-                //设置cookie生效的时间
-                cookie.setMaxAge(REMEMBER_EXPIRED_SECONDS);
-                //cookie存放在response的头部
-                response.addCookie(cookie);
-                return CommunityUtil.getJSONString(0, "登录成功");
-            }
-        }
-
         // 检查验证码
-        // String kaptcha = (String) session.getAttribute("kaptcha");
         String kaptcha = null;
         if (StringUtils.isNotBlank(kaptchaOwner)) {
             String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
@@ -374,5 +349,17 @@ public class LoginController extends CommunityBaseController implements Communit
         SecurityContextHolder.clearContext();
         return CommunityUtil.getJSONString(0, "注销成功");
     }
+
+
+
+    /*
+    @Deprecated
+    @RequestMapping(path = "/registerSuccess")
+    public String registerSuccess(Model model) {
+        model.addAttribute("msg", "注册成功,我们已经向您的邮箱发送了一封激活邮件,请尽快激活!");
+        model.addAttribute("target", "/index");
+        return "forum/info/operate-result";
+    }
+     */
 
 }
