@@ -50,10 +50,10 @@ public class DiscussPostController extends CommunityBaseController implements Co
     public String addDiscussPost(DiscussPost discussPost) {
         User user = hostHolder.getUser();
 
-        // 将表现全都规范为首字母大写，其他字母小写
+        // 将标签全都规范为首字母大写，其他字母小写
         if (discussPost.getTags() != null && !discussPost.getTags().equals("")) {
             String tag = discussPost.getTags();
-            String newTag = tag.substring(0, 1).toUpperCase() + tag.substring(1).toLowerCase();
+            String newTag = tag.trim().substring(0, 1).toUpperCase() + tag.trim().substring(1).toLowerCase();
             discussPost.setTags(newTag);
         }
 

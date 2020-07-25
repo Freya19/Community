@@ -63,7 +63,8 @@ public class TagTasksByThreadPool {
                         continue;
                     }
                     for (String tag : tags) {
-                        allTags.add(tag);
+                        String newTag = tag.trim().substring(0, 1).toUpperCase() + tag.trim().substring(1).toLowerCase();
+                        allTags.add(newTag);
                     }
                 }
                 offset += limit;
