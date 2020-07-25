@@ -49,6 +49,7 @@ public class TagTasksByThreadPool {
 
             List<DiscussPost> discussPosts = new ArrayList<>();
             Set<String> allTags = new HashSet<>();
+
             // 1.1 先统计出帖子的所有标签名
             // 注意这里一开始discussPosts数量为0，所以offset一开始是0，然后搜到20个，则加进去，搜到则加进去，
             // discussPosts加的是实际数据，而offset每次固定加20,因此终有一次，offset会超过discussPosts.size()

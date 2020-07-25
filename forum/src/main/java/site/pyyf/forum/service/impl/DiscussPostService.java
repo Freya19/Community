@@ -15,6 +15,7 @@ import site.pyyf.forum.entity.DiscussPost;
 import site.pyyf.forum.service.IDiscussPostService;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -94,6 +95,20 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
                 });
     }
 
+
+    @Override
+    public DiscussPost save(DiscussPost discussPost){
+        //传入的是编辑的帖子
+        if(discussPost.getId()!=null){
+            iDiscussPostMapper.update(discussPost);
+            return queryById(discussPost.getId());
+        }else {
+            //传入的新发布的帖子
+            iDiscussPostMapper.insert(discussPost);
+            return queryById(discussPost.getId());
+        }
+    }
+
     @Override
     public List<DiscussPost> queryAllByLimit(DiscussPost discussPost, int orderMode, int offset, int limit) {
         if (discussPost.getUserId() == -1 && orderMode==1) {
@@ -117,6 +132,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      * @param post 实例对象
      * @return 实例对象
      */
+    @Override
     public int insert(DiscussPost post) {
         if (post == null) {
             throw new IllegalArgumentException("参数不能为空!");
