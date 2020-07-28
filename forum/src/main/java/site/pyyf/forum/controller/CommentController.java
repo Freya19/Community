@@ -24,7 +24,7 @@ public class CommentController extends CommunityBaseController implements Commun
         // 1. 将评论插入mysql中，并更新帖子评论数
         iCommentService.insert(comment);
 
-        // 2. 触发评论事件，交由异步处理，通知帖子作者有人评论
+        // 2. 触发评论事件，交由异步处理，发邮件？？通知帖子作者有人评论
         Event event = new Event()
                 .setTopic(TOPIC_COMMENT)
                 .setUserId(hostHolder.getUser().getId())
@@ -50,7 +50,8 @@ public class CommentController extends CommunityBaseController implements Commun
             eventProducer.fireEvent(event);
 
             // 4. 将帖子id加入Redis中，交由quartz计算帖子分数（增量计算）
-            // 因为计算分数涉及的数据量比较多，所以只将变化（比如新增点赞、评论等）的帖子的id存入Redis中，然后交由Quartz定时取出，重新计算其分数
+            // 因为计算分数涉及的数据量比较多，所以只将变化（比如新增点赞、评论等）的帖子的id存入Redis中，
+            // 然后交由Quartz定时取出，重新计算其分数
             String redisKey = RedisKeyUtil.getPostScoreKey();
             redisTemplate.opsForSet().add(redisKey, discussPostId);
         }

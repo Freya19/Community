@@ -250,6 +250,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         }
     }
 
+    @Override
     public Map<String, Object> login(String username, String password, long expiredSeconds) {
         Map<String, Object> map = new HashMap<>();
 
@@ -296,6 +297,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         loginTicket.setStatus(1);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
 
+        //通过 ticket 拼成 Redis的key
         String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
         redisTemplate.opsForValue().set(redisKey, loginTicket);
         iUserService.update(User.builder().id(user.getId()).loginTime(new Date()).build());
