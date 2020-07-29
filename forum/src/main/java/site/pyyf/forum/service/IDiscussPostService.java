@@ -88,6 +88,16 @@ public interface IDiscussPostService {
      */
     DiscussPost update(DiscussPost discussPost);
 
+
+    /**
+     * @Description 保存数据
+     * @author "Freya19"
+     * @date 2020-07-25 15:44
+     * @param discussPost 帖子
+     * @return 帖子
+     */
+    DiscussPost save(DiscussPost discussPost);
+
     /**
      * @Description 通过主键删除数据
      * @author "Gepeng18"
