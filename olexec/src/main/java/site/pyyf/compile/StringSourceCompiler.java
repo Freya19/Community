@@ -69,6 +69,13 @@ public class StringSourceCompiler {
             return javaFileObject;
         }
 
+        /**
+         * 第二步，编译器将编译好的字节码放到某个javafileobject中，但是放到哪个javafileobject呢，
+         * 实际上，编译器工具类会调用getJavaFileForOutput方法，向fileObjectMap中new一个javafileobject，并将引用传出来，
+         * 随后工具类调用javafileobject的openOutputStream方法，将字节码扔进去，因为是引用，这时fileObjectMap中就有一个类的javafileObject了
+         *
+         * 可见，一开始我们将代码放到javafileobject中，然后通过一系列调用，做成javafileobject，就行了
+         */
         @Override
         public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
             JavaFileObject javaFileObject = new TmpJavaFileObject(className, kind);
@@ -103,7 +110,9 @@ public class StringSourceCompiler {
         }
 
         /**
-         * 内部调用
+         * 供内部调用
+         * 第一步：将源代码从javafileobject中取出，之前已经将源代码封装成javafileobject了
+         *        所以java编译器工具类利用这个函数取出来，编译成字节码
          */
         @Override
         public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
@@ -115,7 +124,9 @@ public class StringSourceCompiler {
 
 
         /**
-         * 内部调用
+         * 供内部调用
+         *  第三步：这就是第二步中的openOutputStream，
+         *  工具类调用javafileobject的openOutputStream方法，将字节码扔进去
          */
         @Override
         public OutputStream openOutputStream() throws IOException {
@@ -125,6 +136,7 @@ public class StringSourceCompiler {
 
         /**
          * 外部调用
+         * 当所有的代码都编译完成后，需要进行字节码替换时，需要取出来，然后做些修改后存成一个map
          */
         public byte[] getCompiledBytes() {
             return outputStream.toByteArray();
