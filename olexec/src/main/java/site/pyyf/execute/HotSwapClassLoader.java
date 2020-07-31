@@ -2,6 +2,14 @@ package site.pyyf.execute;
 
 import java.util.Map;
 
+/**
+ * 1. 首先应用类加载器加载所有的我们自己写的代码
+ * 2. 当用户发来代码后，如Main1类，则我们的项目创建一个自定义类加载器进行加载
+ * 3. 当遇到了arraylist这些类时，会通过super()的双亲委派机制交由应用类加载器和扩展类加载器，系统类加载器进行加载
+ * 4. 当用户发来代码后，如Main2类，则我们的项目创建一个自定义类加载器进行加载
+ * 5. 当遇到了arraylist这些类时，会通过super()的双亲委派机制交由应用类加载器和扩展类加载器，系统类加载器进行加载
+ * 6. 这样就可以完成，
+ */
 public class HotSwapClassLoader extends ClassLoader {
     private Map<String, byte[]> modifiedByte;
 
