@@ -48,10 +48,11 @@ public class CacheTests {
         int offset = 0;
         int limit = 20;
         Set<String> allTags = new HashSet<>();
-        List<DiscussPost> discussPosts = new ArrayList<>();
-        while (offset <= discussPosts.size()) {
-            discussPosts.addAll(iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit));
-            for (DiscussPost discussPost : discussPosts) {
+        List<DiscussPost> allPosts = new ArrayList<>();
+        while (offset <= allPosts.size()) {
+            List<DiscussPost> currentPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
+            allPosts.addAll(currentPosts);
+            for (DiscussPost discussPost : currentPosts) {
                 redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(), discussPost.getId(), discussPost.getScore());
                 // 按照时间查时，一开始是最新的，所以从右边插入即可
                 redisTemplate.opsForList().rightPush(RedisKeyUtil.getLatestPostsList(), discussPost.getId());
@@ -68,8 +69,8 @@ public class CacheTests {
 
         // 2. 根据每个标签名搜出对应的帖子数量，并添加到redis的tagName的list中
         for (String tagName : allTags) {
-            discussPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().tags(tagName).build());
-            for (DiscussPost discussPost : discussPosts) {
+            allPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().tags(tagName).build());
+            for (DiscussPost discussPost : allPosts) {
                 // 使用zset，time作为score进行排序
                 redisTemplate.opsForZSet().add(RedisKeyUtil.getTagPostsList(tagName), discussPost.getId(), discussPost.getCreateTime().getTime());
             }
@@ -77,8 +78,8 @@ public class CacheTests {
 
         // 3. 使用redis的hash存储帖子标签及其数量
         for (String tagName : allTags) {
-            discussPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().tags(tagName).build());
-            redisTemplate.opsForZSet().add(RedisKeyUtil.getTagsCount(), tagName, discussPosts.size());
+            allPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().tags(tagName).build());
+            redisTemplate.opsForZSet().add(RedisKeyUtil.getTagsCount(), tagName, allPosts.size());
         }
 
     }

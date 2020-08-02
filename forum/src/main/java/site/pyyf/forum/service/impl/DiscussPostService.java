@@ -136,7 +136,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
             }else if (orderMode == 1){
                 logger.debug("主页热度查询，从redis中拿到ids，offset = "+offset+" ,limit = "+limit);
                 String hotIdsKey = RedisKeyUtil.getHotPostsList();
-                ids = redisTemplate.opsForZSet().range(hotIdsKey, offset, offset+limit-1);
+                ids = redisTemplate.opsForZSet().reverseRange(hotIdsKey, offset, offset+limit-1); // redis从小到大排的，所以reverse一下
             }else {
                 //只是为了代码不报错，没用
                 ids = new ArrayList<>();
