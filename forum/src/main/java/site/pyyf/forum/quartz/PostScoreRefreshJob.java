@@ -103,7 +103,7 @@ public class PostScoreRefreshJob implements CommunityConstant {
         post.setScore(score);
         elasticsearchService.saveDiscussPost(post);
 
-        redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(),postId,score);
-        }
+        redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(), postId, score);
+    }
 
 }

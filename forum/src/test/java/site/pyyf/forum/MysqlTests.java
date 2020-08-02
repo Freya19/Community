@@ -31,8 +31,8 @@ public class MysqlTests {
             String[] tagsName = discussPost.getTags().split(",|，");
             StringBuilder builder = new StringBuilder();
             for(String tagName:tagsName)
-                builder.append(tagName.trim().substring(0, 1).toUpperCase() + tagName.trim().substring(1).toLowerCase());
-            discussPost.setTags(builder.toString());
+                builder.append(tagName.trim().substring(0, 1).toUpperCase() + tagName.trim().substring(1).toLowerCase()).append(",");
+            discussPost.setTags(builder.toString().substring(0,builder.length()-1));
             iDiscussPostMapper.update(discussPost);
         }
     }
