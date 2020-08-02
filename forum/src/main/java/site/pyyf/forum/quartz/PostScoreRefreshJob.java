@@ -54,11 +54,11 @@ public class PostScoreRefreshJob implements CommunityConstant {
 
     @PostConstruct
     public void calculateTags() {
-        ScoresTask task = new ScoresTask();
+        ScoreTask task = new ScoreTask();
         threadPoolTaskScheduler.scheduleAtFixedRate(task, 1000 * 60 * 60 * 3);
     }
 
-    class ScoresTask implements Runnable {
+    class ScoreTask implements Runnable {
         @Override
         public void run() {
             String redisKey = RedisKeyUtil.getPostScoreKey();
