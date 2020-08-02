@@ -50,12 +50,13 @@ public class DiscussPostController extends CommunityBaseController implements Co
     @RequestMapping(method = RequestMethod.POST)
     public String addDiscussPost(DiscussPost discussPost) {
         User user = hostHolder.getUser();
-
         // 将标签全都规范为首字母大写，其他字母小写
         if (discussPost.getTags() != null && !discussPost.getTags().equals("")) {
-            String tag = discussPost.getTags();
-            String newTag = tag.trim().substring(0, 1).toUpperCase() + tag.trim().substring(1).toLowerCase();
-            discussPost.setTags(newTag);
+            String[] tagsName = discussPost.getTags().split(",|，");
+            StringBuilder builder = new StringBuilder();
+            for(String tagName:tagsName)
+                builder.append(tagName.trim().substring(0, 1).toUpperCase() + tagName.trim().substring(1).toLowerCase());
+            discussPost.setTags(builder.toString());
         }
 
         boolean addDiscussPostFlag=false;

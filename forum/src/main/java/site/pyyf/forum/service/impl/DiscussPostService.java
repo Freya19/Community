@@ -153,7 +153,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
         if(discussPost.getTags()!=null){
             List<DiscussPost> discussPosts = new ArrayList<>();
             Set<Integer> ids = redisTemplate.opsForZSet().reverseRange(RedisKeyUtil.getTagPostsList(discussPost.getTags()), offset, limit);
-            logger.debug("标签查询，从redis中拿到ids，tag = +"+discussPost.getTags()+",offset = "+offset+" ,limit = "+limit);
+            logger.debug("标签查询，从redis中拿到ids，tag = "+discussPost.getTags()+",offset = "+offset+" ,limit = "+limit);
             // 根据组合id去搜对应的帖子
             for (Integer id: ids){
                 discussPosts.add(postListCache.get(String.valueOf(id)));

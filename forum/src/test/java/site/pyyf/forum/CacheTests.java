@@ -84,7 +84,7 @@ public class CacheTests {
     }
 
 
-    @Test
+//    @Test
     public void delKey() {
         ArrayList<String> keys = new ArrayList<>();
         keys.add("post");

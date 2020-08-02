@@ -55,7 +55,7 @@ public class TagTasksByThreadPool {
             Set<String> allTags = new HashSet<>();
             List<DiscussPost> discussPosts = new ArrayList<>();
             while (offset <= discussPosts.size()) {
-                discussPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
+                discussPosts.addAll(iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit));
                 for (DiscussPost discussPost : discussPosts) {
                     //tags字段一定有值
                     String[] tags = StringUtils.split(discussPost.getTags(), ",|，");
