@@ -1,6 +1,6 @@
 package site.pyyf.commons.utils;
 
-public class RedisKeyUtil implements CommunityConstant{
+public class RedisKeyUtil implements CommunityConstant {
 
     private static final String SPLIT = ":";
     private static final String PREFIX_ENTITY_LIKE = "like:entity";
@@ -11,12 +11,17 @@ public class RedisKeyUtil implements CommunityConstant{
     private static final String PREFIX_TICKET = "ticket";
     private static final String PREFIX_USER = "user";
     private static final String PREFIX_UV = "uv";
+    private static final String PREFIX_TAG = "tag";
+    private static final String PREFIX_TAGS_COUNT = "tags:count";
     private static final String PREFIX_DAU = "dau";
     private static final String PREFIX_POST = "post";
     private static final String PREFIX_TIMELINE_LATEST = "timeline:latest";
     private static final String PREFIX_TIMELINE_PERSISTENCE = "timeline:persistence";
     private static final String PREFIX_TAG_LATEST = "tag:latest";
     private static final String PREFIX_TAG_PERSISTENCE = "tag:persistence";
+    private static final String PREFIX_HOT_posts = "hot:posts:list";
+    private static final String PREFIX_LATEST_posts = "latest:posts:list";
+    private static final String PREFIX_HOT_SIDE_posts = "hot:side:posts:list";
 
     // 某个实体的赞
     // like:entity:entityType:entityId -> set(userId)
@@ -82,23 +87,48 @@ public class RedisKeyUtil implements CommunityConstant{
         return PREFIX_POST + SPLIT + "score";
     }
 
+    // 帖子内容
+    public static String getPostDOKey(int postId) {
+        return PREFIX_POST + SPLIT + "DO" + SPLIT + String.valueOf(postId);
+    }
+
     //获得最新的的timeline
     public static String getLatestTimelineKey(int userId) {
-        return PREFIX_TIMELINE_LATEST + SPLIT + String.valueOf(userId) ;
+        return PREFIX_TIMELINE_LATEST + SPLIT + String.valueOf(userId);
     }
 
     //获得持久化的timeline
     public static String getPersistenceTimelineKey(int userId) {
-        return PREFIX_TIMELINE_PERSISTENCE + SPLIT + String.valueOf(userId) ;
+        return PREFIX_TIMELINE_PERSISTENCE + SPLIT + String.valueOf(userId);
     }
 
     //获得最新的的timeline
     public static String getLatestViewTagsKey(int userId) {
-        return PREFIX_TAG_LATEST + SPLIT + String.valueOf(userId) ;
+        return PREFIX_TAG_LATEST + SPLIT + String.valueOf(userId);
     }
 
     //获得持久化的timeline
     public static String getPersistenceViewTagsKey(int userId) {
-        return PREFIX_TAG_PERSISTENCE + SPLIT + String.valueOf(userId) ;
+        return PREFIX_TAG_PERSISTENCE + SPLIT + String.valueOf(userId);
+    }
+
+    // 获得按照热门排序的所有帖子id，这里是按照热门查询
+    public static String getHotPostsList() {
+        return PREFIX_HOT_posts;
+    }
+
+    // 获得按照时间排序的所有帖子id
+    public static String getLatestPostsList() {
+        return PREFIX_LATEST_posts;
+    }
+
+    // 获得标签对应的帖子列表
+    public static String getTagPostsList(String tagName) {
+        return PREFIX_TAG + SPLIT + tagName;
+    }
+
+    // 获得所有标签及其数量
+    public static String getTagsCount() {
+        return PREFIX_TAGS_COUNT;
     }
 }

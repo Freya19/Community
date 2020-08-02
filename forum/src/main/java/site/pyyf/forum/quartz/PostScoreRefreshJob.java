@@ -53,15 +53,15 @@ public class PostScoreRefreshJob implements Job, CommunityConstant {
         BoundSetOperations operations = redisTemplate.boundSetOps(redisKey);
 
         if (operations.size() == 0) {
-            logger.info("[任务取消] 没有需要刷新的帖子!");
+            logger.debug("[任务取消] 没有需要刷新的帖子!");
             return;
         }
 
-        logger.info("[任务开始] 正在刷新帖子分数: " + operations.size());
+        logger.debug("[任务开始] 正在刷新帖子分数: " + operations.size());
         while (operations.size() > 0) {
             this.refresh((Integer) operations.pop());
         }
-        logger.info("[任务结束] 帖子分数刷新完毕!");
+        logger.debug("[任务结束] 帖子分数刷新完毕!");
     }
 
     private void refresh(int postId) {
@@ -89,6 +89,8 @@ public class PostScoreRefreshJob implements Job, CommunityConstant {
         // 同步搜索数据
         post.setScore(score);
         elasticsearchService.saveDiscussPost(post);
-    }
+
+        redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(),postId,score);
+        }
 
 }

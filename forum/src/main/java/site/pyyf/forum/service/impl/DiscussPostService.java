@@ -11,12 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
+import site.pyyf.commons.utils.RedisKeyUtil;
 import site.pyyf.forum.entity.DiscussPost;
 import site.pyyf.forum.service.IDiscussPostService;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -32,65 +35,28 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     // Caffeine核心接口: Cache, LoadingCache, AsyncLoadingCache
 
-    // 帖子列表缓存
-    private LoadingCache<String, List<DiscussPost>> postListCache;
+    // 帖子缓存
+    private LoadingCache<String,DiscussPost> postListCache;
 
-    // 帖子总数缓存
-    private LoadingCache<String, Integer> postRowsCache;
 
     @PostConstruct
     public void init() {
-        // 初始化帖子列表缓存
+        // 初始化帖子缓存
         postListCache = Caffeine.newBuilder()
                 .maximumSize(maxSize)
                 .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
-                .build(new CacheLoader<String, List<DiscussPost>>() {
+                .build(new CacheLoader<String, DiscussPost>() {
                     @Nullable
                     @Override
-                    public List<DiscussPost> load(@NonNull String key) throws Exception {
+                    public DiscussPost load(@NonNull String key) throws Exception {
                         if (key == null || key.length() == 0) {
                             throw new IllegalArgumentException("参数错误!");
                         }
 
-                        String[] params = key.split(":");
-                        if (params == null || params.length != 3) {
-                            throw new IllegalArgumentException("参数错误!");
-                        }
-
-                        int offset = Integer.valueOf(params[0]);
-                        int limit = Integer.valueOf(params[1]);
-                        String tag = String.valueOf(params[2]);
-
-                        // 二级缓存: Redis -> mysql
-
-                        logger.debug("load post list from DB.");
-                        DiscussPost query = DiscussPost.builder().userId(-1).tags(tag).build();
-                        return iDiscussPostMapper.queryAllByLimit(query, 1,offset, limit);
-                    }
-                });
-        // 初始化帖子总数缓存
-        postRowsCache = Caffeine.newBuilder()
-                .maximumSize(maxSize)
-                .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
-                .build(new CacheLoader<String, Integer>() {
-                    @Nullable
-                    @Override
-                    public Integer load(@NonNull String key) throws Exception {
-
-                        if (key == null || key.length() == 0) {
-                            throw new IllegalArgumentException("参数错误!");
-                        }
-
-                        String[] params = key.split(":");
-                        if (params == null || params.length != 2) {
-                            throw new IllegalArgumentException("参数错误!");
-                        }
-
-                        int userId = Integer.valueOf(params[0]);
-                        String tag = String.valueOf(params[1]);
-                        logger.debug("load post rows from DB.");
-                        DiscussPost query = DiscussPost.builder().userId(userId).tags(tag).build();
-                        return iDiscussPostMapper.queryCount(query);
+                        Integer postId = Integer.valueOf(key);
+                        logger.debug("从caffeine拿id = "+key+" 的帖子");
+                        // 从redis拿
+                        return queryById(postId);
                     }
                 });
     }
@@ -100,22 +66,103 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
     public DiscussPost save(DiscussPost discussPost){
         //传入的是编辑的帖子
         if(discussPost.getId()!=null){
-            iDiscussPostMapper.update(discussPost);
-            return queryById(discussPost.getId());
+            changeRedisTagList(discussPost);
+            clearCache(discussPost.getId());
+            update(discussPost);
+            return postListCache.get(String.valueOf(discussPost.getId()));
         }else {
+            addRedisTagList(discussPost);
             //传入的新发布的帖子
-            iDiscussPostMapper.insert(discussPost);
-            return queryById(discussPost.getId());
+            insert(discussPost);
+            redisTemplate.opsForList().leftPush(RedisKeyUtil.getLatestPostsList(),discussPost.getId());
+            redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(),discussPost.getId(),0);
+            return postListCache.get(String.valueOf(discussPost.getId()));
         }
+    }
+
+
+    /**
+     * @Description 修改数据
+     * @author "Gepeng18"
+     * @date 2020-03-27 07:57:21
+     * @param discussPost 实例对象
+     * @return 实例对象
+     */
+    @Override
+    public DiscussPost update(DiscussPost discussPost) {
+        this.iDiscussPostMapper.update(discussPost);
+        return queryById(discussPost.getId());
+    }
+
+
+    private void  delRedisTagList(DiscussPost discussPost){
+        // 先查询以前的帖子tags,将id从里面删了
+        String[] tagNames = iDiscussPostMapper.queryById(discussPost.getId()).getTags().split(",");
+        for (String tagName:tagNames){
+            // 标签对应的帖子数量-1，标签对应的帖子的id，需要删掉一个
+            redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagPostsList(tagName),discussPost.getId());
+            redisTemplate.opsForZSet().incrementScore(RedisKeyUtil.getTagsCount(),tagName,-1);
+            if(redisTemplate.opsForZSet().score(RedisKeyUtil.getTagsCount(),tagName).equals(0))
+                redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagsCount(),tagName);
+
+        }
+    }
+
+    private void  addRedisTagList(DiscussPost discussPost){
+        // 再查询现在的帖子tags,将id加上，同时数量加1
+        for (String tagName:discussPost.getTags().split(",")){
+            redisTemplate.opsForZSet().add(RedisKeyUtil.getTagPostsList(tagName),discussPost.getId(),discussPost.getCreateTime().getTime());
+            redisTemplate.opsForZSet().incrementScore(RedisKeyUtil.getTagsCount(),tagName,1);
+        }
+    }
+
+    private void changeRedisTagList(DiscussPost discussPost) {
+        delRedisTagList(discussPost);
+        addRedisTagList(discussPost);
     }
 
     @Override
     public List<DiscussPost> queryAllByLimit(DiscussPost discussPost, int orderMode, int offset, int limit) {
-        if (discussPost.getUserId() == -1 && orderMode==1) {
-            return postListCache.get(offset + ":" + limit+ ":"+discussPost.getTags());
+        // discussPost == null表明是主页查询
+        if(discussPost == null){
+            //从redis中获得组合id
+            Collection<Integer> ids;
+            List<DiscussPost> discussPosts = new ArrayList<>();
+            if(orderMode==0){
+                logger.debug("主页时间查询，从redis中拿到ids，offset = "+offset+" ,limit = "+limit);
+                String latestIdsKey = RedisKeyUtil.getLatestPostsList();
+                // redis 的 range 是from 到 to
+                ids = redisTemplate.opsForList().range(latestIdsKey, offset, offset+limit-1);
+            }else if (orderMode == 1){
+                logger.debug("主页热度查询，从redis中拿到ids，offset = "+offset+" ,limit = "+limit);
+                String hotIdsKey = RedisKeyUtil.getHotPostsList();
+                ids = redisTemplate.opsForZSet().range(hotIdsKey, offset, offset+limit-1);
+            }else {
+                //只是为了代码不报错，没用
+                ids = new ArrayList<>();
+            }
+
+            // 根据组合id去搜对应的帖子
+            for (Integer id: ids){
+                discussPosts.add(postListCache.get(String.valueOf(id)));
+            }
+            return discussPosts;
         }
 
-        logger.debug("load post list from DB.");
+        // 按标签查询，只是这里没有分按时间和按热度进行子查询，只提供按时间查询
+        if(discussPost.getTags()!=null){
+            List<DiscussPost> discussPosts = new ArrayList<>();
+            Set<Integer> ids = redisTemplate.opsForZSet().reverseRange(RedisKeyUtil.getTagPostsList(discussPost.getTags()), offset, limit);
+            logger.debug("标签查询，从redis中拿到ids，tag = +"+discussPost.getTags()+",offset = "+offset+" ,limit = "+limit);
+            // 根据组合id去搜对应的帖子
+            for (Integer id: ids){
+                discussPosts.add(postListCache.get(String.valueOf(id)));
+            }
+            return discussPosts;
+        }
+
+
+        logger.debug("从mysql中进行查询帖子列表，offset = "+offset+",limit= "+limit);
         return iDiscussPostMapper.queryAllByLimit(discussPost, orderMode, offset, limit);
     }
 
@@ -166,6 +213,13 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     @Override
     public int updateType(int id, int type) {
+        // 置顶，1. 删除缓存(缓存的DO状态变了) 2. 将redis的list从中间某一个部分提高最开始
+        if(type == 1){
+            clearCache(id);
+            delRedisTagList(iDiscussPostMapper.queryById(id));
+            redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
+            redisTemplate.opsForList().leftPush(RedisKeyUtil.getLatestPostsList(),id);
+        }
         DiscussPost query = queryById(id);
         query.setType(type);
         return iDiscussPostMapper.update(query);
@@ -173,6 +227,11 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     @Override
     public int updateStatus(int id, int status) {
+        if(status == 2){
+            redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),id);
+            redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
+        }
+
         DiscussPost query = queryById(id);
         query.setStatus(status);
         return iDiscussPostMapper.update(query);
@@ -196,8 +255,49 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      */
     @Override
     public DiscussPost queryById(Integer id) {
-        return iDiscussPostMapper.queryById(id);
+        DiscussPost post = getCache(id);
+        if (post == null) {
+            post = initCache(id);
+        }
+        return post;
     }
+
+
+    /**
+     * 1.优先从缓存中取值
+     * @param postId
+     * @return
+     */
+    private DiscussPost getCache(int postId) {
+        logger.debug("caffeine没查到，从redis中查询 id = "+postId+" 的帖子");
+        String postKey = RedisKeyUtil.getPostDOKey(postId);
+        return (DiscussPost) redisTemplate.opsForValue().get(postKey);
+    }
+
+    /**
+     *  2.取不到时初始化缓存数据
+     * @param postId
+     * @return
+     */
+    private DiscussPost initCache(int postId) {
+        logger.debug("redis没查到，从mysql中查询 id = "+postId+" 的帖子");
+        DiscussPost post = iDiscussPostMapper.queryById(postId);
+        String postKey = RedisKeyUtil.getPostDOKey(postId);
+        redisTemplate.opsForValue().set(postKey, post);
+        return post;
+    }
+
+    /**
+     * /3.数据变更时清除缓存数据
+     * @param postId
+     */
+    private void clearCache(int postId) {
+        logger.debug("清除 id = "+postId+"的帖子缓存");
+        postListCache.invalidate(String.valueOf(postId));
+        String postKey = RedisKeyUtil.getPostDOKey(postId);
+        redisTemplate.delete(postKey);
+    }
+
 
     /**
      * @Description 查询多条数据
@@ -208,7 +308,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      * @return 对象列表
      */
     @Override
-    public List<DiscussPost> queryAllByLimit(int orderMode,int offset, int limit) {
+    public List<DiscussPost> queryAllByLimit(int orderMode, int offset, int limit) {
         return iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(),orderMode,offset, limit);
     }
 
@@ -255,27 +355,18 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      */
     @Override
     public int queryCount(DiscussPost discussPost) {
-        if (discussPost.getUserId() == -1) {
-            return postRowsCache.get(discussPost.getUserId() +":"+discussPost.getTags());
-        }
-
+        // 主页查询
+        if(discussPost == null)
+            return redisTemplate.opsForZSet().size(RedisKeyUtil.getHotPostsList()).intValue();
+        // 标签查询
+        if(discussPost.getTags()!=null)
+            return redisTemplate.opsForZSet().size(RedisKeyUtil.getTagPostsList(discussPost.getTags())).intValue();
+        // 其他查询
         logger.debug("load post rows from DB.");
         return iDiscussPostMapper.queryCount(discussPost);
 
     }
 
-    /**
-     * @Description 修改数据
-     * @author "Gepeng18"
-     * @date 2020-03-27 07:57:21
-     * @param discussPost 实例对象
-     * @return 实例对象
-     */
-    @Override
-    public DiscussPost update(DiscussPost discussPost) {
-        this.iDiscussPostMapper.update(discussPost);
-        return queryById(discussPost.getId());
-    }
 
     /**
      * @Description 通过主键删除数据
@@ -284,8 +375,11 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      * @param id 主键
      * @return 是否成功
      */
+    @Deprecated
     @Override
     public boolean deleteById(Integer id) {
+        redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),id);
+        redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
         return iDiscussPostMapper.deleteById(id) > 0;
     }
 

@@ -109,7 +109,7 @@ public class FeedController extends CommunityBaseController implements Community
 
         //  热门问题
         List<DiscussPost> hotPosts = iDiscussPostService
-                .queryAllByLimit(DiscussPost.builder().userId(-1).tags("-1").build(), ORDER_TOPANDSCORE, 0, 5);
+                .queryAllByLimit(null, ORDER_TOPANDSCORE, 0, 5);
         model.addAttribute("hotPosts", hotPosts);
 
         return "index";

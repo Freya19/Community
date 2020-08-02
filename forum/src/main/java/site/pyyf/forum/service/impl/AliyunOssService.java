@@ -64,7 +64,7 @@ public class AliyunOssService extends BaseService implements IAliyunOssService {
         // 上传到阿里云
         try {
             ossClient.putObject(aliyunConfig.getBucketName(), remotePath, new FileInputStream(file));
-            logger.info("上传OSS成功");
+            logger.debug("上传OSS成功");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("上传OSS失败");
@@ -102,7 +102,7 @@ public class AliyunOssService extends BaseService implements IAliyunOssService {
         // 上传到阿里云
         try {
             ossClient.putObject(aliyunConfig.getBucketName(), remotePath, inputStream);
-            logger.info("上传OSS成功");
+            logger.debug("上传OSS成功");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("上传OSS失败");
@@ -171,11 +171,11 @@ public class AliyunOssService extends BaseService implements IAliyunOssService {
                 i = i + len;
                 out.write(buffer, 0, len);
             }
-            logger.info("下载OSS成功");
+            logger.debug("下载OSS成功");
             // 数据读取完成后，获取的流必须关闭，否则会造成连接泄漏，导致请求无连接可用，程序无法正常工作。
             in.close();
         } catch (Exception e) {
-            logger.info("下载OSS失败");
+            logger.debug("下载OSS失败");
             e.printStackTrace();
         }
 

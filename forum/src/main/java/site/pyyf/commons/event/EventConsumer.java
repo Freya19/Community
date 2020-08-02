@@ -349,7 +349,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
         try {
             // 实现了调用服务器命令脚本 来执行功能需要
             Runtime.getRuntime().exec(cmd);
-            logger.info("生成长图成功: " + cmd);
+            logger.debug("生成长图成功: " + cmd);
         } catch (IOException e) {
             logger.error("生成长图失败: " + e.getMessage());
         }
@@ -405,7 +405,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             String path = wkImageStorage + "/" + fileName + suffix;
             File file = new File(path);
             if (file.exists()) {
-                logger.info(String.format("开始第%d次上传[%s].", ++uploadTimes, fileName));
+                logger.debug(String.format("开始第%d次上传[%s].", ++uploadTimes, fileName));
                 // 设置响应信息
                 StringMap policy = new StringMap();
                 policy.put("returnBody", CommunityUtil.getJSONString(0));
@@ -421,16 +421,16 @@ public class EventConsumer extends BaseController implements CommunityConstant {
                     // 处理响应结果（转换为json对象）
                     JSONObject json = JSONObject.parseObject(response.bodyString());
                     if (json == null || json.get("code") == null || !json.get("code").toString().equals("0")) {
-                        logger.info(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
+                        logger.debug(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
                     } else {
-                        logger.info(String.format("第%d次上传成功[%s].", uploadTimes, fileName));
+                        logger.debug(String.format("第%d次上传成功[%s].", uploadTimes, fileName));
                         future.cancel(true);
                     }
                 } catch (QiniuException e) {
-                    logger.info(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
+                    logger.debug(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
                 }
             } else {
-                logger.info("等待图片生成[" + fileName + "].");
+                logger.debug("等待图片生成[" + fileName + "].");
             }
         }
     }

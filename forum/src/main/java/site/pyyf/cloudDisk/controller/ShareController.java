@@ -101,12 +101,12 @@ public class ShareController extends CloudDiskBaseController implements CloudDis
         }
         String filePath = myFile.getMyFilePath();
         String fileName = myFile.getMyFileName();
-        logger.info("文件位置" + filePath + fileName);
+        logger.debug("文件位置" + filePath + fileName);
 
         OutputStream os = null;
         try {
             os = new BufferedOutputStream(response.getOutputStream());
-            logger.info("开始下载");
+            logger.debug("开始下载");
             response.setCharacterEncoding("utf-8");
             // 设置返回类型
             response.setContentType("multipart/form-data");
@@ -119,28 +119,28 @@ public class ShareController extends CloudDiskBaseController implements CloudDis
         if (filePath.startsWith("http")) {
             //配置是OSS或者是图片则从OSS中下载，因为图片始终存放在OSS中
             try {
-                logger.info("开始下载");
+                logger.debug("开始下载");
                 aliyunOssService.download(filePath.substring(aliyunConfig.getUrlPrefix().length()), os);
                 iMyFileService.update(
                         MyFile.builder().id(myFile.getId()).downloadTime(myFile.getDownloadTime() + 1).build());
-                logger.info("文件从OSS下载成功");
+                logger.debug("文件从OSS下载成功");
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.info("文件从OSS下载失败");
+                logger.debug("文件从OSS下载失败");
                 os.close();
                 return;
             }
         } else {
             //去FTP上拉取
-            logger.info("开始下载");
+            logger.debug("开始下载");
             boolean FTPdownLoadRes = FtpUtil.downloadFile("/" + filePath, os);
             if (FTPdownLoadRes){
-                logger.info("文件从FTP下载成功");
+                logger.debug("文件从FTP下载成功");
                 iMyFileService.update(
                         MyFile.builder().id(myFile.getId()).downloadTime(myFile.getDownloadTime() + 1).build());
             }
             else {
-                logger.info("文件从FTP下载失败!" + myFile);
+                logger.debug("文件从FTP下载失败!" + myFile);
                 os.close();
                 return;
             }
@@ -264,14 +264,14 @@ public class ShareController extends CloudDiskBaseController implements CloudDis
                 .id(user.getId())
                 .currentSize(iUserService.queryById(user.getId()).getCurrentSize() + shareFile.getSize())
                 .build());
-        logger.info("转存文件插入数据库成功");
+        logger.debug("转存文件插入数据库成功");
 
 
         //如果是markdown，则再传一份到library表中
         if (insertFile.getPostfix().equals(".md")) {
             try {
                 iResolveHeaderService.readFile(insertFile.getMyFilePath(), insertFile.getMyFileName(), insertFile.getId());
-                logger.info("文件转存过程中markdown转化成功");
+                logger.debug("文件转存过程中markdown转化成功");
                 return 200;
             } catch (Exception e) {
                 e.printStackTrace();

@@ -48,7 +48,6 @@ public class SpringBootTests {
     @After
     public void after() {
         System.out.println("after");
-
         // 删除测试数据
         discussPostService.updateStatus(data.getId(), 2);
     }

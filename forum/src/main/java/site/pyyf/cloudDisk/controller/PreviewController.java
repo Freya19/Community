@@ -42,19 +42,19 @@ public class PreviewController extends CloudDiskBaseController {
         try {
             //去FTP上拉取
             OutputStream os = new BufferedOutputStream(response.getOutputStream());
-            logger.info("开始下载");
+            logger.debug("开始下载");
             response.setCharacterEncoding("utf-8");
             // 设置返回类型
             response.setContentType("video/mpeg4");
             // 文件名转码一下，不然会出现中文乱码
             boolean flag = FtpUtil.downloadFile("/" + remotePath, os);
-            logger.info("下载完成");
+            logger.debug("下载完成");
             if (flag) {
                 iMyFileService.update(
                         MyFile.builder().id(myFile.getId()).downloadTime(myFile.getDownloadTime() + 1).build());
                 os.flush();
                 os.close();
-                logger.info("文件下载成功!  ----->>>>>  " + myFile.getMyFileName());
+                logger.debug("文件下载成功!  ----->>>>>  " + myFile.getMyFileName());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,7 +79,7 @@ public class PreviewController extends CloudDiskBaseController {
         try {
             //去FTP上拉取
             OutputStream os = new BufferedOutputStream(response.getOutputStream());
-            logger.info("开始下载");
+            logger.debug("开始下载");
             response.setCharacterEncoding("utf-8");
             // 设置返回类型
             response.setContentType("audio/mp3");
@@ -90,7 +90,7 @@ public class PreviewController extends CloudDiskBaseController {
                         MyFile.builder().id(myFile.getId()).downloadTime(myFile.getDownloadTime() + 1).build());
                 os.flush();
                 os.close();
-                logger.info("文件下载成功!  ----->>>>>  " + myFile.getMyFileName());
+                logger.debug("文件下载成功!  ----->>>>>  " + myFile.getMyFileName());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,11 +156,11 @@ public class PreviewController extends CloudDiskBaseController {
 
             //去FTP上拉取
             OutputStream os = new BufferedOutputStream(response.getOutputStream());
-            logger.info("开始下载");
+            logger.debug("开始下载");
             boolean flag = FtpUtil.downloadFile("/" + remotePath, os);
 
             if (flag) {
-                logger.info("文件下载成功!  ----->>>>>  " + myFile.getMyFileName());
+                logger.debug("文件下载成功!  ----->>>>>  " + myFile.getMyFileName());
                 iMyFileService.update(
                         MyFile.builder().id(myFile.getId()).downloadTime(myFile.getDownloadTime() + 1).build());
                 os.flush();

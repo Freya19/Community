@@ -41,9 +41,9 @@ public class VideoTransfer {
         Encoder encoder = new Encoder();
         MultimediaObject multimediaObject = new MultimediaObject(source);
         try {
-//                logger.info("avi转MP4 --- 转换开始:"+new Date());
+//                logger.debug("avi转MP4 --- 转换开始:"+new Date());
             encoder.encode(multimediaObject, target, attrs);
-//                logger.info("avi转MP4 --- 转换结束:"+new Date());
+//                logger.debug("avi转MP4 --- 转换结束:"+new Date());
             return true;
         } catch (IllegalArgumentException e) {
             // TODO Auto-generated catch block

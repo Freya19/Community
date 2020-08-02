@@ -88,7 +88,7 @@ public class OssUpload_sample {
         // 上传到阿里云
         try {
             ossClient.putObject(aliyunConfig.getBucketName(), remotePath, new FileInputStream(file));
-            logger.info("上传OSS成功");
+            logger.debug("上传OSS成功");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("上传OSS失败");
