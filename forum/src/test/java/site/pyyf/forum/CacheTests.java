@@ -53,9 +53,9 @@ public class CacheTests {
             List<DiscussPost> currentPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
             allPosts.addAll(currentPosts);
             for (DiscussPost discussPost : currentPosts) {
-//                redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(), discussPost.getId(), discussPost.getScore());
+                redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(), discussPost.getId(), discussPost.getScore());
                 // 按照时间查时，一开始是最新的，所以从右边插入即可
-//                redisTemplate.opsForList().rightPush(RedisKeyUtil.getLatestPostsList(), discussPost.getId());
+                redisTemplate.opsForList().rightPush(RedisKeyUtil.getLatestPostsList(), discussPost.getId());
 
                 //tags字段一定有值
                 String[] tags = StringUtils.split(discussPost.getTags(), ",|，");
@@ -85,7 +85,7 @@ public class CacheTests {
     }
 
 
-    @Test
+//    @Test
     public void delKey() {
         ArrayList<String> keys = new ArrayList<>();
         keys.add("post");
