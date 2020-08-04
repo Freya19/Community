@@ -54,6 +54,9 @@ public class CacheTests {
             allPosts.addAll(currentPosts);
             for (DiscussPost discussPost : currentPosts) {
                 redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(), discussPost.getId(), discussPost.getScore());
+                // 记录下目前的置顶帖子的数量
+                if (discussPost.getStatus().equals(1))
+                    redisTemplate.opsForValue().increment(RedisKeyUtil.getTopCount());
                 // 按照时间查时，一开始是最新的，所以从右边插入即可
                 redisTemplate.opsForList().rightPush(RedisKeyUtil.getLatestPostsList(), discussPost.getId());
 

@@ -97,7 +97,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
     }
 
     /**
-     * 查看帖子 ---- 主要涉及到看帖后 个性化推荐
+     * 查看帖子
      */
     @RequestMapping(path = "/{discussPostId}", method = RequestMethod.GET)
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {

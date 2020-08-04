@@ -19,9 +19,9 @@ public class RedisKeyUtil implements CommunityConstant {
     private static final String PREFIX_TIMELINE_PERSISTENCE = "timeline:persistence";
     private static final String PREFIX_TAG_LATEST = "tag:latest";
     private static final String PREFIX_TAG_PERSISTENCE = "tag:persistence";
-    private static final String PREFIX_HOT_posts = "hot:posts:list";
-    private static final String PREFIX_LATEST_posts = "latest:posts:list";
-    private static final String PREFIX_HOT_SIDE_posts = "hot:side:posts:list";
+    private static final String PREFIX_HOT_posts = "posts:hot:list";
+    private static final String PREFIX_LATEST_posts = "posts:latest:list";
+    private static final String PREFIX_TOP_COUNT = "posts:top:count";
 
     // 某个实体的赞
     // like:entity:entityType:entityId -> set(userId)
@@ -130,5 +130,10 @@ public class RedisKeyUtil implements CommunityConstant {
     // 获得所有标签及其数量
     public static String getTagsCount() {
         return PREFIX_TAGS_COUNT;
+    }
+
+    // 获取置顶帖子的数量，指导用户发帖时，向getLatestPostsList 的那个部分去插入，因为普通的帖子必须在置顶帖下方
+    public static String getTopCount(){
+        return PREFIX_TOP_COUNT;
     }
 }

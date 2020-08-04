@@ -64,17 +64,22 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     @Override
     public DiscussPost save(DiscussPost discussPost){
-        //传入的是编辑的帖子
+
         if(discussPost.getId()!=null){
+            // 传入的是编辑的帖子,要先修改redis标签对应的Ids（必须在数据库更新前做，不然原始标签丢失），最后更新数据库
+            // 更新数据库时，必须先写mysql，再删除缓存
             changeRedisTagList(discussPost);
-            clearCache(discussPost.getId());
             update(discussPost);
             return postListCache.get(String.valueOf(discussPost.getId()));
         }else {
-            addRedisTagList(discussPost);
-            //传入的新发布的帖子
+            // 传入的新发布的帖子，要先插数据库，然后再修改redis标签对应的Ids（必须在插入后做，这样才有id,之前的空指针异常就是放进去了一个空值)，
+            // 最后向总列表中插入数据即可
             insert(discussPost);
-            redisTemplate.opsForList().leftPush(RedisKeyUtil.getLatestPostsList(),discussPost.getId());
+            addRedisTagList(discussPost);
+            //  向latest:post中插入时，插到置顶的帖子后面一位即可
+            //  因为redis list不提供向指定索引位置插入，只能先获取最后一个元素，然后在它右边插入，而每次都是在置顶的帖子后面插入，所以按照时间排序没有问题
+            Integer lastTopId = (Integer) redisTemplate.opsForList().index(RedisKeyUtil.getLatestPostsList(), (Integer) redisTemplate.opsForValue().get(RedisKeyUtil.getTopCount()) - 1);
+            redisTemplate.opsForList().rightPush(RedisKeyUtil.getLatestPostsList(),lastTopId,discussPost.getId());
             redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(),discussPost.getId(),0);
             return postListCache.get(String.valueOf(discussPost.getId()));
         }
@@ -91,13 +96,15 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
     @Override
     public DiscussPost update(DiscussPost discussPost) {
         this.iDiscussPostMapper.update(discussPost);
-        return queryById(discussPost.getId());
+        DiscussPost res = iDiscussPostMapper.queryById(discussPost.getId());
+        clearCache(discussPost.getId());
+        return res;
     }
 
 
     private void  delRedisTagList(DiscussPost discussPost){
         // 先查询以前的帖子tags,将id从里面删了
-        String[] tagNames = iDiscussPostMapper.queryById(discussPost.getId()).getTags().split(",");
+        String[] tagNames = postListCache.get(String.valueOf(discussPost.getId())).getTags().split(",");
         for (String tagName:tagNames){
             // 标签对应的帖子数量-1，标签对应的帖子的id，需要删掉一个
             redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagPostsList(tagName),discussPost.getId());
@@ -208,40 +215,55 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
     public int updateCommentCount(int id, int commentCount) {
         DiscussPost query = queryById(id);
         query.setCommentCount(commentCount);
-        return iDiscussPostMapper.update(query);
+        int res = iDiscussPostMapper.update(query);
+        clearCache(id);
+        return res;
     }
 
     @Override
     public int updateType(int id, int type) {
-        // 置顶，1. 删除缓存(缓存的DO状态变了) 2. 将redis的list从中间某一个部分提高最开始
+        // 置顶，必须先更新数据库，再清除缓存
+        // 1. 将redis的list从中间某一个部分提到最开始
+        // 2. 删除缓存(缓存的DO状态变了)
         if(type == 1){
-            clearCache(id);
-            delRedisTagList(iDiscussPostMapper.queryById(id));
+            delRedisTagList(queryById(id));
+            redisTemplate.opsForValue().increment(RedisKeyUtil.getTopCount(),1);
             redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
             redisTemplate.opsForList().leftPush(RedisKeyUtil.getLatestPostsList(),id);
         }
-        DiscussPost query = queryById(id);
+
+        DiscussPost query = iDiscussPostMapper.queryById(id);
         query.setType(type);
-        return iDiscussPostMapper.update(query);
+        int res = iDiscussPostMapper.update(query);
+        clearCache(id);
+        return res;
     }
 
     @Override
     public int updateStatus(int id, int status) {
+        // 删除
         if(status == 2){
+            // 如果帖子是置顶的，则还需要减小TopCount
+            if (postListCache.get(String.valueOf(id)).getType().equals(1))
+                redisTemplate.opsForValue().decrement(RedisKeyUtil.getTopCount(),1);
             redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),id);
             redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
         }
 
         DiscussPost query = queryById(id);
         query.setStatus(status);
-        return iDiscussPostMapper.update(query);
+        int res = iDiscussPostMapper.update(query);
+        clearCache(id);
+        return res;
     }
 
     @Override
     public int updateScore(int id, double score) {
         DiscussPost query = queryById(id);
         query.setScore(score);
-        return iDiscussPostMapper.update(query);
+        int re = iDiscussPostMapper.update(query);
+        clearCache(id);
+        return re;
     }
 
 
