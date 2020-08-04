@@ -1,6 +1,8 @@
 package site.pyyf.forum;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import site.pyyf.ForumApplication;
+import site.pyyf.commons.utils.RedisKeyUtil;
 import site.pyyf.forum.dao.IUserMapper;
 import site.pyyf.forum.entity.DiscussPost;
 import site.pyyf.forum.entity.Message;
@@ -24,6 +26,10 @@ public class MysqlTests {
 
     @Autowired
     public IDiscussPostMapper iDiscussPostMapper;
+
+    @Autowired
+    protected RedisTemplate redisTemplate;
+
     @Test
     public void changeTags() {
         List<DiscussPost> discussPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().build());
@@ -33,8 +39,19 @@ public class MysqlTests {
             for(String tagName:tagsName)
                 builder.append(tagName.trim().substring(0, 1).toUpperCase() + tagName.trim().substring(1).toLowerCase()).append(",");
             discussPost.setTags(builder.toString().substring(0,builder.length()-1));
+
             iDiscussPostMapper.update(discussPost);
         }
+    }
+
+    @Test
+    public void computeScore(){
+        List<DiscussPost> discussPosts = iDiscussPostMapper.queryAll(DiscussPost.builder().build());
+        for (DiscussPost discussPost:discussPosts){
+            if(discussPost.getScore()<1)
+                redisTemplate.opsForSet().add(RedisKeyUtil.getPostScoreKey(), discussPost.getId());
+        }
+
     }
 
 
