@@ -88,7 +88,7 @@ public class CacheTests {
     }
 
 
-    @Test
+//    @Test
     public void delKey() {
         ArrayList<String> keys = new ArrayList<>();
         keys.add("post");
@@ -96,5 +96,13 @@ public class CacheTests {
         for (String key : keys) {
             redisTemplate.delete(redisTemplate.keys(key+"*"));
         }
+    }
+
+//    @Test
+    public void delElement(){
+        Set range = redisTemplate.opsForZSet().range(RedisKeyUtil.getHotPostsList(), 0, -1);
+        System.out.println(range);
+        redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),7138);
+        System.out.println(redisTemplate.opsForZSet().range(RedisKeyUtil.getHotPostsList(), 0, -1));
     }
 }
