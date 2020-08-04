@@ -19,7 +19,7 @@ public interface IDiscussPostService {
      * @param id 主键
      * @return 实例对象
      */
-    DiscussPost queryById(Integer id);
+    DiscussPost queryCache(Integer id);
 
      /**
      * @Description 查询全部数据

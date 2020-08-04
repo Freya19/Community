@@ -56,7 +56,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
                         Integer postId = Integer.valueOf(key);
                         logger.debug("从caffeine拿id = "+key+" 的帖子");
                         // 从redis拿
-                        return queryById(postId);
+                        return queryCache(postId);
                     }
                 });
     }
@@ -213,7 +213,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     @Override
     public int updateCommentCount(int id, int commentCount) {
-        DiscussPost query = queryById(id);
+        DiscussPost query = queryCache(id);
         query.setCommentCount(commentCount);
         int res = iDiscussPostMapper.update(query);
         clearCache(id);
@@ -226,7 +226,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
         // 1. 将redis的list从中间某一个部分提到最开始
         // 2. 删除缓存(缓存的DO状态变了)
         if(type == 1){
-            delRedisTagList(queryById(id));
+            delRedisTagList(queryCache(id));
             redisTemplate.opsForValue().increment(RedisKeyUtil.getTopCount(),1);
             redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
             redisTemplate.opsForList().leftPush(RedisKeyUtil.getLatestPostsList(),id);
@@ -248,9 +248,10 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
                 redisTemplate.opsForValue().decrement(RedisKeyUtil.getTopCount(),1);
             redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),id);
             redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
+            delRedisTagList(queryCache(id));
         }
 
-        DiscussPost query = queryById(id);
+        DiscussPost query = queryCache(id);
         query.setStatus(status);
         int res = iDiscussPostMapper.update(query);
         clearCache(id);
@@ -259,7 +260,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     @Override
     public int updateScore(int id, double score) {
-        DiscussPost query = queryById(id);
+        DiscussPost query = queryCache(id);
         query.setScore(score);
         int re = iDiscussPostMapper.update(query);
         clearCache(id);
@@ -276,7 +277,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      * @return 实例对象
      */
     @Override
-    public DiscussPost queryById(Integer id) {
+    public DiscussPost queryCache(Integer id) {
         DiscussPost post = getCache(id);
         if (post == null) {
             post = initCache(id);
