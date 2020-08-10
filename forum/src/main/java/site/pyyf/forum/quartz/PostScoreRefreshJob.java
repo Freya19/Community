@@ -1,26 +1,31 @@
 package site.pyyf.forum.quartz;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.stereotype.Component;
 import site.pyyf.forum.entity.DiscussPost;
 import site.pyyf.forum.service.impl.DiscussPostService;
 import site.pyyf.forum.service.impl.ElasticsearchService;
 import site.pyyf.forum.service.impl.LikeService;
 import site.pyyf.commons.utils.CommunityConstant;
 import site.pyyf.commons.utils.RedisKeyUtil;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import javax.annotation.PostConstruct;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Component
+@Slf4j
+public class PostScoreRefreshJob implements CommunityConstant {
 
-public class PostScoreRefreshJob implements Job, CommunityConstant {
+    @Autowired
+    private ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
     private static final Logger logger = LoggerFactory.getLogger(PostScoreRefreshJob.class);
 
@@ -47,21 +52,29 @@ public class PostScoreRefreshJob implements Job, CommunityConstant {
         }
     }
 
-    @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-        String redisKey = RedisKeyUtil.getPostScoreKey();
-        BoundSetOperations operations = redisTemplate.boundSetOps(redisKey);
+    @PostConstruct
+    public void calculateTags() {
+        ScoreTask task = new ScoreTask();
+        threadPoolTaskScheduler.scheduleAtFixedRate(task, 1000 * 60 * 60 * 3);
+    }
 
-        if (operations.size() == 0) {
-            logger.info("[任务取消] 没有需要刷新的帖子!");
-            return;
-        }
+    class ScoreTask implements Runnable {
+        @Override
+        public void run() {
+            String redisKey = RedisKeyUtil.getPostScoreKey();
+            BoundSetOperations operations = redisTemplate.boundSetOps(redisKey);
 
-        logger.info("[任务开始] 正在刷新帖子分数: " + operations.size());
-        while (operations.size() > 0) {
-            this.refresh((Integer) operations.pop());
+            if (operations.size() == 0) {
+                logger.debug("[任务取消] 没有需要刷新的帖子!");
+                return;
+            }
+
+            logger.debug("[任务开始] 正在刷新帖子分数: " + operations.size());
+            while (operations.size() > 0) {
+                refresh((Integer) operations.pop());
+            }
+            logger.debug("[任务结束] 帖子分数刷新完毕!");
         }
-        logger.info("[任务结束] 帖子分数刷新完毕!");
     }
 
     private void refresh(int postId) {
@@ -89,6 +102,8 @@ public class PostScoreRefreshJob implements Job, CommunityConstant {
         // 同步搜索数据
         post.setScore(score);
         elasticsearchService.saveDiscussPost(post);
+
+        redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(), postId, score);
     }
 
 }

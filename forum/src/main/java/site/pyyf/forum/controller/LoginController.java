@@ -190,7 +190,7 @@ public class LoginController extends CommunityBaseController implements Communit
                 user = User.builder().registerType(1).username(githubUser.getLogin()).openId(String.valueOf(githubUser.getId())).headerUrl(githubUser.getAvatarUrl()).build();
                 user = iUserService.insert(user);
                 if (user.getId() != null) {
-                    logger.info("注册用户成功！当前注册用户" + user);
+                    logger.debug("注册用户成功！当前注册用户" + user);
                 } else {
                     logger.error("注册用户失败！");
                     model.addAttribute("reason", "注册用户失败");
@@ -238,7 +238,7 @@ public class LoginController extends CommunityBaseController implements Communit
         response.setContentType("text/html;charset=utf-8");
         try {
             response.sendRedirect(new Oauth().getAuthorizeURL(request));
-            logger.info("请求QQ登录,开始跳转...");
+            logger.debug("请求QQ登录,开始跳转...");
         } catch (QQConnectException | IOException e) {
             e.printStackTrace();
         }
@@ -265,7 +265,7 @@ public class LoginController extends CommunityBaseController implements Communit
             } else {
                 accessToken = accessTokenObj.getAccessToken();
                 tokenExpireIn = accessTokenObj.getExpireIn();
-                logger.info("accessToken" + accessToken);
+                logger.debug("accessToken" + accessToken);
                 request.getSession().setAttribute("demo_access_token", accessToken);
                 request.getSession().setAttribute("demo_token_expirein", String.valueOf(tokenExpireIn));
                 // 利用获取到的accessToken 去获取当前用的openid -------- start
@@ -274,9 +274,9 @@ public class LoginController extends CommunityBaseController implements Communit
                 UserInfo qzoneUserInfo = new UserInfo(accessToken, openID);
                 UserInfoBean userInfoBean = qzoneUserInfo.getUserInfo();
                 if (userInfoBean.getRet() == 0) {
-                    logger.info("用户的OPEN_ID: " + openID);
-                    logger.info("用户的昵称: " + CommunityUtil.removeNonBmpUnicode(userInfoBean.getNickname()));
-                    logger.info("用户的头像URI: " + userInfoBean.getAvatar().getAvatarURL100());
+                    logger.debug("用户的OPEN_ID: " + openID);
+                    logger.debug("用户的昵称: " + CommunityUtil.removeNonBmpUnicode(userInfoBean.getNickname()));
+                    logger.debug("用户的头像URI: " + userInfoBean.getAvatar().getAvatarURL100());
 
                     //设置用户信息
                     List<User> users = iUserService.queryAll(User.builder().openId(openID).build());
@@ -293,12 +293,12 @@ public class LoginController extends CommunityBaseController implements Communit
                                         createTime(new Date()).registerType(2).build();
                         User insert = iUserService.insert(user);
                         if (insert.getId() != null) {
-                            logger.info("注册用户成功！当前注册用户" + user);
+                            logger.debug("注册用户成功！当前注册用户" + user);
 //                            User store = User.builder().id(insert.getId()).build();
 //                            if (iUserService.addUser(store) == 1){
 //                                user.setUserId(store.getUserId());
 //                                iUserService.update(user);
-//                                logger.info("注册仓库成功！当前注册仓库" + store);
+//                                logger.debug("注册仓库成功！当前注册仓库" + store);
 //                              }
                         } else {
                             logger.error("注册用户失败");
@@ -311,7 +311,7 @@ public class LoginController extends CommunityBaseController implements Communit
                         user.setHeaderUrl(userInfoBean.getAvatar().getAvatarURL100());
                         iUserService.update(user);
                     }
-                    logger.info("QQ用户登录成功！" + user);
+                    logger.debug("QQ用户登录成功！" + user);
 
                     // 生成登录凭证
                     LoginTicket loginTicket = new LoginTicket();

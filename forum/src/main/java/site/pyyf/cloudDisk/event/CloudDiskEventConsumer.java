@@ -36,10 +36,10 @@ public class CloudDiskEventConsumer extends CloudDiskBaseController implements C
             //删除文件
             MyFile deletingFile = JSONObject.parseObject(event.getEntityInfo(),MyFile.class);
             iFileStoreService.deleteFile(deletingFile);
-            logger.info("我kafka把文件 "+deletingFile.getMyFileName()+" 删除啦");
+            logger.debug("我kafka把文件 "+deletingFile.getMyFileName()+" 删除啦");
 
             if (StringUtils.substringAfterLast(deletingFile.getMyFileName(), ".").equals("md")) {
-                logger.info("我kafka把markdown文件 "+deletingFile.getMyFileName()+" 的content删除啦");
+                logger.debug("我kafka把markdown文件 "+deletingFile.getMyFileName()+" 的content删除啦");
                 iEbookService.deleteById(deletingFile.getId());
                 iEbookContentService.deleteById(deletingFile.getId());
             }

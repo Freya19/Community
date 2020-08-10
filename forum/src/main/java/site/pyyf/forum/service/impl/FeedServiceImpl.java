@@ -54,6 +54,12 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
         return feeds;
     }
 
+    /**
+     * 整体而言就是构造出： Gepeng18 发布此贴，Gepeng18、Freya_1 觉得很赞
+     * 所以首先拼接 Gepeng18、Freya_1、  然后将最后一个、删除
+     * 继续拼接 Gepeng18、Freya_1 觉得很赞，
+     * 最后将，删除即可
+     */
     @Override
     public String getFeedContentByPostId(Integer postId, Set<Feed> published, Set<Feed> liked, Set<Feed> commented){
         StringBuilder feedContent = new StringBuilder();
@@ -68,9 +74,11 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
                 feedContent.append(feed.getUserName()).append("、");
             }
         }
-        if (publishFlag)
-            feedContent.append("发布此贴,");
-
+        if (publishFlag){
+            // "Gepeng18、发布此贴" 将、删掉
+            feedContent = new StringBuilder(feedContent.substring(0,feedContent.length()-1));
+            feedContent.append(" 发布此贴,");
+        }
 
         //向feedContent 加入 Gepeng18 觉得很赞 ， 如果搜不到 则"觉得很赞"也不加
         for (Feed feed : liked) {
@@ -79,8 +87,11 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
                 feedContent.append(feed.getUserName()).append("、");
             }
         }
-        if (likeFlag)
-            feedContent.append("觉得很赞,");
+        if (likeFlag){
+            // "Gepeng18、觉得很赞" 将、删掉
+            feedContent = new StringBuilder(feedContent.substring(0,feedContent.length()-1));
+            feedContent.append(" 觉得很赞,");
+        }
 
         //向feedContent 加入 Gepeng18 评论了此贴 ， 如果搜不到 则"评论了此贴"也不加
         for (Feed feed : commented) {
@@ -89,8 +100,12 @@ public class FeedServiceImpl extends CommunityBaseController implements IFeedSer
                 feedContent.append(feed.getUserName()).append("、");
             }
         }
-        if (commentFlag)
-            feedContent.append("评论了此贴,");
+        if (commentFlag) {
+            // "Gepeng18、评论了此贴" 将、删掉
+            feedContent = new StringBuilder(feedContent.substring(0,feedContent.length()-1));
+            feedContent.append(" 评论了此贴,");
+        }
+
         String feed = feedContent.toString();
         //去掉最后的逗号
         if(feed.length()>0)

@@ -18,7 +18,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * 定时统计帖子标签
  */
-@Component
+//@Component
+@Deprecated
 @Slf4j
 public class TagTasksByThreadPool {
 
@@ -42,26 +43,22 @@ public class TagTasksByThreadPool {
 
         @Override
         public void run() {
-            // 1. 分批次取数据进行统计
-            int offset = 0;
-            int limit = 20;
             log.info("hotTagSchedule start {}", new Date());
-
-            List<DiscussPost> discussPosts = new ArrayList<>();
-            Set<String> allTags = new HashSet<>();
 
             // 1.1 先统计出帖子的所有标签名
             // 注意这里一开始discussPosts数量为0，所以offset一开始是0，然后搜到20个，则加进去，搜到则加进去，
             // discussPosts加的是实际数据，而offset每次固定加20,因此终有一次，offset会超过discussPosts.size()
             // 等于也需要算上，因为 初始化时 0==0 , 否则进不了循环
+            // 1. 分批次取数据进行统计
+            int offset = 0;
+            int limit = 20;
+            Set<String> allTags = new HashSet<>();
+            List<DiscussPost> discussPosts = new ArrayList<>();
             while (offset <= discussPosts.size()) {
-                discussPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
+                discussPosts.addAll(iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit));
                 for (DiscussPost discussPost : discussPosts) {
                     //tags字段一定有值
                     String[] tags = StringUtils.split(discussPost.getTags(), ",|，");
-                    if ("-1".equals(tags[0])) {
-                        continue;
-                    }
                     for (String tag : tags) {
                         String newTag = tag.trim().substring(0, 1).toUpperCase() + tag.trim().substring(1).toLowerCase();
                         allTags.add(newTag);

@@ -211,14 +211,14 @@
         <include refid="allColumn"/>
         FROM
         feed
+        where  entity_type = ${entityType}
         <if test="userIds.size() != 0">
-            AND user_id in
+            and user_id in
             <foreach item="item" index="index" collection="userIds"
                      open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
-        where  entity_type = ${entityType}
         ORDER BY create_time DESC
         LIMIT #{count}
     </select>

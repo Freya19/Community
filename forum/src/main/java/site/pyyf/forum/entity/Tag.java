@@ -36,7 +36,7 @@ public class Tag implements Serializable, Comparable {
     private Integer entityType;
 
     /**
-    * 属于该类别的实体个数 - 只存在于博客中
+    * 属于该类别的实体个数
     */
     private Integer count;
 

@@ -87,7 +87,7 @@
 
     <!--通用对DiscussPost各个属性的值的非空判断-->
     <sql id="commonsValue">
-        <if test="userId != null and userId != -1">
+        <if test="userId != null">
             and user_id = #{userId}
         </if>
         <if test="title != null and title != ''">
@@ -108,7 +108,7 @@
         <if test="score != null">
             and score = #{score}
         </if>
-        <if test="tags != null and tags != '-1'">
+        <if test="tags != null">
             and tags regexp #{tags}
         </if>
         and status!=2
@@ -147,7 +147,7 @@
 
     <!--传入discussPost时对DiscussPost各个属性的值的非空判断-->
     <sql id="DiscussPostValue">
-        <if test="discussPost.userId != null and discussPost.userId != -1">
+        <if test="discussPost.userId != null ">
             and user_id = #{discussPost.userId}
         </if>
         <if test="discussPost.title != null and discussPost.title != ''">
@@ -168,7 +168,7 @@
         <if test="discussPost.score != null">
             and score = #{discussPost.score}
         </if>
-        <if test="discussPost.tags != null and discussPost.tags != '-1'">
+        <if test="discussPost.tags != null">
             and tags regexp #{discussPost.tags}
         </if>
         and status !=2
@@ -224,6 +224,7 @@
         </trim>
     </select>
 
+
     <!--通过实体作为筛选条件分页查询-->
     <select id="queryAllByLimit" resultMap="DiscussPostMap">
         select
@@ -245,6 +246,8 @@
         limit #{offset}, #{limit}
 
     </select>
+
+
 
     <!--通过实体作为筛选条件分页查询-->
     <!--    <select id="queryAllByAllTagsLimit" resultMap="DiscussPostMap">-->
@@ -281,10 +284,10 @@
         <include refid="allColumn"></include>
         from discuss_post
         where status != 2
-        <if test="userId!=-1">
+        <if test="userId != null">
             and user_id = #{userId}
         </if>
-        <if test="tag!='-1'">
+        <if test="tag != null">
             and tags regexp #{tag}
         </if>
         <if test="orderMode==0">

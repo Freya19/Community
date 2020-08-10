@@ -1,5 +1,6 @@
 package site.pyyf.forum.controller;
 
+import org.springframework.data.redis.core.ZSetOperations;
 import site.pyyf.commons.utils.TagsVO;
 import site.pyyf.forum.entity.*;
 import site.pyyf.commons.utils.CommunityConstant;
@@ -31,7 +32,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
      */
     @RequestMapping(path = "/edit/{discussPostId}", method = RequestMethod.GET)
     public String getEditPage(Model model, @PathVariable("discussPostId") int discussPostId) {
-        DiscussPost discussPost = iDiscussPostService.queryById(discussPostId);
+        DiscussPost discussPost = iDiscussPostService.queryCache(discussPostId);
         model.addAttribute("title", discussPost.getTitle());
         model.addAttribute("content", discussPost.getContent());
         model.addAttribute("tag", discussPost.getTags());
@@ -49,12 +50,13 @@ public class DiscussPostController extends CommunityBaseController implements Co
     @RequestMapping(method = RequestMethod.POST)
     public String addDiscussPost(DiscussPost discussPost) {
         User user = hostHolder.getUser();
-
         // 将标签全都规范为首字母大写，其他字母小写
         if (discussPost.getTags() != null && !discussPost.getTags().equals("")) {
-            String tag = discussPost.getTags();
-            String newTag = tag.trim().substring(0, 1).toUpperCase() + tag.trim().substring(1).toLowerCase();
-            discussPost.setTags(newTag);
+            String[] tagsName = discussPost.getTags().split(",|，");
+            StringBuilder builder = new StringBuilder();
+            for(String tagName:tagsName)
+                builder.append(tagName.trim().substring(0, 1).toUpperCase() + tagName.trim().substring(1).toLowerCase());
+            discussPost.setTags(builder.toString());
         }
 
         boolean addDiscussPostFlag=false;
@@ -64,7 +66,10 @@ public class DiscussPostController extends CommunityBaseController implements Co
         }
 
         // 1. 保存帖子 （底层会判断是编辑后的帖子还是新增的帖子）
-        discussPost.setCreateTime(new Date());
+        if(discussPost.getId()!=null)
+            discussPost.setCreateTime(iDiscussPostService.queryCache(discussPost.getId()).getCreateTime());
+        else
+            discussPost.setCreateTime(new Date());
         iDiscussPostService.save(discussPost);
 
         // 2.触发发帖事件  ------ 给粉丝推送发帖动态
@@ -92,13 +97,13 @@ public class DiscussPostController extends CommunityBaseController implements Co
     }
 
     /**
-     * 查看帖子 ---- 主要涉及到看帖后 个性化推荐
+     * 查看帖子
      */
     @RequestMapping(path = "/{discussPostId}", method = RequestMethod.GET)
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
 
         // 1. 获取指定帖子并为java代码添加编译模块
-        DiscussPost post = iDiscussPostService.queryById(discussPostId);
+        DiscussPost post = iDiscussPostService.queryCache(discussPostId);
         post.setContent(iCodePreviewService.addCompileModule(new StringBuilder(post.getContent()), "java", 1).toString());
 
         model.addAttribute("post", post);
@@ -132,12 +137,12 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
         // 3. 热门问题  ordeMode=3,只按照热度排序，不按照置顶  userId=-1:所有用户；
         List<DiscussPost> hotPosts = iDiscussPostService
-                .queryAllByLimit(DiscussPost.builder().userId(-1).tags("-1").build(), 3, 0, 5);
+                .queryAllByLimit(null, 1, 0, 5);
         model.addAttribute("hotPosts", hotPosts);
 
         //4. 相关问题
         int relatedPostsCount = 7;
-        List<DiscussPost> relatedPosts = getRelatedPosts(discussPostId, post, relatedPostsCount);
+        List<DiscussPost> relatedPosts = getRelatedPosts( post, relatedPostsCount);
         model.addAttribute("relatedPosts", relatedPosts);
 
         if (hostHolder.getUser() != null) {
@@ -146,7 +151,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
                     .setUserId(hostHolder.getUser().getId())
                     .setEntityType(ENTITY_TYPE_POST)
                     .setEntityId(discussPostId);
-            // 5. 触发看帖事件 ----
+            // 5. 触发看帖事件
             String[] tags = post.getTags().split(",|，");
             if (tags.length > 0) {
                 event.setData("viewTags", tags);
@@ -160,19 +165,37 @@ public class DiscussPostController extends CommunityBaseController implements Co
     /**
      * 获取相关帖子
      *
-     * @param discussPostId     帖子id
      * @param post              帖子
      * @param relatedPostsCount 相关帖子的数量
      * @return 相关帖子列表
      */
-    private List<DiscussPost> getRelatedPosts(@PathVariable("discussPostId") int discussPostId, DiscussPost post, int relatedPostsCount) {
+    private List<DiscussPost> getRelatedPosts(DiscussPost post, int relatedPostsCount) {
 
-        List<DiscussPost> preRelatedPosts = iDiscussPostService.queryAllByLimit(DiscussPost.builder().userId(-1).tags(post.getTags()).build(), 1, 0, relatedPostsCount);
+//        List<DiscussPost> preRelatedPosts = iDiscussPostService.queryAllByLimit(DiscussPost.builder().tags(post.getTags()).build(), 1, 0, relatedPostsCount);
+
+        List<SortDO> relatedSortedDO = new ArrayList<>();
+        String[] tagNames = post.getTags().split(",");
+        for(String tagName:tagNames) {
+            Set<ZSetOperations.TypedTuple<Integer>> set = redisTemplate.opsForZSet().reverseRangeWithScores(RedisKeyUtil.getTagPostsList(tagName), 0, relatedPostsCount);
+            for (ZSetOperations.TypedTuple<Integer> integerTypedTuple : set) {
+                relatedSortedDO.add(new SortDO(integerTypedTuple.getValue(),integerTypedTuple.getScore()));
+            }
+        }
+        relatedSortedDO.sort(new Comparator<SortDO>() {
+            @Override
+            // o1 分高
+            public int compare(SortDO o1, SortDO o2) {
+                return (int) (o2.getScore()-o1.getScore());
+            }
+        });
+        relatedSortedDO = relatedSortedDO.subList(0, Math.min(relatedSortedDO.size(),relatedPostsCount));
+
         //相关问题肯定不能包括自己，所以搜出relatedPostsCount个，如果自己在就去掉自己，否则去掉最后一个
         List<DiscussPost> relatedPosts = new ArrayList<>();
-        for (DiscussPost discussPost : preRelatedPosts) {
-            if (discussPost.getId() != discussPostId) {
-                relatedPosts.add(discussPost);
+        for (SortDO sortDO:relatedSortedDO) {
+            int  discussPostId = sortDO.getId();
+            if (post.getId() != discussPostId) {
+                relatedPosts.add(iDiscussPostService.queryCache(discussPostId));
             }
         }
         if (relatedPosts.size() == relatedPostsCount) {
@@ -303,7 +326,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
      */
     @RequestMapping(path = "/delete", method = RequestMethod.POST)
     @ResponseBody
-    public String setDelete(int id) {
+    public String delete(int id) {
         iDiscussPostService.updateStatus(id, 2);
         // 触发删帖事件
         Event event = new Event()

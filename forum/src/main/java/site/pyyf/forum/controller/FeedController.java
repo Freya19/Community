@@ -109,7 +109,7 @@ public class FeedController extends CommunityBaseController implements Community
 
         //  热门问题
         List<DiscussPost> hotPosts = iDiscussPostService
-                .queryAllByLimit(DiscussPost.builder().userId(-1).tags("-1").build(), ORDER_TOPANDSCORE, 0, 5);
+                .queryAllByLimit(null, ORDER_TOPANDSCORE, 0, 5);
         model.addAttribute("hotPosts", hotPosts);
 
         return "index";
@@ -151,7 +151,7 @@ public class FeedController extends CommunityBaseController implements Community
         List<Feed> feeds = iFeedService.queryAllByLimit(Feed.builder().entityType(ENTITY_TYPE_POST).userId(userId).build(), page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         for(Feed feed:feeds){
-            DiscussPost discussPost = iDiscussPostService.queryById(feed.getEntityId());
+            DiscussPost discussPost = iDiscussPostService.queryCache(feed.getEntityId());
             Map<String, Object> discussPostVO = new HashMap<>();
             discussPostVO.put("feed",feed);
             discussPostVO.put("post", discussPost);

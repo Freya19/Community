@@ -84,7 +84,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
         // 根据key查询一个缓存，如果没有返回NULL
         String cacheCode = (String)previewCodeCache.getIfPresent(caffeineKey);
         if(cacheCode!=null){
-            logger.info("查询"+file.getMyFileName()+"文件内容时,caffeine缓存击中");
+            logger.debug("查询"+file.getMyFileName()+"文件内容时,caffeine缓存击中");
             return new StringBuilder(cacheCode);
         }
 
@@ -112,14 +112,14 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
                 }
                 is.close();
                 tmpFileStream.close();
-                logger.info("文件下载成功!" + file.getMyFileName());
+                logger.debug("文件下载成功!" + file.getMyFileName());
 
                 new File(tempStr).delete();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        logger.info("查询"+file.getMyFileName()+"文件内容时,caffeine缓存未击中，从数据库中读取文件");
+        logger.debug("查询"+file.getMyFileName()+"文件内容时,caffeine缓存未击中，从数据库中读取文件");
         previewCodeCache.put(caffeineKey, code.toString());
         return code;
     }
@@ -133,17 +133,17 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
 
             boolean OSSdeleteRes = aliyunOssService.delete(remotePath.substring(aliyunConfig.getUrlPrefix().length()));
             if (OSSdeleteRes)
-                logger.info("remote文件从OSS删除成功");
+                logger.debug("remote文件从OSS删除成功");
             else {
-                logger.info("remote文件从OSS删除失败!" + myFile);
+                logger.debug("remote文件从OSS删除失败!" + myFile);
             }
             if (!remotePath.equals(showPath)) {
                 //从OSS文件服务器上删除文件
                 OSSdeleteRes = aliyunOssService.delete(showPath.substring(aliyunConfig.getUrlPrefix().length()));
                 if (OSSdeleteRes)
-                    logger.info("show文件从OSS删除成功");
+                    logger.debug("show文件从OSS删除成功");
                 else {
-                    logger.info("show文件从OSS删除失败!" + myFile);
+                    logger.debug("show文件从OSS删除失败!" + myFile);
                 }
             }
 
@@ -151,18 +151,18 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             //从FTP文件服务器上删除文件
             boolean FTPdeleteRes = FtpUtil.deleteFile("/" + remotePath);
             if (FTPdeleteRes)
-                logger.info("remote文件从FTP删除成功");
+                logger.debug("remote文件从FTP删除成功");
             else {
-                logger.info("remote文件从FTP删除失败!" + myFile);
+                logger.debug("remote文件从FTP删除失败!" + myFile);
             }
 
             if (!remotePath.equals(showPath)) {
                 //从FTP文件服务器上删除文件
                 FTPdeleteRes = FtpUtil.deleteFile("/" + showPath);
                 if (FTPdeleteRes)
-                    logger.info("show文件从FTP删除成功");
+                    logger.debug("show文件从FTP删除成功");
                 else {
-                    logger.info("show文件从FTP删除失败!" + myFile);
+                    logger.debug("show文件从FTP删除失败!" + myFile);
                 }
             }
         }
@@ -189,13 +189,13 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             fos.write(buf, 0, length);
         }
         fos.close();
-        logger.info("非htmlSupAudio音乐文件存储成功");
+        logger.debug("非htmlSupAudio音乐文件存储成功");
 
         //非htmlSupAudio音乐转码为mp3音乐
         File dstFile = new File(tmpFolder.getAbsolutePath() + "/" + UUID.randomUUID().toString() + ".mp3");
         boolean tranferSuccess = iMediaTranfer.tranferAudio(srcFile, dstFile);
         if (tranferSuccess)
-            logger.info("非htmlSupAudio音乐文件转码成功");
+            logger.debug("非htmlSupAudio音乐文件转码成功");
         else {
             logger.error("非htmlSupAudio音乐转码失败");
             fileItem = null;
@@ -208,7 +208,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
 
             if ((OSSsrcUploadResult.getSuccess()==1) && (OSSdstUploadResult.getSuccess()==1)) {
 
-                logger.info("非htmlSupAudio音乐源文件和转码文件上传到OSS完毕");
+                logger.debug("非htmlSupAudio音乐源文件和转码文件上传到OSS完毕");
                 insertRemotePath = OSSsrcUploadResult.getUrl();
                 insertShowPath = OSSdstUploadResult.getUrl();
             } else {
@@ -226,7 +226,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             final boolean FTPdstUploadresult = FtpUtil.uploadFile("/" + showFilePath + "mp3", dstStream);
             dstStream.close();
             if (FTPsrcUploadresult && FTPdstUploadresult) {
-                logger.info("非htmlSupAudio音乐源文件和转码文件上传到FTP完毕");
+                logger.debug("非htmlSupAudio音乐源文件和转码文件上传到FTP完毕");
                 insertRemotePath = remoteFilePath;
                 insertShowPath = showFilePath + "mp3";
             } else {
@@ -274,13 +274,13 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             fos.write(buf, 0, length);
         }
         fos.close();
-        logger.info("非htmlSupVideo视频文件存储成功");
+        logger.debug("非htmlSupVideo视频文件存储成功");
 
         //非Mp4音乐转码
         File dstFile = new File(tmpFolder.getAbsolutePath() + "/" + UUID.randomUUID().toString() + ".mp4");
         boolean tranferSuccess = iMediaTranfer.tranferVideo(srcFile, dstFile);
         if (tranferSuccess)
-            logger.info("非htmlSupVideo音乐文件转码成功");
+            logger.debug("非htmlSupVideo音乐文件转码成功");
         else {
             logger.error("非htmlSupVideo音乐转码失败");
             fileItem = null;
@@ -292,7 +292,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             UploadResult OSSdstUploadResult = aliyunOssService.upload("cloudDisk/video",dstFile );
 
             if ((OSSsrcUploadResult.getSuccess()==1) && (OSSdstUploadResult.getSuccess()==1)) {
-                logger.info("非htmlSupVideo音乐源文件和转码文件上传到OSS完毕");
+                logger.debug("非htmlSupVideo音乐源文件和转码文件上传到OSS完毕");
                 insertRemotePath = OSSsrcUploadResult.getUrl();
                 insertShowPath = OSSdstUploadResult.getUrl();
             } else {
@@ -310,7 +310,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             final boolean FTPdstUploadresult = FtpUtil.uploadFile("/" + showFilePath + "mp4", dstStream);
             dstStream.close();
             if (FTPsrcUploadresult && FTPdstUploadresult) {
-                logger.info("非htmlSupVideo音乐源文件和转码文件上传到FTP完毕");
+                logger.debug("非htmlSupVideo音乐源文件和转码文件上传到FTP完毕");
                 insertRemotePath = remoteFilePath;
                 insertShowPath = showFilePath + "mp4";
             } else
@@ -344,7 +344,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
         final UploadResult OSSimgUploadRes = aliyunOssService.upload(originalFile.getInputStream(), "cloudDisk/imgs",fileItem.getMyFileName());
 
         if (OSSimgUploadRes.getSuccess()==1) {
-            logger.info("图片文件上传到OSS完毕");
+            logger.debug("图片文件上传到OSS完毕");
             insertRemotePath = OSSimgUploadRes.getUrl();
             insertShowPath = OSSimgUploadRes.getUrl();
         } else {
@@ -372,7 +372,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             final UploadResult OSSfileUploadRes = aliyunOssService.upload(originalFile.getInputStream(), "cloudDisk/audio", fileItem.getMyFileName());
 
             if (OSSfileUploadRes.getSuccess()==1) {
-                logger.info("htmlSupAudio或者htmlSupVideo文件上传到OSS完毕");
+                logger.debug("htmlSupAudio或者htmlSupVideo文件上传到OSS完毕");
                 insertRemotePath = OSSfileUploadRes.getUrl();
                 insertShowPath = OSSfileUploadRes.getUrl();
             } else {
@@ -384,7 +384,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             boolean FTPfileUploadRes = FtpUtil.uploadFile("/" + remoteFilePath, originalFile.getInputStream());
 
             if (FTPfileUploadRes) {
-                logger.info("htmlSupAudio或者htmlSupVideo文件上传到FTP完毕");
+                logger.debug("htmlSupAudio或者htmlSupVideo文件上传到FTP完毕");
                 insertRemotePath = remoteFilePath;
                 insertShowPath = remoteFilePath;
             } else
@@ -410,7 +410,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
         //提交到FTP服务器
         boolean FTPfilesUploadResult = FtpUtil.uploadFile("/" + remoteFilePath, originalFile.getInputStream());
         if (FTPfilesUploadResult) {
-            logger.info("普通文件上传到FTP完毕");
+            logger.debug("普通文件上传到FTP完毕");
             insertRemotePath = remoteFilePath;
             insertShowPath = remoteFilePath;
         } else {
@@ -437,7 +437,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             UploadResult OSStransferRes = aliyunOssService.transfer(shareFile.getMyFilePath().substring(aliyunConfig.getUrlPrefix().length()),
                     StringUtils.substringBeforeLast(shareFile.getMyFilePath().substring(aliyunConfig.getUrlPrefix().length()), "/"));
             if (OSStransferRes.getSuccess()==1) {
-                logger.info("OSS中remote文件转存完成");
+                logger.debug("OSS中remote文件转存完成");
                 insertRemotePath = OSStransferRes.getUrl();
                 insertShowPath = OSStransferRes.getUrl();
             } else {
@@ -449,7 +449,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
                 OSStransferRes = aliyunOssService.transfer(shareFile.getShowPath().substring(aliyunConfig.getUrlPrefix().length()),
                         org.apache.commons.lang3.StringUtils.substringBeforeLast(shareFile.getShowPath().substring(aliyunConfig.getUrlPrefix().length()), "/"));
                 if (OSStransferRes.getSuccess()==1) {
-                    logger.info("OSS中show文件转存完成");
+                    logger.debug("OSS中show文件转存完成");
                     insertShowPath = OSStransferRes.getUrl();
                 } else {
                     logger.error("OSS中show文件转存失败");
@@ -463,7 +463,7 @@ public class FileStoreServiceImpl extends CloudDiskBaseController implements IFi
             try {
                 //提交到FTP服务器
                 FtpUtil.transferFile("/" + shareFile.getMyFilePath(), "/" + remoteFilePath);
-                logger.info("FTP中remote文件转存完成");
+                logger.debug("FTP中remote文件转存完成");
                 insertRemotePath = remoteFilePath;
                 insertShowPath = remoteFilePath;
             } catch (Exception e) {

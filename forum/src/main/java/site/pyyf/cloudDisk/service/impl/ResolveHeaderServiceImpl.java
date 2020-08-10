@@ -191,7 +191,7 @@ public class ResolveHeaderServiceImpl implements IResolveHeaderService//存储�
      */
     public void readFile(InputStream in, String ebookName, int fileId) throws Exception {
         this.fileId = fileId;
-        logger.info("开始处理markdown文件");
+        logger.debug("开始处理markdown文件");
         Ebook eBook = new Ebook();
         eBook.setFileId(this.fileId);
         eBook.setEbookName(ebookName);
@@ -216,7 +216,7 @@ public class ResolveHeaderServiceImpl implements IResolveHeaderService//存储�
         eBook.setHeader(JSON.toJSONString(root));
         iEbooksService.insert(eBook);
 
-        logger.info("markdown文件处理完毕");
+        logger.debug("markdown文件处理完毕");
 
     }
 

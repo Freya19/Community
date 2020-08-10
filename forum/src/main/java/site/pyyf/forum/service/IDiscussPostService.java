@@ -19,7 +19,7 @@ public interface IDiscussPostService {
      * @param id 主键
      * @return 实例对象
      */
-    DiscussPost queryById(Integer id);
+    DiscussPost queryCache(Integer id);
 
      /**
      * @Description 查询全部数据
@@ -64,7 +64,7 @@ public interface IDiscussPostService {
      * @param limit 查询条数
      * @return 对象列表
      */
-    List<DiscussPost> queryAllByLimit(int orderMode,int offset, int limit);
+    List<DiscussPost> queryAllByLimit(int orderMode, int offset, int limit);
 
     List<DiscussPost> queryAllByLimit(DiscussPost discussPost, int orderMode, int offset, int limit);
 
@@ -106,8 +106,6 @@ public interface IDiscussPostService {
      * @return 是否成功
      */
     boolean deleteById(Integer id);
-
-    void init() ;
 
     DiscussPost findDiscussPostById(int id);
 

@@ -65,10 +65,10 @@ public class BlogServiceImpl extends BaseService implements IBlogService, Commun
         //根据key从caffeine中查找缓存，如果没有返回null
         Blog cacheBlog = (Blog) blogCache.getIfPresent(caffeineKey);
         if (cacheBlog != null) {
-            logger.info("查询blog时,caffeine缓存击中");
+            logger.debug("查询blog时,caffeine缓存击中");
             return cacheBlog;
         }
-        logger.info("查询blog时，caffeine缓存未击中，将从数据库读取");
+        logger.debug("查询blog时，caffeine缓存未击中，将从数据库读取");
         cacheBlog = iBlogMapper.queryById(id);
         blogCache.put(caffeineKey, cacheBlog);
         return cacheBlog;
@@ -195,7 +195,7 @@ public class BlogServiceImpl extends BaseService implements IBlogService, Commun
         String caffeineKey = "blog:"+blog.getId(); //queryAll(Blog blog)的时候，key也是这个
         Blog previousBlogCache = (Blog) blogCache.getIfPresent(caffeineKey);
         if(previousBlogCache!=null){
-            logger.info("更改博客时，将其缓存删除");
+            logger.debug("更改博客时，将其缓存删除");
             blogCache.invalidate(caffeineKey);
         }
 
@@ -256,7 +256,7 @@ public class BlogServiceImpl extends BaseService implements IBlogService, Commun
         String caffeineKey = "blog:"+id;
         Blog previousBlogCache = (Blog) blogCache.getIfPresent(caffeineKey);
         if(previousBlogCache!=null){
-            logger.info("删除博客时，将其缓存删除");
+            logger.debug("删除博客时，将其缓存删除");
             blogCache.invalidate(caffeineKey);
         }
 

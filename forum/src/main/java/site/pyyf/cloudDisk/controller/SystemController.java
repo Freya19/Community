@@ -100,7 +100,7 @@ public class SystemController extends CloudDiskBaseController implements CloudDi
         map.put("nowFolder", nowFolder);
         map.put("location", location);
         
-        logger.info("云盘页面域中的数据显示成功");
+        logger.debug("云盘页面域中的数据显示成功");
         return "cloudDisk/clouddisk/files";
     }
 

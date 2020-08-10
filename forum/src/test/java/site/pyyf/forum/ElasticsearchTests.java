@@ -36,7 +36,7 @@ import java.util.List;
 @SpringBootTest
 @ContextConfiguration(classes = ForumApplication.class)
 public class ElasticsearchTests {
-
+    // 679.
     @Autowired
     private IDiscussPostMapper discussMapper;
 

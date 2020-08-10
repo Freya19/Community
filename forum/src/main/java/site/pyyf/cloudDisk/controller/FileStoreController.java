@@ -141,7 +141,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
         }
 
         String userFilesKey = RedisKeyUtil.getFilesKey(String.valueOf(folderId));
-        logger.info("文件上传成功，向缓存中增加一个文件");
+        logger.debug("文件上传成功，向缓存中增加一个文件");
         redisTemplate.opsForList().rightPush(userFilesKey, fileItem);
 
         resultMap.put("code", 200);
@@ -187,22 +187,22 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
         if (myFile.getMyFilePath().startsWith("http")) {
             //以http开头则是OSS存储的
             try {
-                logger.info("开始下载");
+                logger.debug("开始下载");
                 aliyunOssService.download(remotePath.substring(aliyunConfig.getUrlPrefix().length()), os);
-                logger.info("文件从OSS下载成功");
+                logger.debug("文件从OSS下载成功");
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.info("文件从OSS下载失败");
+                logger.debug("文件从OSS下载失败");
                 return;
             }
         } else {
             //去FTP上拉取
-            logger.info("开始下载");
+            logger.debug("开始下载");
             boolean FTPdownLoadRes = FtpUtil.downloadFile("/" + remotePath, os);
             if (FTPdownLoadRes) {
-                logger.info("文件从FTP下载成功");
+                logger.debug("文件从FTP下载成功");
             } else {
-                logger.info("文件从FTP下载失败!" + myFile);
+                logger.debug("文件从FTP下载失败!" + myFile);
                 return;
             }
         }
@@ -246,7 +246,7 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
         iMyFileService.deleteById(fId);
 
         clearFilesCache(folderId);
-        logger.info("文件删除成功，文件缓存删除。。。。");
+        logger.debug("文件删除成功，文件缓存删除。。。。");
 
         return "redirect:/files?fId=" + folderId;
     }
@@ -277,13 +277,13 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
     public void deleteFolderF(FileFolder folder) {
 
         clearFoldersCache(folder.getParentFolderId());
-        logger.info("文件夹缓存删除。。。。");
+        logger.debug("文件夹缓存删除。。。。");
 
         //删除当前文件夹的所有的文件
         List<MyFile> files = iMyFileService.queryAll(MyFile.builder().userId(ROOTUSERID).parentFolderId(folder.getId()).build());
         if (files.size() != 0) {
             clearFoldersCache(files.get(0).getParentFolderId());
-            logger.info("文件夹中文件缓存删除。。。。");
+            logger.debug("文件夹中文件缓存删除。。。。");
             for (int i = 0; i < files.size(); i++) {
                 MyFile thisFile = files.get(i);
 
@@ -331,16 +331,16 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
         for (int i = 0; i < fileFolders.size(); i++) {
             FileFolder fileFolder = fileFolders.get(i);
             if (fileFolder.getFileFolderName().equals(folder.getFileFolderName())) {
-                logger.info("添加文件夹失败!文件夹已存在...");
+                logger.debug("添加文件夹失败!文件夹已存在...");
                 return "redirect:/files?error=1&fId=" + folder.getParentFolderId();
             }
         }
         //向数据库写入数据
         Integer integer = iFileFolderService.insert(folder);
-        logger.info("添加文件夹成功!" + folder);
+        logger.debug("添加文件夹成功!" + folder);
 
         String userFoldersKey = RedisKeyUtil.getFoldersKey(String.valueOf(folder.getParentFolderId()));
-        logger.info("向缓存中增加一个文件夹");
+        logger.debug("向缓存中增加一个文件夹");
         redisTemplate.opsForList().rightPush(userFoldersKey, folder);
 
         return "redirect:/files?fId=" + folder.getParentFolderId();
@@ -363,16 +363,16 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
         for (int i = 0; i < existFileFolders.size(); i++) {
             FileFolder existFileFolder = existFileFolders.get(i);
             if (existFileFolder.getFileFolderName().equals(folder.getFileFolderName()) && !existFileFolder.getId().equals(folder.getId())) {
-                logger.info("重命名文件夹失败!文件夹已存在...");
+                logger.debug("重命名文件夹失败!文件夹已存在...");
                 return "redirect:/files?error=2&fId=" + fileFolder.getParentFolderId();
             }
         }
         //向数据库写入数据
         FileFolder result = iFileFolderService.update(fileFolder);
-        logger.info("重命名文件夹成功!" + folder);
+        logger.debug("重命名文件夹成功!" + folder);
 
         clearFoldersCache(fileFolder.getParentFolderId());
-        logger.info("文件夹缓存清除成功");
+        logger.debug("文件夹缓存清除成功");
         return "redirect:/files?fId=" + fileFolder.getParentFolderId();
     }
 
@@ -396,12 +396,12 @@ public class FileStoreController extends CloudDiskBaseController implements Clou
                 if (StringUtils.substringAfterLast(file.getMyFileName(), ".").equals("md")) {
                     iEbookService.update(Ebook.builder().fileId(myFile.getId()).ebookName(newName).build());
                 }
-                logger.info("修改文件名成功!原文件名:" + oldName + "  新文件名:" + newName);
+                logger.debug("修改文件名成功!原文件名:" + oldName + "  新文件名:" + newName);
             }
         }
 
         clearFilesCache(myFile.getParentFolderId());
-        logger.info("文件缓存清除成功");
+        logger.debug("文件缓存清除成功");
 
         return "redirect:/files?fId=" + myFile.getParentFolderId();
     }

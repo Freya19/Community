@@ -20,10 +20,10 @@ public class MediaTransferImpl implements IMediaTranfer {
         try {
             boolean isSuccess = AudioTransfer.audioToMp3(src, path);
             if(isSuccess){
-                logger.info("音乐 " + StringUtils.substringAfterLast(src.getAbsolutePath(),"\\") + " 转化成功");
+                logger.debug("音乐 " + StringUtils.substringAfterLast(src.getAbsolutePath(),"\\") + " 转化成功");
                 return true;
             }else{
-                logger.info("音乐 " + StringUtils.substringAfterLast(src.getAbsolutePath(),"\\") + " 转化失败");
+                logger.debug("音乐 " + StringUtils.substringAfterLast(src.getAbsolutePath(),"\\") + " 转化失败");
                 return false;
             }
 
@@ -40,7 +40,7 @@ public class MediaTransferImpl implements IMediaTranfer {
         try {
             boolean isSuccess = VideoTransfer.videoToMp4(src, path);
             if(isSuccess){
-            logger.info("视频 " + StringUtils.substringAfterLast(src.getAbsolutePath(),"\\") + " 转化成功");
+            logger.debug("视频 " + StringUtils.substringAfterLast(src.getAbsolutePath(),"\\") + " 转化成功");
             return true;}
             else {
                 logger.error("视频 " + StringUtils.substringAfterLast(src.getAbsolutePath(),"\\") + " 转化错误");
