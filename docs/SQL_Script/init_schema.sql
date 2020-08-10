@@ -5,8 +5,7 @@ SET NAMES utf8 ;
 --
 create table user
 (
-    id int auto_increment
-        primary key,
+    id int auto_increment primary key,
     username varchar(50) null comment '用户名',
     password varchar(50) null comment '密码',
     open_id varchar(50) null comment '用户的openid',

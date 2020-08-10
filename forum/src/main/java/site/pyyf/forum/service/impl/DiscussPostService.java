@@ -35,7 +35,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     // Caffeine核心接口: Cache, LoadingCache, AsyncLoadingCache
 
-    // 帖子缓存
+    /* 帖子缓存  ---  caffeine的*/
     private LoadingCache<String,DiscussPost> postListCache;
 
 
@@ -63,20 +63,22 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
 
     @Override
-    public DiscussPost save(DiscussPost discussPost){
+    public void save(DiscussPost discussPost){
         //传入的是编辑的帖子
         if(discussPost.getId()!=null){
             changeRedisTagList(discussPost);
             clearCache(discussPost.getId());
             update(discussPost);
-            return postListCache.get(String.valueOf(discussPost.getId()));
+            // 可以用于一旦更新数据库 就往 caffeine 中加入修改后的帖子
+            postListCache.get(String.valueOf(discussPost.getId()));
         }else {
             addRedisTagList(discussPost);
             //传入的新发布的帖子
             insert(discussPost);
             redisTemplate.opsForList().leftPush(RedisKeyUtil.getLatestPostsList(),discussPost.getId());
             redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(),discussPost.getId(),0);
-            return postListCache.get(String.valueOf(discussPost.getId()));
+            // 同上
+            postListCache.get(String.valueOf(discussPost.getId()));
         }
     }
 
@@ -130,6 +132,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
             List<DiscussPost> discussPosts = new ArrayList<>();
             if(orderMode==0){
                 logger.debug("主页时间查询，从redis中拿到ids，offset = "+offset+" ,limit = "+limit);
+                // 按照时间排序的所有帖子id ：PREFIX_LATEST_posts
                 String latestIdsKey = RedisKeyUtil.getLatestPostsList();
                 // redis 的 range 是from 到 to
                 ids = redisTemplate.opsForList().range(latestIdsKey, offset, offset+limit-1);

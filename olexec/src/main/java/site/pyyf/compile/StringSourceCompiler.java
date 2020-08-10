@@ -28,6 +28,7 @@ public class StringSourceCompiler {
         }
         return className;
     }
+
     public static Map<String, JavaFileObject> compile(String source, DiagnosticCollector<JavaFileObject> compileCollector) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 

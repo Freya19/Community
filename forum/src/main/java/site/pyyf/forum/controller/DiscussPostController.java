@@ -54,19 +54,19 @@ public class DiscussPostController extends CommunityBaseController implements Co
         if (discussPost.getTags() != null && !discussPost.getTags().equals("")) {
             String[] tagsName = discussPost.getTags().split(",|，");
             StringBuilder builder = new StringBuilder();
-            for(String tagName:tagsName)
+            for (String tagName : tagsName)
                 builder.append(tagName.trim().substring(0, 1).toUpperCase() + tagName.trim().substring(1).toLowerCase());
             discussPost.setTags(builder.toString());
         }
 
-        boolean addDiscussPostFlag=false;
+        boolean addDiscussPostFlag = false;
         if (discussPost.getId() == null) {
             discussPost.setUserId(user.getId());
-             addDiscussPostFlag= true;
+            addDiscussPostFlag = true;
         }
 
         // 1. 保存帖子 （底层会判断是编辑后的帖子还是新增的帖子）
-        if(discussPost.getId()!=null)
+        if (discussPost.getId() != null)
             discussPost.setCreateTime(iDiscussPostService.queryById(discussPost.getId()).getCreateTime());
         else
             discussPost.setCreateTime(new Date());
@@ -74,7 +74,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
         // 2.触发发帖事件  ------ 给粉丝推送发帖动态
         // 发帖事件只针对新增帖子 所以在save之前
-        if(addDiscussPostFlag){
+        if (addDiscussPostFlag) {
             Event eventPublish = new Event()
                     .setTopic(TOPIC_PUBLISH)
                     .setUserId(user.getId())
@@ -140,18 +140,18 @@ public class DiscussPostController extends CommunityBaseController implements Co
                 .queryAllByLimit(null, 1, 0, 5);
         model.addAttribute("hotPosts", hotPosts);
 
-        //4. 相关问题
+        // 4. 相关问题
         int relatedPostsCount = 7;
-        List<DiscussPost> relatedPosts = getRelatedPosts( post, relatedPostsCount);
+        List<DiscussPost> relatedPosts = getRelatedPosts(post, relatedPostsCount);
         model.addAttribute("relatedPosts", relatedPosts);
 
+        // 5. 触发看帖事件
         if (hostHolder.getUser() != null) {
             Event event = new Event()
                     .setTopic(TOPIC_VIEW)
                     .setUserId(hostHolder.getUser().getId())
                     .setEntityType(ENTITY_TYPE_POST)
                     .setEntityId(discussPostId);
-            // 5. 触发看帖事件
             String[] tags = post.getTags().split(",|，");
             if (tags.length > 0) {
                 event.setData("viewTags", tags);
@@ -175,25 +175,26 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
         List<SortDO> relatedSortedDO = new ArrayList<>();
         String[] tagNames = post.getTags().split(",");
-        for(String tagName:tagNames) {
-            Set<ZSetOperations.TypedTuple<Integer>> set = redisTemplate.opsForZSet().reverseRangeWithScores(RedisKeyUtil.getTagPostsList(tagName), 0, relatedPostsCount);
+        for (String tagName : tagNames) {
+            Set<ZSetOperations.TypedTuple<Integer>> set = redisTemplate.opsForZSet().reverseRangeWithScores(RedisKeyUtil.getTagPostsList(tagName),
+                    0, relatedPostsCount);
             for (ZSetOperations.TypedTuple<Integer> integerTypedTuple : set) {
-                relatedSortedDO.add(new SortDO(integerTypedTuple.getValue(),integerTypedTuple.getScore()));
+                relatedSortedDO.add(new SortDO(integerTypedTuple.getValue(), integerTypedTuple.getScore()));
             }
         }
         relatedSortedDO.sort(new Comparator<SortDO>() {
             @Override
             // o1 分高
             public int compare(SortDO o1, SortDO o2) {
-                return (int) (o2.getScore()-o1.getScore());
+                return (int) (o2.getScore() - o1.getScore());
             }
         });
-        relatedSortedDO = relatedSortedDO.subList(0, Math.min(relatedSortedDO.size(),relatedPostsCount));
+        relatedSortedDO = relatedSortedDO.subList(0, Math.min(relatedSortedDO.size(), relatedPostsCount));
 
         //相关问题肯定不能包括自己，所以搜出relatedPostsCount个，如果自己在就去掉自己，否则去掉最后一个
         List<DiscussPost> relatedPosts = new ArrayList<>();
-        for (SortDO sortDO:relatedSortedDO) {
-            int  discussPostId = sortDO.getId();
+        for (SortDO sortDO : relatedSortedDO) {
+            int discussPostId = sortDO.getId();
             if (post.getId() != discussPostId) {
                 relatedPosts.add(iDiscussPostService.queryById(discussPostId));
             }

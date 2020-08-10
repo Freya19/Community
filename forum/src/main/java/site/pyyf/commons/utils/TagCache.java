@@ -24,29 +24,29 @@ public class TagCache {
         /**
          * 这是使用优先队列，找30个最大的，这30个不分前后
 
-        PriorityQueue<Tag> priorityQueue = new PriorityQueue<>(max);
+         PriorityQueue<Tag> priorityQueue = new PriorityQueue<>(max);
 
-        tags.forEach((name, Tag) -> {
-            if (priorityQueue.size() < max) {
-                priorityQueue.add(Tag);
-            } else {
-                Tag minHot = priorityQueue.peek();
-                if (Tag.compareTo(minHot) > 0) {
-                    priorityQueue.poll();
-                    priorityQueue.add(Tag);
-                }
-            }
-        });
+         tags.forEach((name, Tag) -> {
+         if (priorityQueue.size() < max) {
+         priorityQueue.add(Tag);
+         } else {
+         Tag minHot = priorityQueue.peek();
+         if (Tag.compareTo(minHot) > 0) {
+         priorityQueue.poll();
+         priorityQueue.add(Tag);
+         }
+         }
+         });
 
-        List<Tag> sortedTags = new ArrayList<>();
+         List<Tag> sortedTags = new ArrayList<>();
 
-        Tag poll = priorityQueue.poll();
-        while (poll != null) {
-            sortedTags.add(poll);
-            poll = priorityQueue.poll();
-        }
-        Collections.reverse(sortedTags);
-        hots = sortedTags;
+         Tag poll = priorityQueue.poll();
+         while (poll != null) {
+         sortedTags.add(poll);
+         poll = priorityQueue.poll();
+         }
+         Collections.reverse(sortedTags);
+         hots = sortedTags;
          */
 
         TreeSet<Tag> set = new TreeSet<>();
@@ -58,11 +58,10 @@ public class TagCache {
         //使用CopyOnWriteArrayList提高并发访问效率
         showTags = new CopyOnWriteArrayList<>();
         //hots数量加到max为止 或者 加到set中元素没了为止
-        while (showTags.size()<max&&set.size()>0){
+        while (showTags.size() < max && set.size() > 0) {
             showTags.add(set.pollFirst());
         }
     }
-
 
 
 }

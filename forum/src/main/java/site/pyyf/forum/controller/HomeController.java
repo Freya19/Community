@@ -46,12 +46,11 @@ public class HomeController extends CommunityBaseController implements Community
         page.setRows(iDiscussPostService.queryCount(query));
         if(tag != null) page.setPath("/index?orderMode=" + orderMode+"&tag="+tag); else page.setPath("/index?orderMode=" + orderMode);
 
+        // 从缓存查帖子  -- 通过帖子id
         List<DiscussPost> discussPosts = iDiscussPostService
                 .queryAllByLimit(query,orderMode, page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         if (discussPosts .size()!= 0) {
-
-
 
 //            List<Feed> feeds = null;
 //            Set<Feed> published = null;
@@ -95,7 +94,8 @@ public class HomeController extends CommunityBaseController implements Community
         model.addAttribute("discussPosts", discussPostVOS);
         model.addAttribute("orderMode", orderMode);
 
-        // 从redis中读所有的标签和对应的数量，zset按照从小到大，所以我们reverse获取,并封装成List<Tag>
+        // 从redis中读所有的标签和对应的数量
+        // zSet按照从小到大，所以我们reverse获取,并封装成List<Tag>
         Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().reverseRangeWithScores(RedisKeyUtil.getTagsCount(), 0, -1);
         List<Tag> hotTags = set.stream().map(s ->  Tag.builder().name(s.getValue()).count(s.getScore().intValue()).build()).collect(Collectors.toList());
         model.addAttribute("hotTags", hotTags);
