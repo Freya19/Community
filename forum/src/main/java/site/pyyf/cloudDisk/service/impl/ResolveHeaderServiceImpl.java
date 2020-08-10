@@ -40,45 +40,48 @@ public class ResolveHeaderServiceImpl implements IResolveHeaderService//存储�
     private IEbookService iEbooksService;
 
     private List<EbookContent> allContent = new ArrayList<>();
-    private boolean jugleFirstLevelHeader = false;
+    private boolean jugleTopLevelHeader = false;
     private int fileId;
-    private int firstLevelHeader;
+    private int topLevelHeader;
     private String preContentId;
     private StringBuilder preContent = new StringBuilder();
     private Header root;//树根（相当于链表的头指针）
     private boolean detect = true;
-    private Map<String, Header> records = new HashMap<>();
+    private Map<Integer, Header> records = new HashMap<>();
 
 
     private void insertHeader(Header head, int level) {
-        if (level == firstLevelHeader) {
-            if (records.containsKey("" + level))
-                records.remove("" + level);
+        if (level == topLevelHeader) {
+            if (records.containsKey(level))
+                records.remove(level);
             /* ------------------- 更新记录和插入节点 ----------------- */
             root.addSubNode(head);
             root.setHasSub(true);
-            records.put("" + level, head);
+            records.put(level, head);
             return;
         }
 
+
         /* ------------------- 找到要插入的节点 ----------------- */
+        /* 如果我们插入 1(1级) 1.1(2级) 1.11(3级) 现在出现1.2(2级)，我们需要插到1(1级)的后面，即hash表中1(1级)和前面的保留，
+        后面的东西都可以删了，我们目前的存储点为1   同时万一出现需要插入1.1111(五级)  则我们需要从4级向前找存在的*/
         int preLevel = 0;
         for (preLevel = level - 1; preLevel > 0; preLevel--) {
-            if (records.containsKey("" + preLevel))
+            if (records.containsKey(preLevel))
                 break;
         }
 
         /* ------------------- 后面节点全部失效 ----------------- */
         for (int i = preLevel + 1; i < 7; i++) {
-            if (records.containsKey("" + i))
-                records.remove("" + i);
+            if (records.containsKey(i))
+                records.remove(i);
         }
 
         /* ------------------- 更新记录和插入节点 ----------------- */
-        Header preList = records.get("" + preLevel);
-        preList.addSubNode(head);
-        preList.setHasSub(true);
-        records.put("" + level, head);
+        Header preHeader = records.get(preLevel);
+        preHeader.addSubNode(head);
+        preHeader.setHasSub(true);
+        records.put(level, head);
     }
 
     public ResolveHeaderServiceImpl() {
@@ -103,25 +106,25 @@ public class ResolveHeaderServiceImpl implements IResolveHeaderService//存储�
         if (detect) {
 
             /* ------------------- 判断第一次出现的标题是几级标题 ----------------- */
-            if (!jugleFirstLevelHeader) {
+            if (!jugleTopLevelHeader) {
                 for (int i = 1; i < 7; i++) {
                     if (isNHeader(buffer, i)) {
-                        firstLevelHeader = i;
-                        jugleFirstLevelHeader = true;
+                        topLevelHeader = i;
+                        jugleTopLevelHeader = true;
                         break;
                     }
                 }
             }
 
-            for (int i = 1; i < firstLevelHeader; i++) {
+            for (int i = 1; i < topLevelHeader; i++) {
                 if (isNHeader(buffer, i)) {
                     throw new RuntimeException("出现了更高的标题");
                 }
             }
 
 
-            //一级目录直接加到根上去
-            if (isNHeader(buffer, firstLevelHeader)) {
+            //顶级目录直接加到根上去
+            if (isNHeader(buffer, topLevelHeader)) {
                 isHeaderLine = true;
 
                 /* ------------------- 第2次检测到标题时对其上面所有的内容进行封存 ----------------- */
@@ -141,15 +144,15 @@ public class ResolveHeaderServiceImpl implements IResolveHeaderService//存储�
                 /* ------------------- 标题加入root队伍 ----------------- */
                 Header newDir = new Header();
                 String contentId = UUID.randomUUID().toString().replaceAll("-", "");
-                newDir.setHeader(buffer.substring(firstLevelHeader));
+                newDir.setHeader(buffer.substring(topLevelHeader));
                 newDir.setContentId(contentId);
 
-                insertHeader(newDir, firstLevelHeader);
+                insertHeader(newDir, topLevelHeader);
                 preContentId = contentId;
             }
 
-            /* ------------------- 处理除firstLevel级标题外的其他标题 ----------------- */
-            for (int i = firstLevelHeader + 1; i < 7; i++) {
+            /* ------------------- 处理除topLevel级标题外的其他标题 ----------------- */
+            for (int i = topLevelHeader + 1; i < 7; i++) {
                 if (isNHeader(buffer, i)) {
                     isHeaderLine = true;
 
@@ -176,6 +179,7 @@ public class ResolveHeaderServiceImpl implements IResolveHeaderService//存储�
 
         if (buffer.contains("```"))
             detect = !detect;
+        // 非标题行，即如果是内容行则内容加到之前的内容上
         if (!isHeaderLine)
             preContent.append(buffer).append("\n");
     }
