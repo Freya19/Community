@@ -4,6 +4,7 @@ import site.pyyf.compile.StringSourceCompiler;
 import javax.tools.JavaFileObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,6 @@ public class JavaClassExecutor {
         for (Map.Entry<String, JavaFileObject> fileObject : fileObjectMap.entrySet()) {
             // 2. new ClassModifier，并传入需要被修改的字节数组
             ClassModifier cm = new ClassModifier(((StringSourceCompiler.TmpJavaFileObject) fileObject.getValue()).getCompiledBytes());
-
             // 3. 调用ClassModifier#modifyUTF8Constant修改
             //System类负责 控制台与程序之间的输入输出流的控制；数组的复制；并且公有的属性有 3 个，即标准输入流、标准输出流和标准错误流：
             //因此我们需要将标准输入流换为我们的自定义输入流、标准输出流和标准错误流共用我们的自定义标准输出流
