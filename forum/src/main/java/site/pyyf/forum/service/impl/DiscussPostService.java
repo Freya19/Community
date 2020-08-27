@@ -38,6 +38,9 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
     // 帖子缓存
     private LoadingCache<String,DiscussPost> postListCache;
 
+    public LoadingCache<String, DiscussPost> getPostListCache() {
+        return postListCache;
+    }
 
     @PostConstruct
     public void init() {

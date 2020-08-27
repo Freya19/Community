@@ -143,6 +143,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
         //4. 相关问题
         int relatedPostsCount = 7;
         List<DiscussPost> relatedPosts = getRelatedPosts( post, relatedPostsCount);
+
         model.addAttribute("relatedPosts", relatedPosts);
 
         if (hostHolder.getUser() != null) {
@@ -195,7 +196,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
         for (SortDO sortDO:relatedSortedDO) {
             int  discussPostId = sortDO.getId();
             if (post.getId() != discussPostId) {
-                relatedPosts.add(iDiscussPostService.queryCache(discussPostId));
+                relatedPosts.add(iDiscussPostService.getPostListCache().get(String.valueOf(discussPostId)));
             }
         }
         if (relatedPosts.size() == relatedPostsCount) {
