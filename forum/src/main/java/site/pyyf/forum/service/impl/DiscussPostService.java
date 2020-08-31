@@ -30,24 +30,24 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
     @Value("${caffeine.posts.max-size}")
     private int maxSize;
 
-    @Value("${caffeine.posts.expire-seconds}")
-    private int expireSeconds;
+    @Value("${caffeine.posts.expire-hours}")
+    private int expireHours;
 
     // Caffeine核心接口: Cache, LoadingCache, AsyncLoadingCache
 
     // 帖子缓存
     private LoadingCache<String,DiscussPost> postListCache;
 
-    public LoadingCache<String, DiscussPost> getPostListCache() {
+    public LoadingCache<String, DiscussPost> queryCaffineCache() {
         return postListCache;
     }
 
     @PostConstruct
-    public void init() {
+    public void caffineInit() {
         // 初始化帖子缓存
         postListCache = Caffeine.newBuilder()
                 .maximumSize(maxSize)
-                .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
+                .expireAfterWrite(expireHours, TimeUnit.HOURS)
                 .build(new CacheLoader<String, DiscussPost>() {
                     @Nullable
                     @Override
@@ -59,7 +59,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
                         Integer postId = Integer.valueOf(key);
                         logger.debug("从caffeine拿id = "+key+" 的帖子");
                         // 从redis拿
-                        return queryCache(postId);
+                        return queryRedisCache(postId);
                     }
                 });
     }
@@ -216,7 +216,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     @Override
     public int updateCommentCount(int id, int commentCount) {
-        DiscussPost query = queryCache(id);
+        DiscussPost query = queryCaffineCache().get(String.valueOf(id));
         query.setCommentCount(commentCount);
         int res = iDiscussPostMapper.update(query);
         clearCache(id);
@@ -229,7 +229,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
         // 1. 将redis的list从中间某一个部分提到最开始
         // 2. 删除缓存(缓存的DO状态变了)
         if(type == 1){
-            delRedisTagList(queryCache(id));
+            delRedisTagList(queryCaffineCache().get(String.valueOf(id)));
             redisTemplate.opsForValue().increment(RedisKeyUtil.getTopCount(),1);
             redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
             redisTemplate.opsForList().leftPush(RedisKeyUtil.getLatestPostsList(),id);
@@ -251,10 +251,10 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
                 redisTemplate.opsForValue().decrement(RedisKeyUtil.getTopCount(),1);
             redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),id);
             redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(),0,id);
-            delRedisTagList(queryCache(id));
+            delRedisTagList(queryCaffineCache().get(String.valueOf(id)));
         }
 
-        DiscussPost query = queryCache(id);
+        DiscussPost query = queryCaffineCache().get(String.valueOf(id));
         query.setStatus(status);
         int res = iDiscussPostMapper.update(query);
         clearCache(id);
@@ -263,7 +263,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
 
     @Override
     public int updateScore(int id, double score) {
-        DiscussPost query = queryCache(id);
+        DiscussPost query = queryCaffineCache().get(String.valueOf(id));
         query.setScore(score);
         int re = iDiscussPostMapper.update(query);
         clearCache(id);
@@ -280,10 +280,10 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      * @return 实例对象
      */
     @Override
-    public DiscussPost queryCache(Integer id) {
-        DiscussPost post = getCache(id);
+    public DiscussPost queryRedisCache(Integer id) {
+        DiscussPost post = getRedisCache(id);
         if (post == null) {
-            post = initCache(id);
+            post = initRedisCache(id);
         }
         return post;
     }
@@ -294,7 +294,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      * @param postId
      * @return
      */
-    private DiscussPost getCache(int postId) {
+    private DiscussPost getRedisCache(int postId) {
         logger.debug("caffeine没查到，从redis中查询 id = "+postId+" 的帖子");
         String postKey = RedisKeyUtil.getPostDOKey(postId);
         return (DiscussPost) redisTemplate.opsForValue().get(postKey);
@@ -305,7 +305,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
      * @param postId
      * @return
      */
-    private DiscussPost initCache(int postId) {
+    private DiscussPost initRedisCache(int postId) {
         logger.debug("redis没查到，从mysql中查询 id = "+postId+" 的帖子");
         DiscussPost post = iDiscussPostMapper.queryById(postId);
         String postKey = RedisKeyUtil.getPostDOKey(postId);

@@ -151,7 +151,7 @@ public class FeedController extends CommunityBaseController implements Community
         List<Feed> feeds = iFeedService.queryAllByLimit(Feed.builder().entityType(ENTITY_TYPE_POST).userId(userId).build(), page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         for(Feed feed:feeds){
-            DiscussPost discussPost = iDiscussPostService.queryCache(feed.getEntityId());
+            DiscussPost discussPost = iDiscussPostService.queryCaffineCache().get(String.valueOf(feed.getEntityId()));
             Map<String, Object> discussPostVO = new HashMap<>();
             discussPostVO.put("feed",feed);
             discussPostVO.put("post", discussPost);

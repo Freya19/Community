@@ -16,7 +16,7 @@ public interface IDiscussPostService {
      * 获取caffine容器
      * @return
      */
-    LoadingCache<String, DiscussPost> getPostListCache();
+    LoadingCache<String, DiscussPost> queryCaffineCache();
 
     /**
      * @Description 通过ID查询单条数据
@@ -25,7 +25,7 @@ public interface IDiscussPostService {
      * @param id 主键
      * @return 实例对象
      */
-    DiscussPost queryCache(Integer id);
+    DiscussPost queryRedisCache(Integer id);
 
      /**
      * @Description 查询全部数据
