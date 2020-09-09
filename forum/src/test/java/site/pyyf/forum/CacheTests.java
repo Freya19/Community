@@ -105,4 +105,12 @@ public class CacheTests {
         redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),7138);
         System.out.println(redisTemplate.opsForZSet().range(RedisKeyUtil.getHotPostsList(), 0, -1));
     }
+
+//    @Test
+    public void updateHot(){
+        List<DiscussPost> discussPosts = iDiscussPostMapper.queryAll();
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        for (DiscussPost discussPost:discussPosts)
+            redisTemplate.opsForSet().add(redisKey, discussPost.getId());
+    }
 }
