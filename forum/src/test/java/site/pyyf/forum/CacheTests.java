@@ -98,7 +98,7 @@ public class CacheTests {
         }
     }
 
-//    @Test
+    @Test
     public void delElement(){
         Set range = redisTemplate.opsForZSet().range(RedisKeyUtil.getHotPostsList(), 0, -1);
         System.out.println(range);
@@ -106,7 +106,7 @@ public class CacheTests {
         System.out.println(redisTemplate.opsForZSet().range(RedisKeyUtil.getHotPostsList(), 0, -1));
     }
 
-//    @Test
+   @Test
     public void updateHot(){
         List<DiscussPost> discussPosts = iDiscussPostMapper.queryAll();
         String redisKey = RedisKeyUtil.getPostScoreKey();

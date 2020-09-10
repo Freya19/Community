@@ -92,10 +92,10 @@ public class PostScoreRefreshJob implements CommunityConstant {
         // 点赞数量
         long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, postId);
 
-        // 计算权重
-        double w = (wonderful ? 75 : 0) + likeCount  * 10 + commentCount * 2;
+        // 计算权重  加精 抵 100 天  点赞抵 10 天  评论抵 5天
+        double w = (wonderful ? 100 : 0) + likeCount  * 20 + commentCount * 5;
         // 分数 = 帖子权重 + 距离天数
-        double score = Math.log10(Math.max(w, 1))
+        double score = Math.max(w, 1)
                 + (post.getCreateTime().getTime() - epoch.getTime()) / (1000 * 3600 * 24);
         // 更新帖子分数
         discussPostService.updateScore(postId, score);
