@@ -93,7 +93,7 @@ public class PostScoreRefreshJob implements CommunityConstant {
         long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, postId);
 
         // 计算权重
-        double w = (wonderful ? 75 : 0) + commentCount * 10 + likeCount * 2;
+        double w = (wonderful ? 75 : 0) + likeCount  * 10 + commentCount * 2;
         // 分数 = 帖子权重 + 距离天数
         double score = Math.log10(Math.max(w, 1))
                 + (post.getCreateTime().getTime() - epoch.getTime()) / (1000 * 3600 * 24);
@@ -101,8 +101,8 @@ public class PostScoreRefreshJob implements CommunityConstant {
         discussPostService.updateScore(postId, score);
         // 同步搜索数据
         post.setScore(score);
-        elasticsearchService.saveDiscussPost(post);
-
+//        elasticsearchService.saveDiscussPost(post);
+        logger.info("正在刷新帖子分数: id = " + postId);
         redisTemplate.opsForZSet().add(RedisKeyUtil.getHotPostsList(), postId, score);
     }
 
