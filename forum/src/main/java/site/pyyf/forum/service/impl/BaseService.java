@@ -4,7 +4,6 @@ import site.pyyf.commons.event.EventProducer;
 import site.pyyf.commons.utils.MailClient;
 import site.pyyf.commons.utils.SensitiveFilter;
 import site.pyyf.forum.dao.*;
-import site.pyyf.forum.dao.*;
 import site.pyyf.forum.dao.elasticsearch.DiscussPostRepository;
 import site.pyyf.forum.service.IAliyunOssService;
 import site.pyyf.forum.service.IUserService;

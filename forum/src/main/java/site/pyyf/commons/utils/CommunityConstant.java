@@ -102,6 +102,16 @@ public interface CommunityConstant {
     String TOPIC_UPDATE_ES = "updateEs";
 
     /**
+     * 主题：加精
+     */
+    String TOPIC_WONDERFUL = "wonderful";
+
+    /**
+     * 主题：置顶
+     */
+    String TOPIC_TOP = "top";
+
+    /**
      * 主题: 分享
      */
     String TOPIC_SHARE = "share";

@@ -1,21 +1,29 @@
 package site.pyyf.commons.event;
 
 import com.alibaba.fastjson.JSONObject;
-import site.pyyf.forum.entity.Event;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import site.pyyf.commons.utils.RedisKeyUtil;
+import site.pyyf.forum.entity.Event;
 
-@Component
+
+/**
+ * Created by nowcoder on 2016/7/30.
+ */
+@Service
 public class EventProducer {
 
     @Autowired
-    private KafkaTemplate kafkaTemplate;
+    protected RedisTemplate redisTemplate;
 
-    // 处理事件
-    public void fireEvent(Event event) {
-        // 将事件发布到指定的主题
-        kafkaTemplate.send(event.getTopic(), JSONObject.toJSONString(event));
+    public boolean fireEvent(Event event) {
+        try {
+            String json = JSONObject.toJSONString(event);
+            redisTemplate.opsForList().leftPush(RedisKeyUtil.getTopicKey(), json);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
-
 }

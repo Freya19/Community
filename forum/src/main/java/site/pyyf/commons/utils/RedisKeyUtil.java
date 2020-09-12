@@ -14,6 +14,7 @@ public class RedisKeyUtil implements CommunityConstant {
     private static final String PREFIX_TAG = "tag";
     private static final String PREFIX_TAGS_COUNT = "tags:count";
     private static final String PREFIX_DAU = "dau";
+    private static final String PREFIX_TOPIC = "topic";
     private static final String PREFIX_POST = "post";
     private static final String PREFIX_TIMELINE_LATEST = "timeline:latest";
     private static final String PREFIX_TIMELINE_PERSISTENCE = "timeline:persistence";
@@ -22,6 +23,11 @@ public class RedisKeyUtil implements CommunityConstant {
     private static final String PREFIX_HOT_posts = "posts:hot:list";
     private static final String PREFIX_LATEST_posts = "posts:latest:list";
     private static final String PREFIX_TOP_COUNT = "posts:top:count";
+
+    // topic
+    public static String getTopicKey() {
+        return PREFIX_ENTITY_LIKE + SPLIT + PREFIX_TOPIC ;
+    }
 
     // 某个实体的赞
     // like:entity:entityType:entityId -> set(userId)
