@@ -172,6 +172,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
      * @param user
      * @return
      */
+    @Override
     public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>();
 
@@ -236,6 +237,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         return map;
     }
 
+    @Override
     public int activation(int userId, String code) {
         User user = iUserMapper.queryById(userId);
         if (user.getStatus() == 1) {
@@ -264,7 +266,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
             return map;
         }
 
-        // 验证账号(此为普通账号验证，所以registerType为0)
+        // 验证账号(此为普通账号验证，所以registerType为 0)
         List<User> users = iUserMapper.queryAll(User.builder().username(username).registerType(0).build());
 
         if (users.size()>1) {
@@ -293,15 +295,16 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         // 生成登录凭证
         LoginTicket loginTicket = new LoginTicket();
         loginTicket.setUserId(user.getId());
-        loginTicket.setTicket(CommunityUtil.generateUUID());
+//        loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(1);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
 
         //通过 ticket 拼成 Redis的key
-        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+        String token = CommunityUtil.generateUUID();
+        String redisKey = RedisKeyUtil.getTicketKey(token);
         redisTemplate.opsForValue().set(redisKey, loginTicket);
         iUserService.update(User.builder().id(user.getId()).loginTime(new Date()).build());
-        map.put("ticket", loginTicket.getTicket());
+        map.put("token", token);
         return map;
     }
 
@@ -361,6 +364,7 @@ public class UserServiceImpl extends BaseService implements IUserService, Commun
         redisTemplate.delete(redisKey);
     }
 
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
         User user = this.queryById(userId);
 

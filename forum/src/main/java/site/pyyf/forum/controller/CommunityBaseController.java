@@ -80,7 +80,6 @@ public class CommunityBaseController {
      * hasLogin：1-登录，0-未登录
      * 获取用户是否登录的状态以及用户类型是否是管理员
      * isAdmin：0-非管理员; 1-超级管理员;
-     *
      */
     @ModelAttribute
     public void setReqAndRes(Model model) {

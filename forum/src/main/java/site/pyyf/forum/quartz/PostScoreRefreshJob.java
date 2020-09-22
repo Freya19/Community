@@ -60,7 +60,7 @@ public class PostScoreRefreshJob implements CommunityConstant {
 
     class ScoreTask implements Runnable {
         @Override
-        public void run() {
+            public void run() {
             String redisKey = RedisKeyUtil.getPostScoreKey();
             BoundSetOperations operations = redisTemplate.boundSetOps(redisKey);
 

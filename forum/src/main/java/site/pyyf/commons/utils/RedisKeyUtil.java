@@ -8,7 +8,7 @@ public class RedisKeyUtil implements CommunityConstant {
     private static final String PREFIX_FOLLOW = "follow";
     private static final String PREFIX_FANS = "fans";
     private static final String PREFIX_KAPTCHA = "kaptcha";
-    private static final String PREFIX_TICKET = "ticket";
+    private static final String PREFIX_TICKET = "token";
     private static final String PREFIX_USER = "user";
     private static final String PREFIX_UV = "uv";
     private static final String PREFIX_TAG = "tag";

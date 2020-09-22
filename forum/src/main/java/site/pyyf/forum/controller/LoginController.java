@@ -148,8 +148,8 @@ public class LoginController extends CommunityBaseController implements Communit
         // 检查账号,密码
         int expiredSeconds = rememberme ? REMEMBER_EXPIRED_SECONDS : DEFAULT_EXPIRED_SECONDS;
         Map<String, Object> map = iUserService.login(username, password, expiredSeconds);
-        if (map.containsKey("ticket")) {
-            Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
+        if (map.containsKey("token")) {
+                Cookie cookie = new Cookie("token", map.get("token").toString());
             cookie.setPath(contextPath);
             cookie.setMaxAge(expiredSeconds);
             response.addCookie(cookie);
@@ -206,14 +206,15 @@ public class LoginController extends CommunityBaseController implements Communit
             // 生成登录凭证
             LoginTicket loginTicket = new LoginTicket();
             loginTicket.setUserId(user.getId());
-            loginTicket.setTicket(CommunityUtil.generateUUID());
+//            loginTicket.setTicket(CommunityUtil.generateUUID());
             loginTicket.setStatus(1);
             loginTicket.setExpired(new Date(System.currentTimeMillis() + DEFAULT_EXPIRED_SECONDS * 1000));
 
-            String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+            String token = CommunityUtil.generateUUID();
+            String redisKey = RedisKeyUtil.getTicketKey(token);
             redisTemplate.opsForValue().set(redisKey, loginTicket);
 
-            Cookie cookie = new Cookie("ticket", loginTicket.getTicket());
+            Cookie cookie = new Cookie("token", token);
             cookie.setPath(contextPath);
             cookie.setMaxAge(DEFAULT_EXPIRED_SECONDS);
             response.addCookie(cookie);
@@ -316,14 +317,15 @@ public class LoginController extends CommunityBaseController implements Communit
                     // 生成登录凭证
                     LoginTicket loginTicket = new LoginTicket();
                     loginTicket.setUserId(user.getId());
-                    loginTicket.setTicket(CommunityUtil.generateUUID());
+    //                    loginTicket.setTicket(CommunityUtil.generateUUID());
                     loginTicket.setStatus(1);
                     loginTicket.setExpired(new Date(System.currentTimeMillis() + DEFAULT_EXPIRED_SECONDS * 1000));
 
-                    String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+                    String token = CommunityUtil.generateUUID();
+                    String redisKey = RedisKeyUtil.getTicketKey(token);
                     redisTemplate.opsForValue().set(redisKey, loginTicket);
 
-                    Cookie cookie = new Cookie("ticket", loginTicket.getTicket());
+                    Cookie cookie = new Cookie("token", token);
                     cookie.setPath(contextPath);
                     cookie.setMaxAge(DEFAULT_EXPIRED_SECONDS);
                     response.addCookie(cookie);
@@ -343,7 +345,7 @@ public class LoginController extends CommunityBaseController implements Communit
 
     @ResponseBody
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
-    public String logout(@CookieValue("ticket") String ticket) {
+    public String logout(@CookieValue("token") String ticket) {
 
         iUserService.logout(ticket);
         SecurityContextHolder.clearContext();
