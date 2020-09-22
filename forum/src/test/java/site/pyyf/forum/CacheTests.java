@@ -98,11 +98,19 @@ public class CacheTests {
         }
     }
 
-//    @Test
+    @Test
     public void delElement(){
         Set range = redisTemplate.opsForZSet().range(RedisKeyUtil.getHotPostsList(), 0, -1);
         System.out.println(range);
         redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(),7138);
         System.out.println(redisTemplate.opsForZSet().range(RedisKeyUtil.getHotPostsList(), 0, -1));
+    }
+
+   @Test
+    public void updateHot(){
+        List<DiscussPost> discussPosts = iDiscussPostMapper.queryAll();
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        for (DiscussPost discussPost:discussPosts)
+            redisTemplate.opsForSet().add(redisKey, discussPost.getId());
     }
 }

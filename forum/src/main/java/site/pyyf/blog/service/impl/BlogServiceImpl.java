@@ -36,15 +36,15 @@ public class BlogServiceImpl extends BaseService implements IBlogService, Commun
     @Value("${caffeine.blogs.max-size}")
     private int maxSize;
 
-    @Value("${caffeine.blogs.expire-seconds}")
-    private int expireSeconds;
+    @Value("${caffeine.blogs.expire-hours}")
+    private int expireHours;
 
     @PostConstruct
     public void init() {
         // 初始化博客列表缓存
         blogCache = Caffeine.newBuilder()
                 .maximumSize(maxSize)
-                .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
+                .expireAfterWrite(expireHours, TimeUnit.HOURS)
                 .build();
     }
 

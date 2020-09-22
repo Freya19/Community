@@ -1,5 +1,6 @@
 package site.pyyf.forum.service;
 
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import site.pyyf.forum.entity.DiscussPost;
 
 import java.util.List;
@@ -11,6 +12,11 @@ import java.util.List;
  * @since 2020-03-27 07:57:21
  */
 public interface IDiscussPostService {
+    /**
+     * 获取caffine容器
+     * @return
+     */
+    LoadingCache<String, DiscussPost> queryCaffineCache();
 
     /**
      * @Description 通过ID查询单条数据
@@ -19,7 +25,7 @@ public interface IDiscussPostService {
      * @param id 主键
      * @return 实例对象
      */
-    DiscussPost queryCache(Integer id);
+    DiscussPost queryRedisCache(Integer id);
 
      /**
      * @Description 查询全部数据

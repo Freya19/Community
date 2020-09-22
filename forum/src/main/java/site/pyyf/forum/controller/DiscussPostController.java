@@ -32,7 +32,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
      */
     @RequestMapping(path = "/edit/{discussPostId}", method = RequestMethod.GET)
     public String getEditPage(Model model, @PathVariable("discussPostId") int discussPostId) {
-        DiscussPost discussPost = iDiscussPostService.queryCache(discussPostId);
+        DiscussPost discussPost = iDiscussPostService.queryCaffineCache().get(String.valueOf(discussPostId));
         model.addAttribute("title", discussPost.getTitle());
         model.addAttribute("content", discussPost.getContent());
         model.addAttribute("tag", discussPost.getTags());
@@ -67,7 +67,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
 
         // 1. 保存帖子 （底层会判断是编辑后的帖子还是新增的帖子）
         if(discussPost.getId()!=null)
-            discussPost.setCreateTime(iDiscussPostService.queryCache(discussPost.getId()).getCreateTime());
+            discussPost.setCreateTime(iDiscussPostService.queryCaffineCache().get(String.valueOf(discussPost.getId())).getCreateTime());
         else
             discussPost.setCreateTime(new Date());
         iDiscussPostService.save(discussPost);
@@ -103,7 +103,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
 
         // 1. 获取指定帖子并为java代码添加编译模块
-        DiscussPost post = iDiscussPostService.queryCache(discussPostId);
+        DiscussPost post = iDiscussPostService.queryCaffineCache().get(String.valueOf(discussPostId));
         post.setContent(iCodePreviewService.addCompileModule(new StringBuilder(post.getContent()), "java", 1).toString());
 
         model.addAttribute("post", post);
@@ -143,6 +143,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
         //4. 相关问题
         int relatedPostsCount = 7;
         List<DiscussPost> relatedPosts = getRelatedPosts( post, relatedPostsCount);
+
         model.addAttribute("relatedPosts", relatedPosts);
 
         if (hostHolder.getUser() != null) {
@@ -195,7 +196,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
         for (SortDO sortDO:relatedSortedDO) {
             int  discussPostId = sortDO.getId();
             if (post.getId() != discussPostId) {
-                relatedPosts.add(iDiscussPostService.queryCache(discussPostId));
+                relatedPosts.add(iDiscussPostService.queryCaffineCache().get(String.valueOf(discussPostId)));
             }
         }
         if (relatedPosts.size() == relatedPostsCount) {
