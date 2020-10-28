@@ -1,5 +1,7 @@
 package site.pyyf.forum.controller;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.data.redis.core.ZSetOperations;
 import site.pyyf.commons.utils.TagsVO;
 import site.pyyf.forum.entity.*;
@@ -103,7 +105,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
 
         // 1. 获取指定帖子并为java代码添加编译模块
-        DiscussPost post = iDiscussPostService.queryCaffineCache().get(String.valueOf(discussPostId));
+        DiscussPost post = SerializationUtils.clone(iDiscussPostService.queryCaffineCache().get(String.valueOf(discussPostId)));
         post.setContent(iCodePreviewService.addCompileModule(new StringBuilder(post.getContent()), "java", 1).toString());
 
         model.addAttribute("post", post);
