@@ -36,13 +36,13 @@ create index index_username
 DROP TABLE IF EXISTS `login_ticket`;
 SET character_set_client = utf8mb4 ;
 CREATE TABLE `login_ticket` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `user_id` int(11) NOT NULL,
-    `ticket` varchar(45) NOT NULL,
-    `status` int(11) DEFAULT '0' COMMENT '0表示无效，1表示有效;',
-    `expired` timestamp NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `index_ticket` (`ticket`(20))
+                                `id` int(11) NOT NULL AUTO_INCREMENT,
+                                `user_id` int(11) NOT NULL,
+                                `ticket` varchar(45) NOT NULL,
+                                `status` int(11) DEFAULT '0' COMMENT '0表示无效，1表示有效;',
+                                `expired` timestamp NOT NULL,
+                                PRIMARY KEY (`id`),
+                                KEY `index_ticket` (`ticket`(20))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -52,17 +52,17 @@ CREATE TABLE `login_ticket` (
 DROP TABLE IF EXISTS `message`;
 SET character_set_client = utf8mb4 ;
 CREATE TABLE `message` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `from_id` int(11) DEFAULT NULL,
-    `to_id` int(11) DEFAULT NULL,
-    `conversation_id` varchar(45) NOT NULL,
-    `content` text,
-    `status` int(11) DEFAULT NULL COMMENT '0-未读;1-已读;2-删除;',
-    `create_time` timestamp NULL DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `index_from_id` (`from_id`),
-    KEY `index_to_id` (`to_id`),
-    KEY `index_conversation_id` (`conversation_id`)
+                           `id` int(11) NOT NULL AUTO_INCREMENT,
+                           `from_id` int(11) DEFAULT NULL,
+                           `to_id` int(11) DEFAULT NULL,
+                           `conversation_id` varchar(45) NOT NULL,
+                           `content` text,
+                           `status` int(11) DEFAULT NULL COMMENT '0-未读;1-已读;2-删除;',
+                           `create_time` timestamp NULL DEFAULT NULL,
+                           PRIMARY KEY (`id`),
+                           KEY `index_from_id` (`from_id`),
+                           KEY `index_to_id` (`to_id`),
+                           KEY `index_conversation_id` (`conversation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -83,7 +83,7 @@ create table if not exists comment
     status int default 0 null comment '0表示无效，1表示有效',
     create_time timestamp default now() null comment '创建时间'
 )
-charset=utf8;
+    charset=utf8;
 
 create index index_entity_id
     on comment (entity_id);
@@ -97,19 +97,19 @@ create index index_user_id
 DROP TABLE IF EXISTS `discuss_post`;
 SET character_set_client = utf8mb4 ;
 CREATE TABLE `discuss_post` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    user_id int null,
-    `category_id` int default -1 null,
-    `title` varchar(100) DEFAULT NULL,
-    `content` longtext,
-    `type` int(11) DEFAULT 0 COMMENT '0-普通; 1-置顶;',
-    `status` int(11) DEFAULT 0 COMMENT '0-正常; 1-精华; 2-拉黑;',
-    `create_time` timestamp DEFAULT now() NULL ,
-    `comment_count` int(11) DEFAULT 0 NULL,
-    `score` double DEFAULT 0 null,
-    tags varchar(200) default '-1' null comment '帖子对应的标签',
-    PRIMARY KEY (`id`),
-    KEY `index_user_id` (`user_id`)
+                                `id` int(11) NOT NULL AUTO_INCREMENT,
+                                user_id int null,
+                                `category_id` int default -1 null,
+                                `title` varchar(100) DEFAULT NULL,
+                                `content` longtext,
+                                `type` int(11) DEFAULT 0 COMMENT '0-普通; 1-置顶;',
+                                `status` int(11) DEFAULT 0 COMMENT '0-正常; 1-精华; 2-拉黑;',
+                                `create_time` timestamp DEFAULT now() NULL ,
+                                `comment_count` int(11) DEFAULT 0 NULL,
+                                `score` double DEFAULT 0 null,
+                                tags varchar(200) default '-1' null comment '帖子对应的标签',
+                                PRIMARY KEY (`id`),
+                                KEY `index_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -131,7 +131,7 @@ create table if not exists blog
     update_time timestamp default now() null comment '更新时间',
     views int default 0 null comment  '预览人数',
     user_id int null comment '发布用户ID',
-    tags varchar(200) default '-1' null comment '博客对应的标签',
+    tags varchar(200) default '-1' null comment '博客对应的标签'
 )
     charset=utf8;
 
@@ -197,8 +197,8 @@ create table if not exists category
         primary key,
     name varchar(255) null comment '种类名',
     entity_type int null comment '实体类型: 1-帖子；2-帖子下面的评论；3-用户；4-博客; 5-博客下面的评论',
-    user_id int 0 comment '类别所属用户ID - 只存在于博客中',
-    count int 0 comment '属于该类别的实体个数 - 只存在于博客中'
+    user_id int default 0 comment '类别所属用户ID - 只存在于博客中',
+    count int default 0 comment '属于该类别的实体个数 - 只存在于博客中'
 );
 
 
@@ -208,7 +208,7 @@ create table if not exists tag
         primary key,
     name varchar(255) not null comment '标签名',
     entity_type int null comment '实体类型: 1-帖子；2-帖子下面的评论；3-用户；4-博客; 5-博客下面的评论',
-    count int 0 comment '属于该类别的实体个数 - 只存在于博客中'
+    count int default 0 comment '属于该类别的实体个数 - 只存在于博客中'
 );
 
 
@@ -224,15 +224,15 @@ create table blog_tag
 
 create table feed
 (
-	id int auto_increment,
-	feed_type int null comment '点赞/评论/发布',
-	create_time timestamp null,
-	user_id int null,
-	user_name varchar(100) null,
-	entity_type int null comment '帖子/博客',
-	entity_id int null,
-	constraint feed_pk
-		primary key (id)
+    id int auto_increment,
+    feed_type int null comment '点赞/评论/发布',
+    create_time timestamp null,
+    user_id int null,
+    user_name varchar(100) null,
+    entity_type int null comment '帖子/博客',
+    entity_id int null,
+    constraint feed_pk
+        primary key (id)
 );
 
 
