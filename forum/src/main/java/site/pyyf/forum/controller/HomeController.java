@@ -46,9 +46,12 @@ public class HomeController extends CommunityBaseController implements Community
         page.setRows(iDiscussPostService.queryCount(query));
         if(tag != null) page.setPath("/index?orderMode=" + orderMode+"&tag="+tag); else page.setPath("/index?orderMode=" + orderMode);
 
-        List<DiscussPost> discussPosts = iDiscussPostService.queryAllByLimit(query,orderMode, page.getOffset(), page.getLimit());
+        List<DiscussPost> discussPosts = iDiscussPostService
+                .queryAllByLimit(query,orderMode, page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPostVOS = new ArrayList<>();
         if (discussPosts .size()!= 0) {
+
+
 
 //            List<Feed> feeds = null;
 //            Set<Feed> published = null;

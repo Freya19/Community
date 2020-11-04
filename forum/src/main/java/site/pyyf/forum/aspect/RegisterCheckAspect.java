@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import site.pyyf.commons.utils.CommunityUtil;
+import site.pyyf.forum.Exception.NotAllowedRegisterException;
 import site.pyyf.forum.service.ISiteSettingService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,7 @@ public class RegisterCheckAspect {
     }
 
     @Before("pointcut()")
-    public void before(JoinPoint joinPoint) throws IOException {
+    public void before(JoinPoint joinPoint) throws IOException, NotAllowedRegisterException {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) {
             return;
@@ -45,12 +46,8 @@ public class RegisterCheckAspect {
         // XML。。异步请求（POST）
         if ("XMLHttpRequest".equals(xRequestedWith)) {
             assert response != null;
-            response.setContentType("application/plain;charset=utf-8");
             if (iSiteSettingService.allowRegister() == 0) {
-                PrintWriter writer = response.getWriter();
-                Map<String, Object> resultMap = new HashMap<>();
-                resultMap.put("usernameMsg", "本网站由于安全性暂关闭注册，敬请谅解");
-                writer.write(CommunityUtil.getJSONString(1, "注册失败", resultMap));
+                throw new NotAllowedRegisterException();
             }
         } else {
             // 同步请求

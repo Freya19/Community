@@ -35,7 +35,7 @@ public class RecoverTests {
     protected RedisTemplate redisTemplate;
 
     @Test
-    public void initCache() {
+    public void insertMysql() {
         ArrayList<String> keys = new ArrayList<>();
         keys.add("post:DO");
         for (String key : keys) {
@@ -44,22 +44,30 @@ public class RecoverTests {
                 Object o = redisTemplate.opsForValue().get(object);
                 iDiscussPostMapper.insert((DiscussPost) o);
             }
-
         }
-
-//        int offset = 0;
-//        int limit = 20;
-//        List<DiscussPost> allPosts = new ArrayList<>();
-//        while (offset <= allPosts.size()) {
-//            List<DiscussPost> currentPosts = iDiscussPostMapper.queryAllByLimit(DiscussPost.builder().build(), 0, offset, limit);
-//            allPosts.addAll(currentPosts);
-//            for (DiscussPost discussPost : currentPosts) {
-//                iDiscussPostMapper.insert(discussPost);
-//            }
-//            offset += limit;
-//        }
     }
 
+    @Test
+    public void printMysql() {
+        List<DiscussPost> currentPosts = iDiscussPostMapper.queryAll();
+        System.out.println(currentPosts);
+    }
+
+    @Test
+    public void updateAuthor() {
+        int src = 14;
+        int dst = 6;
+        List<DiscussPost> discussPosts = iDiscussPostMapper.queryAll();
+        for (int i = 0; i < discussPosts.size(); i++) {
+            if (discussPosts.get(i).getUserId()==src){
+                DiscussPost newDis = discussPosts.get(i);
+
+                newDis.setUserId(dst);
+                iDiscussPostMapper.update(newDis);
+
+            }
+        }
+    }
 
 
 }

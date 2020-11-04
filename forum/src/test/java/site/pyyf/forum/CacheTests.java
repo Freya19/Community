@@ -88,11 +88,11 @@ public class CacheTests {
     }
 
 
-//    @Test
+    @Test
     public void delKey() {
         ArrayList<String> keys = new ArrayList<>();
-        keys.add("post");
-        keys.add("tag");
+        keys.add("post:DO");
+//        keys.add("tag");
         for (String key : keys) {
             redisTemplate.delete(redisTemplate.keys(key+"*"));
         }

@@ -6,11 +6,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import site.pyyf.forum.Exception.NotAllowedRegisterException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice(annotations = Controller.class)
 public class ExceptionAdvice {
@@ -29,7 +33,16 @@ public class ExceptionAdvice {
         if ("XMLHttpRequest".equals(xRequestedWith)) {
             response.setContentType("application/plain;charset=utf-8");
             PrintWriter writer = response.getWriter();
-            writer.write(CommunityUtil.getJSONString(1, "服务器异常!"));
+            // 特殊处理
+            if (((UndeclaredThrowableException) e).getUndeclaredThrowable() instanceof NotAllowedRegisterException){
+                Map<String, Object> resultMap = new HashMap<>();
+                resultMap.put("usernameMsg", "本网站由于安全性暂关闭注册，敬请谅解");
+                writer.write(CommunityUtil.getJSONString(1, "注册失败", resultMap));
+            }else{
+                // 普通处理
+                writer.write(CommunityUtil.getJSONString(1, "服务器异常!"));
+            }
+
         } else {
             response.sendRedirect(request.getContextPath() + "/error");
         }

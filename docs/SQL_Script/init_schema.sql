@@ -20,7 +20,8 @@ create table user
     current_size int default  0 null comment '当前网盘容量（单位KB)',
     max_size int default  1048576 null comment '最大容量（单位KB)',
     register_type int default 0 null comment '0是网站注册，1是github注册，2是qq注册',
-    root_folder int not null comment '用户的根文件夹'
+    root_folder int not null comment '用户的根文件夹',
+    login_time timestamp default now() null comment '登录时间',
 )
     charset=utf8;
 
