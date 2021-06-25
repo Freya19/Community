@@ -53,6 +53,7 @@ public class ElasticsearchTests {
         discussRepository.save(discussMapper.queryById(243));
     }
 
+    // 将所有数据查到ES中
     @Test
     public void testInsertList() {
         discussRepository.saveAll(discussMapper.queryAll());

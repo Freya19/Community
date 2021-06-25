@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.tools.ToolProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,9 +23,9 @@ import java.util.Map;
  * @Version: 1.0
  **/
 @Controller
-public class SystemController extends CloudDiskBaseController implements CloudDiskConstant {
+public class CdIndexController extends CloudDiskBaseController implements CloudDiskConstant {
 
-    private static final Logger logger = LoggerFactory.getLogger(SystemController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CdIndexController.class);
 
     /**
      * @return java.lang.String

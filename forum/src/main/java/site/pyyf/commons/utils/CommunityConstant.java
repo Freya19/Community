@@ -113,6 +113,11 @@ public interface CommunityConstant {
 
 
     /**
+     * 主题: 删除caffine
+     */
+    String TOPIC_DELETE_CAFFINE = "delete_caffine";
+
+    /**
      * 系统用户ID
      */
     int SYSTEM_USER_ID = 1;

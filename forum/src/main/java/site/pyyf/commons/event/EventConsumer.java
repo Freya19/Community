@@ -88,6 +88,15 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     protected MailClient mailClient;
 
 
+    @KafkaListener(topics = {TOPIC_DELETE_CAFFINE})
+    public void handleDeleteCaffine(ConsumerRecord record) {
+        if (record == null || record.value() == null) {
+            logger.error("消息的内容为空!");
+            return;
+        }
+
+    }
+
     /**
      * 消费发送邮件事件
      */
