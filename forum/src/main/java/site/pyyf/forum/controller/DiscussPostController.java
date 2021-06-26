@@ -84,14 +84,7 @@ public class DiscussPostController extends CommunityBaseController implements Co
                     .setEntityId(discussPost.getId());
             eventProducer.fireEvent(eventPublish);
         }
-        // 3. 更新ES （ES-非关系型数据库）
-        Event eventES = new Event()
-                .setTopic(TOPIC_UPDATE_ES)
-                .setEntityId(discussPost.getId());
-        eventProducer.fireEvent(eventES);
-
-
-        // 4. 计算帖子分数
+        // 3. 计算帖子分数
         String redisKey = RedisKeyUtil.getPostScoreKey();
         redisTemplate.opsForSet().add(redisKey, discussPost.getId());
 
@@ -227,6 +220,8 @@ public class DiscussPostController extends CommunityBaseController implements Co
         List<Map<String, Object>> commentVoList = new ArrayList<>();
         if (commentList != null) {
             for (Comment comment : commentList) {
+                if (comment.getStatus() == 0)
+                    continue;
                 // 评论VO
                 Map<String, Object> commentVo = new HashMap<>();
                 // 评论
@@ -289,9 +284,9 @@ public class DiscussPostController extends CommunityBaseController implements Co
     public String setTop(int id) {
         iDiscussPostService.updateType(id, 1);
 
-        // 触发更新ES事件，重新覆盖ES，因为es搜索出所有帖子后会按照类型排序
+        // 触发置顶事件
         Event event = new Event()
-                .setTopic(TOPIC_UPDATE_ES)
+                .setTopic(TOPIC_LIKE)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
 
@@ -308,9 +303,9 @@ public class DiscussPostController extends CommunityBaseController implements Co
     public String setWonderful(int id) {
         iDiscussPostService.updateStatus(id, 1);
 
-        // 触发发帖事件
+        // 触发加精事件
         Event event = new Event()
-                .setTopic(TOPIC_UPDATE_ES)
+                .setTopic(TOPIC_WONDERFUL)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
 

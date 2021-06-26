@@ -173,7 +173,7 @@ public class CommentServiceImpl extends BaseService implements ICommentService, 
         emailSetting.put("content",commentContent);
         emailSetting.put("emailType",emailType);
         emailSetting.put("email",email);
-        Event event = Event.builder().topic(TOPIC_EMAIL).data(emailSetting).build();
+        Event event = Event.builder().topic(TOPIC_NOTIFY).data(emailSetting).build();
         eventProducer.fireEvent(event);
 
     }

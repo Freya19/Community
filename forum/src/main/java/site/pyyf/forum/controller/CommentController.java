@@ -19,7 +19,7 @@ public class CommentController extends CommunityBaseController implements Commun
     @RequestMapping(path = "/{discussPostId}", method = RequestMethod.POST)
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment) {
         comment.setUserId(hostHolder.getUser().getId());
-        comment.setStatus(0);
+        comment.setStatus(1);
         comment.setCreateTime(new Date());
         // 1. 将评论插入mysql中，并更新帖子评论数
         iCommentService.insert(comment);

@@ -111,11 +111,25 @@ public interface CommunityConstant {
      */
     String TOPIC_VIEW = "view";
 
+    /**
+     * 主题: 通知用户
+     */
+    String  TOPIC_NOTIFY = "notify";
 
     /**
      * 主题: 删除caffine
      */
     String TOPIC_DELETE_CAFFINE = "delete_caffine";
+
+    /**
+     * 主题: 置顶
+     */
+    String TOPIC_TOP = "top";
+
+    /**
+     * 主题: 加精
+     */
+    String TOPIC_WONDERFUL = "wonderful";
 
     /**
      * 系统用户ID

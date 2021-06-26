@@ -26,6 +26,9 @@ import javax.servlet.http.HttpSession;
 public class BaseController {
 
     @Autowired
+    protected IDiscussPostService iDiscussPostService;
+
+    @Autowired
     protected ICommentService iCommentService;
 
     @Autowired

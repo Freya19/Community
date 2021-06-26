@@ -2,8 +2,6 @@ package site.pyyf.commons.event;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import site.pyyf.blog.controller.BaseController;
 import site.pyyf.commons.utils.*;
 import site.pyyf.forum.dao.IDiscussPostMapper;
@@ -30,7 +28,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import sun.net.www.content.image.png;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,13 +91,25 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             logger.error("消息的内容为空!");
             return;
         }
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+        if (event == null) {
+            logger.error("消息格式错误!");
+            return;
+        }
+
+        if (event.getEntityType() == ENTITY_TYPE_POST) {
+            Map<String, Object> data = event.getData();
+            String key = (String) data.get("key");
+            iDiscussPostService.queryCaffineCache().invalidate(key);
+        }
+
 
     }
 
     /**
      * 消费发送邮件事件
      */
-    @KafkaListener(topics = {TOPIC_EMAIL})
+    @KafkaListener(topics = {TOPIC_NOTIFY})
     public void handleSendEmail(ConsumerRecord record) {
         if (record == null || record.value() == null) {
             logger.error("消息的内容为空!");
@@ -294,7 +303,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     /**
      * 消费更新ES事件 ---- 更新ES
      */
-    @KafkaListener(topics = {TOPIC_UPDATE_ES})
+    @KafkaListener(topics = {TOPIC_UPDATE_ES,TOPIC_PUBLISH, TOPIC_WONDERFUL, TOPIC_TOP})
     public void handleUpdateEs(ConsumerRecord record){
         if (record == null || record.value() == null) {
             logger.error("消息的内容为空!");
