@@ -122,6 +122,11 @@ public interface CommunityConstant {
     String TOPIC_DELETE_CAFFINE = "delete_caffine";
 
     /**
+     * 主题: 删除Redis中的IdList
+     */
+    String TOPIC_DELETE_IDLIST = "delete_idlist";
+
+    /**
      * 主题: 置顶
      */
     String TOPIC_TOP = "top";

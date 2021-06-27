@@ -2,14 +2,7 @@ package site.pyyf.commons.event;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import site.pyyf.blog.controller.BaseController;
-import site.pyyf.commons.utils.*;
-import site.pyyf.forum.dao.IDiscussPostMapper;
-import site.pyyf.forum.entity.*;
-import site.pyyf.forum.service.IFollowService;
-import site.pyyf.forum.service.impl.DiscussPostService;
-import site.pyyf.forum.service.impl.ElasticsearchService;
-import site.pyyf.forum.service.impl.MessageService;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
@@ -28,10 +21,21 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import site.pyyf.blog.controller.BaseController;
+import site.pyyf.commons.utils.*;
+import site.pyyf.forum.dao.IDiscussPostMapper;
+import site.pyyf.forum.entity.*;
+import site.pyyf.forum.service.IFollowService;
+import site.pyyf.forum.service.impl.DiscussPostService;
+import site.pyyf.forum.service.impl.ElasticsearchService;
+import site.pyyf.forum.service.impl.MessageService;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 @Component
@@ -84,6 +88,7 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     @Autowired
     protected MailClient mailClient;
 
+    private LoadingCache<String, DiscussPost> loadingCache;
 
     @KafkaListener(topics = {TOPIC_DELETE_CAFFINE})
     public void handleDeleteCaffine(ConsumerRecord record) {
@@ -102,8 +107,45 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             String key = (String) data.get("key");
             iDiscussPostService.queryCaffineCache().invalidate(key);
         }
+    }
 
 
+    /**
+     * 后台管理系统删帖后，删除Redis中对应的帖子的id，解决网站首页崩溃的bug
+     *
+     * @param record
+     */
+    @KafkaListener(topics = {TOPIC_DELETE_IDLIST})
+    public void handleDeleteIdList(ConsumerRecord record) {
+        if (record == null || record.value() == null) {
+            logger.error("消息的内容为空！");
+            return;
+        }
+
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+        if (event == null) {
+            logger.error("消息格式错误！");
+            return;
+        }
+
+        if (event.getEntityType() == ENTITY_TYPE_POST) {
+            Map<String, Object> data = event.getData();
+
+            Integer id = Integer.valueOf(String.valueOf(data.get("id")));
+            redisTemplate.opsForZSet().remove(RedisKeyUtil.getHotPostsList(), id);
+            redisTemplate.opsForList().remove(RedisKeyUtil.getLatestPostsList(), 0, id);
+
+
+            String[] tagNames = ((String) data.get("tags")).split(",");
+            for(String tagName:tagNames){
+                redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagPostsList(tagName),id);
+                redisTemplate.opsForZSet().incrementScore(RedisKeyUtil.getTagsCount(),tagName,-1);
+                if(redisTemplate.opsForZSet().score(RedisKeyUtil.getTagsCount(),tagName).equals(0))
+                    redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagsCount(),tagName);
+            }
+
+
+        }
     }
 
     /**
@@ -234,8 +276,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             //fastjson将数组转化为了jsonarray,所以这里先将jsonarry转化为string,再通过parseArray方法转为list
             List<String> tags = JSONObject.parseArray(JSONObject.toJSONString(event.getData().get("viewTags"),
                     SerializerFeature.WriteClassName), String.class);
-            if(tags.size()>0){
-                for(String tag:tags){
+            if (tags.size() > 0) {
+                for (String tag : tags) {
                     redisTemplate.opsForList().leftPush(timelineKey, tag);
                     // 限制最长长度，如果timelineKey的长度过大，就删除后面的新鲜事
                     while (redisTemplate.opsForList().size(timelineKey) > FEEDTAGCOUNT)
@@ -303,8 +345,8 @@ public class EventConsumer extends BaseController implements CommunityConstant {
     /**
      * 消费更新ES事件 ---- 更新ES
      */
-    @KafkaListener(topics = {TOPIC_UPDATE_ES,TOPIC_PUBLISH, TOPIC_WONDERFUL, TOPIC_TOP})
-    public void handleUpdateEs(ConsumerRecord record){
+    @KafkaListener(topics = {TOPIC_UPDATE_ES, TOPIC_PUBLISH, TOPIC_WONDERFUL, TOPIC_TOP})
+    public void handleUpdateEs(ConsumerRecord record) {
         if (record == null || record.value() == null) {
             logger.error("消息的内容为空!");
             return;
