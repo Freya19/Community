@@ -140,11 +140,10 @@ public class EventConsumer extends BaseController implements CommunityConstant {
             for(String tagName:tagNames){
                 redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagPostsList(tagName),id);
                 redisTemplate.opsForZSet().incrementScore(RedisKeyUtil.getTagsCount(),tagName,-1);
-                if(redisTemplate.opsForZSet().score(RedisKeyUtil.getTagsCount(),tagName).equals(0))
+                if(redisTemplate.opsForZSet().score(RedisKeyUtil.getTagsCount(),tagName)<=0) {
                     redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagsCount(),tagName);
+                }
             }
-
-
         }
     }
 

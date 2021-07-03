@@ -232,7 +232,6 @@ public class RedisTests {
 
         System.out.println(obj);
 
-        System.out.println(redisTemplate.opsForValue().getBit(redisKey, 0));
         System.out.println(redisTemplate.opsForValue().getBit(redisKey, 1));
         System.out.println(redisTemplate.opsForValue().getBit(redisKey, 2));
         System.out.println(redisTemplate.opsForValue().getBit(redisKey, 3));
@@ -240,6 +239,7 @@ public class RedisTests {
         System.out.println(redisTemplate.opsForValue().getBit(redisKey, 5));
         System.out.println(redisTemplate.opsForValue().getBit(redisKey, 6));
     }
+
 
     @Test
     public void testExpire() throws InterruptedException {
@@ -261,4 +261,5 @@ public class RedisTests {
         Assert.assertEquals(Long.valueOf(5),redisTemplate.getExpire(redisKey));
 
     }
+
 }

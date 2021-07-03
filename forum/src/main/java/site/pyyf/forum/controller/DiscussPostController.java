@@ -54,11 +54,14 @@ public class DiscussPostController extends CommunityBaseController implements Co
         User user = hostHolder.getUser();
         // 将标签全都规范为首字母大写，其他字母小写
         if (discussPost.getTags() != null && !discussPost.getTags().equals("")) {
-            String[] tagsName = discussPost.getTags().split(",|，");
+            String[] tagList = discussPost.getTags().split(",|，");
             StringBuilder builder = new StringBuilder();
-            for(String tagName:tagsName)
-                builder.append(tagName.trim().substring(0, 1).toUpperCase() + tagName.trim().substring(1).toLowerCase());
-            discussPost.setTags(builder.toString());
+            for(String tag:tagList){
+                builder.append(tag.trim().substring(0, 1).toUpperCase() + tag.trim().substring(1).toLowerCase()+",");
+            }
+            Integer len = builder.length();
+            String tagString = builder.toString();
+            discussPost.setTags(tagString.trim().substring(0,len-1));
         }
 
         boolean addDiscussPostFlag=false;

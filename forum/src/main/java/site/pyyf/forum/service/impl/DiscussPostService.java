@@ -112,9 +112,9 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
             // 标签对应的帖子数量-1，标签对应的帖子的id，需要删掉一个
             redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagPostsList(tagName),discussPost.getId());
             redisTemplate.opsForZSet().incrementScore(RedisKeyUtil.getTagsCount(),tagName,-1);
-            if(redisTemplate.opsForZSet().score(RedisKeyUtil.getTagsCount(),tagName).equals(0))
+            if(redisTemplate.opsForZSet().score(RedisKeyUtil.getTagsCount(),tagName)<=0) {
                 redisTemplate.opsForZSet().remove(RedisKeyUtil.getTagsCount(),tagName);
-
+            }
         }
     }
 
