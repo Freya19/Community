@@ -110,9 +110,24 @@ public interface IUserService {
     boolean deleteById(Integer id);
 
     Map<String, Object> register(User user) ;
-
+    
+    /***
+     * Created by "fhy" on 2021-12-06.
+     * @Description 
+     * @param userId 
+     * @param: code
+     * @return int
+     */
     int activation(int userId, String code);
 
+    /***
+     * Created by "fhy" on 2021-12-06.
+     * @Description
+     * @param username
+     * @param: password
+     * @param: expiredSeconds
+     * @return java.util.Map<java.lang.String,java.lang.Object>
+     */
     Map<String, Object> login(String username, String password, long expiredSeconds);
 
     void logout(String ticket);

@@ -331,7 +331,7 @@
         limit #{offset}, #{limit}
     </select>
 
-    <!--通过主键修改数据-->
+    <!--通过主键修改数据 update user set updateValue where id = #{id}-->
     <update id="update">
         update user
         <trim prefix="set" prefixOverrides="and" suffixOverrides=",">
