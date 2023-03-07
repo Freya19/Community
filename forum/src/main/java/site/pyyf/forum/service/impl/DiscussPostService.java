@@ -162,7 +162,7 @@ public class DiscussPostService extends BaseService implements IDiscussPostServi
         // 按标签查询，只是这里没有分按时间和按热度进行子查询，只提供按时间查询
         if(discussPost.getTags()!=null){
             List<DiscussPost> discussPosts = new ArrayList<>();
-            Set<Integer> ids = redisTemplate.opsForZSet().reverseRange(RedisKeyUtil.getTagPostsList(discussPost.getTags()), offset, limit);
+            Set<Integer> ids = redisTemplate.opsForZSet().reverseRange(RedisKeyUtil.getTagPostsList(discussPost.getTags()), offset, offset + limit - 1);
             logger.debug("标签查询，从redis中拿到ids，tag = "+discussPost.getTags()+",offset = "+offset+" ,limit = "+limit);
             // 根据组合id去搜对应的帖子
             for (Integer id: ids){
